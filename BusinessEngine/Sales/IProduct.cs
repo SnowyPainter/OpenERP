@@ -9,6 +9,9 @@ namespace BusinessEngine.Sales
         float Price { get; } //정가
         List<IProduct> Costs { get; } //매출 원가
         float GetAllCosts();
+        float SetCost(IProduct p);
+
+        
         /*
         public float GetAllCosts()
         {
@@ -21,5 +24,12 @@ namespace BusinessEngine.Sales
         }
         
         */
+
+        /*
+         public float SetCost(p) {
+            Costs.Add(p);
+         }
+
+         */
     }
 }
