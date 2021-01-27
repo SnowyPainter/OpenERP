@@ -6,6 +6,6 @@ namespace BusinessEngine.Accounting
 {
     public interface IJournalizeObject
     {
-        
+        string Name { get; }
     }
 }
