@@ -8,7 +8,7 @@ namespace BusinessEngine
         [XmlIgnore]
         public Company Who;
         public DateTime When;
-        public DateTime Payment;
+        public DateTime Paydate;
         public float Amount;
         public bool Abandonment = false;
     }
