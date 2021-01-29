@@ -14,7 +14,11 @@ namespace BusinessEngine.Accounting
     {
         public Company Owner { get; }
 
+        /// <summary>
+        /// 예상 가능 운전자금
+        /// </summary>
         public float ReserveAssets { get; private set; }
+        public List<AccountCom> WarnCompany;
 
         private List<Debt> debts;
         private List<Bond> bonds;
@@ -30,16 +34,47 @@ namespace BusinessEngine.Accounting
             debts = new List<Debt>();
             bonds = new List<Bond>();
             accountingBook = new Book();
+            WarnCompany = new List<AccountCom>();
         }        
-        
-        //채무 기간 긴것 나열 (안전)
-        //거래 괜찮은지 현금 흐름 기반으로 boolean 리턴
-
-        public Manage(List<Debt> debts, List<Bond> bonds, Book book)
+        public Manage(List<Debt> debts, List<Bond> bonds, Book book, List<AccountCom> accounts)
         {
             this.debts = debts;
             this.bonds = bonds;
             this.accountingBook = book;
+            this.WarnCompany = accounts;
+        }
+
+        
+        public List<Bond> GetBondsFromWarnCompany(List<Bond> bonds)
+        {
+            List<Bond> dangerBond = new List<Bond>();
+            
+            bonds.ForEach((b) => {
+                WarnCompany.ForEach((c) => {
+                    if (b.Who.Name == c.Name)
+                        dangerBond.Add(b);
+                });
+            });
+            return dangerBond;
+        }
+        public List<IProduct> GetProductFromWarnCompany()
+        {
+            List<IProduct> prdts = new List<IProduct>();
+            accountingBook.Sales.ForEach((s) => WarnCompany.ForEach((c) => s.Product.Costs.ForEach((p) => {
+                if (p.Manufacturer.Name == c.Name) prdts.Add(p); 
+            })));
+            return prdts;
+        }
+
+        public void RemoveWarningCompany(AccountCom com)
+        {
+            if (WarnCompany.Contains(com))
+                WarnCompany.Remove(com);
+        }
+        public void AddWarningCompany(AccountCom com)
+        {
+            if(!WarnCompany.Contains(com))
+                WarnCompany.Add(com);
         }
 
         /// <summary>

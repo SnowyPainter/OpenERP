@@ -23,18 +23,16 @@ namespace BusinessEngine
         public BusinessSector Sector { get; }
 
         //관리회계 -> 재무회계 -> 세무회계가 기초다.
-
-        private Finance finance;
-        private Manage manage;
+        public Finance FinanceAccounting;
+        public Manage ManageAccounting;
 
         public Company(string name, BusinessSector model)
         {
             Name = name;
             Sector = model;
 
-            manage = new Manage(this);
-            finance = new Finance(this);
-            
+            ManageAccounting = new Manage(this);
+            FinanceAccounting = new Finance(this);
         }
         private string getNameEnum<T>(T enumElement)
         {
@@ -47,13 +45,13 @@ namespace BusinessEngine
         /// <param name="comparePastYear">비교할 과거 년도 입니다. 1이면, -1년입니다.</param>
         public void SaveYearlyProfitReport(int year, string path, int comparePastYear = 1,string title="매출 보고서")
         {
-            var js = manage.GetJournal(new DateFilter().SetYear(year));
-            var sales = manage.CalculateSalesYearly(year);
-            var salesProfit = manage.GetCalculatedSalesProfit();
-            var operProfit = manage.CalculateOperatingProfitYearly(year, salesProfit);
-            var salesDiff = sales - manage.CalculateSalesYearly(year - comparePastYear);
-            var sprofitDiff = salesProfit - manage.GetCalculatedSalesProfit();
-            var operDiff = operProfit - manage.CalculateOperatingProfitYearly(year, manage.GetCalculatedSalesProfit());
+            var js = ManageAccounting.GetJournal(new DateFilter().SetYear(year));
+            var sales = ManageAccounting.CalculateSalesYearly(year);
+            var salesProfit = ManageAccounting.GetCalculatedSalesProfit();
+            var operProfit = ManageAccounting.CalculateOperatingProfitYearly(year, salesProfit);
+            var salesDiff = sales - ManageAccounting.CalculateSalesYearly(year - comparePastYear);
+            var sprofitDiff = salesProfit - ManageAccounting.GetCalculatedSalesProfit();
+            var operDiff = operProfit - ManageAccounting.CalculateOperatingProfitYearly(year, ManageAccounting.GetCalculatedSalesProfit());
             using (StreamWriter writer = new StreamWriter(path, true)) //// true to append data to the file
             {
                 writer.Write($"# {Name} {year}년 {title}  ");
@@ -74,10 +72,10 @@ namespace BusinessEngine
                 writer.Write($"{yearlyCompareMessage(year, comparePastYear, operDiff)}");
                 writer.Write("====  ");
                 writer.Write($"* 자산  ");
-                writer.Write($"{manage.GetAssets()} 원");
+                writer.Write($"{ManageAccounting.GetAssets()} 원");
                 writer.Write("====  ");
                 writer.Write($"* 최다 분개 내용  ");
-                var jos = manage.GetLoggedJournalObject(js);
+                var jos = ManageAccounting.GetLoggedJournalObject(js);
                 var jo = getMostLoggedJournalObject(jos);
                 writer.Write($"{jo.Name} : {jos[jo]} 회");
                 writer.Write("====  ");
@@ -117,14 +115,14 @@ namespace BusinessEngine
                 pastMonth = (Month)(numMonth - comparePastMonth);
             }
 
-            var js = manage.GetJournal(new DateFilter().SetYear(year).SetMonth(numMonth));
-            var sales = manage.CalculateSalesMonthly(year, month);
-            var salesProfit = manage.GetCalculatedSalesProfit();
-            var operProfit = manage.CalculateOperatingProfitMonthly(year, month, salesProfit);
+            var js = ManageAccounting.GetJournal(new DateFilter().SetYear(year).SetMonth(numMonth));
+            var sales = ManageAccounting.CalculateSalesMonthly(year, month);
+            var salesProfit = ManageAccounting.GetCalculatedSalesProfit();
+            var operProfit = ManageAccounting.CalculateOperatingProfitMonthly(year, month, salesProfit);
 
-            var salesDiff = sales - manage.CalculateSalesMonthly(pastYear, pastMonth);
-            var sprofitDiff = salesProfit - manage.GetCalculatedSalesProfit();
-            var operDiff = operProfit - manage.CalculateOperatingProfitMonthly(pastYear, pastMonth, manage.GetCalculatedSalesProfit());
+            var salesDiff = sales - ManageAccounting.CalculateSalesMonthly(pastYear, pastMonth);
+            var sprofitDiff = salesProfit - ManageAccounting.GetCalculatedSalesProfit();
+            var operDiff = operProfit - ManageAccounting.CalculateOperatingProfitMonthly(pastYear, pastMonth, ManageAccounting.GetCalculatedSalesProfit());
             using (StreamWriter writer = new StreamWriter(path, true))
             {
                 writer.Write($"# {Name} {year}년 {numMonth}월 {title}  ");
@@ -145,10 +143,10 @@ namespace BusinessEngine
                 writer.Write($"{monthlyCompareMessage(pastYear, pastMonth, operDiff)}");
                 writer.Write("====  ");
                 writer.Write($"* 자산  ");
-                writer.Write($"{manage.GetAssets()} 원  ");
+                writer.Write($"{ManageAccounting.GetAssets()} 원  ");
                 writer.Write("====  ");
                 writer.Write($"* 최다 분개 내용  ");
-                var jos = manage.GetLoggedJournalObject(js);
+                var jos = ManageAccounting.GetLoggedJournalObject(js);
                 var jo = getMostLoggedJournalObject(jos);
                 writer.Write($"{jo.Name} : {jos[jo]} 회  ");
                 writer.Write("====  ");
