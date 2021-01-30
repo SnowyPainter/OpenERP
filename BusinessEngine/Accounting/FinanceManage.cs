@@ -10,7 +10,7 @@ namespace BusinessEngine.Accounting
     /// <summary>
     /// 기록들을 모아 매출과 각종 이익으로 분화해서 저장합니다.
     /// </summary>
-    public class Manage
+    public class FinanceManage
     {
         public Company Owner { get; }
 
@@ -18,6 +18,7 @@ namespace BusinessEngine.Accounting
         /// 예상 가능 운전자금
         /// </summary>
         public float ReserveAssets { get; private set; }
+        public float Assets { get; private set; }
         public List<AccountCom> WarnCompany;
 
         private List<Debt> debts;
@@ -28,7 +29,7 @@ namespace BusinessEngine.Accounting
         private float salesProfit;
         private float sales;
 
-        public Manage(Company c)
+        public FinanceManage(Company c)
         {
             Owner = c;
             debts = new List<Debt>();
@@ -36,15 +37,18 @@ namespace BusinessEngine.Accounting
             accountingBook = new Book();
             WarnCompany = new List<AccountCom>();
         }        
-        public Manage(List<Debt> debts, List<Bond> bonds, Book book, List<AccountCom> accounts)
+        public FinanceManage(List<Debt> debts, List<Bond> bonds, Book book, List<AccountCom> accounts)
         {
             this.debts = debts;
             this.bonds = bonds;
             this.accountingBook = book;
             this.WarnCompany = accounts;
-        }
-
-        
+        } 
+        /// <summary>
+        /// 채권회수가 어려워 보이는 회사를 반환합니다.
+        /// </summary>
+        /// <param name="bonds"></param>
+        /// <returns></returns>
         public List<Bond> GetBondsFromWarnCompany(List<Bond> bonds)
         {
             List<Bond> dangerBond = new List<Bond>();
@@ -56,14 +60,6 @@ namespace BusinessEngine.Accounting
                 });
             });
             return dangerBond;
-        }
-        public List<IProduct> GetProductFromWarnCompany()
-        {
-            List<IProduct> prdts = new List<IProduct>();
-            accountingBook.Sales.ForEach((s) => WarnCompany.ForEach((c) => s.Product.Costs.ForEach((p) => {
-                if (p.Manufacturer.Name == c.Name) prdts.Add(p); 
-            })));
-            return prdts;
         }
 
         public void RemoveWarningCompany(AccountCom com)
@@ -102,7 +98,7 @@ namespace BusinessEngine.Accounting
             var bonds = BondsSoonCash(reserveMonths).Select((b)=>b.Amount).Sum();
             var profit = accountingBook.Sales.Where((s) => s.ExpectedDepositDate.Year == now.Year && //매출총이익
                 s.ExpectedDepositDate.Month >= now.Month - reserveMonths)
-                .Select((s)=>(s.Product.Price*s.DiscountRate - s.Product.GetAllCosts())*s.Qty).Sum();
+                .Select((s)=>(s.Product.Price*s.DiscountRate - s.Product.GetAllCostsPrice())*s.Qty).Sum();
 
             return bonds + profit - (debts + opers);
         }
@@ -178,7 +174,7 @@ namespace BusinessEngine.Accounting
                 if (s.Date.Year == soldyear)
                 {
                     float price = s.Product.Price * s.DiscountRate;
-                    salesProfit += (price - s.Product.GetAllCosts()) * s.Qty;
+                    salesProfit += (price - s.Product.GetAllCostsPrice()) * s.Qty;
                     sales += price * s.Qty;
                 }
             });
@@ -201,7 +197,7 @@ namespace BusinessEngine.Accounting
                 if(s.Date.Year == soldyear && s.Date.Month == (int)month)
                 {
                     float price = s.Product.Price * s.DiscountRate;
-                    salesProfit += (price - s.Product.GetAllCosts()) * s.Qty;
+                    salesProfit += (price - s.Product.GetAllCostsPrice()) * s.Qty;
                     sales += price * s.Qty;
                 }
             });
@@ -377,7 +373,7 @@ namespace BusinessEngine.Accounting
             float assets = 0;
             debts.ForEach((d) => assets += d.Amount);
             bonds.ForEach((b) => { if (!b.Abandonment) assets += b.Amount;  });
-
+            Assets = assets;
             return assets;
         }
     }
