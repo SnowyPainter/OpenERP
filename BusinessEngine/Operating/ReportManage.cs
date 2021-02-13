@@ -6,32 +6,34 @@ using System.Text;
 
 namespace BusinessEngine.Operating
 {
-    public class Report:Operate
+    public class ReportManage
     {
-        public Report(Company com) : base(com) { }
+
+        public ReportManage() { }
         private string getNameEnum<T>(T enumElement)
         {
             return Enum.GetName(typeof(T), enumElement);
         }
+
         /// <summary>
         /// 년 매출/이익 보고서를 파일에 저장합니다.
         /// </summary>
         /// <param name="path">마크다운파일입니다.</param>
         /// <param name="comparePastYear">비교할 과거 년도 입니다. 1이면, -1년입니다.</param>
-        public void SaveYearlyProfitReport(int year, string path, int comparePastYear = 1, string title = "매출 보고서")
+        public void SaveYearlyProfitReport(string title, FinanceManage finance, int year, string path, int comparePastYear = 1)
         {
-            if (Finance == null) return;
+            if (finance == null) return;
 
-            var js = Finance.GetJournal(new DateFilter().SetYear(year));
-            var sales = Finance.CalculateSalesYearly(year);
-            var salesProfit = Finance.GetCalculatedSalesProfit();
-            var operProfit = Finance.CalculateOperatingProfitYearly(year, salesProfit);
-            var salesDiff = sales - Finance.CalculateSalesYearly(year - comparePastYear);
-            var sprofitDiff = salesProfit - Finance.GetCalculatedSalesProfit();
-            var operDiff = operProfit - Finance.CalculateOperatingProfitYearly(year, Finance.GetCalculatedSalesProfit());
+            var js = finance.GetJournal(new DateFilter().SetYear(year));
+            var sales = finance.CalculateSalesYearly(year);
+            var salesProfit = finance.GetCalculatedSalesProfit();
+            var operProfit = finance.CalculateOperatingProfitYearly(year, salesProfit);
+            var salesDiff = sales - finance.CalculateSalesYearly(year - comparePastYear);
+            var sprofitDiff = salesProfit - finance.GetCalculatedSalesProfit();
+            var operDiff = operProfit - finance.CalculateOperatingProfitYearly(year, finance.GetCalculatedSalesProfit());
             using (StreamWriter writer = new StreamWriter(path, true)) //// true to append data to the file
             {
-                writer.Write($"# {Target.Name} {year}년 {title}  ");
+                writer.Write($"# {title}  ");
                 writer.Write($"### {DateTime.Now}에 작성되었습니다.  ");
                 writer.Write($"본 보고서에서 다룰 항목은 아래와 같습니다.  ");
                 writer.Write("## 매출 | 매출이익 | 영업이익 | 자산 | 분개  ");
@@ -49,10 +51,10 @@ namespace BusinessEngine.Operating
                 writer.Write($"{yearlyCompareMessage(year, comparePastYear, operDiff)}");
                 writer.Write("====  ");
                 writer.Write($"* 자산  ");
-                writer.Write($"{Finance.GetAssets()} 원");
+                writer.Write($"{finance.GetAssets()} 원");
                 writer.Write("====  ");
                 writer.Write($"* 최다 분개 내용  ");
-                var jos = Finance.GetLoggedJournalObject(js);
+                var jos = finance.GetLoggedJournalObject(js);
                 var jo = getMostLoggedJournalObject(jos);
                 writer.Write($"{jo.Name} : {jos[jo]} 회");
                 writer.Write("====  ");
@@ -77,9 +79,9 @@ namespace BusinessEngine.Operating
         /// <param name="comparePastMonth">비교할 전 월. 1이면 1개월 전입니다.</param>
         /// <param name="path">파일을 저장할 위치(md)</param>
         /// <param name="title">보고서의 이름</param>
-        public void SaveMonthlyProfitReport(int year, Month month, int comparePastMonth, string path, string title = "매출 보고서")
+        public void SaveMonthlyProfitReport(string title, FinanceManage finance, int year, Month month, int comparePastMonth, string path)
         {
-            if (Finance == null) return;
+            if (finance == null) return;
             var numMonth = (int)month;
             var pastYear = year;
             Month pastMonth;
@@ -94,17 +96,17 @@ namespace BusinessEngine.Operating
                 pastMonth = (Month)(numMonth - comparePastMonth);
             }
 
-            var js = Finance.GetJournal(new DateFilter().SetYear(year).SetMonth(numMonth));
-            var sales = Finance.CalculateSalesMonthly(year, month);
-            var salesProfit = Finance.GetCalculatedSalesProfit();
-            var operProfit = Finance.CalculateOperatingProfitMonthly(year, month, salesProfit);
+            var js = finance.GetJournal(new DateFilter().SetYear(year).SetMonth(numMonth));
+            var sales = finance.CalculateSalesMonthly(year, month);
+            var salesProfit = finance.GetCalculatedSalesProfit();
+            var operProfit = finance.CalculateOperatingProfitMonthly(year, month, salesProfit);
 
-            var salesDiff = sales - Finance.CalculateSalesMonthly(pastYear, pastMonth);
-            var sprofitDiff = salesProfit - Finance.GetCalculatedSalesProfit();
-            var operDiff = operProfit - Finance.CalculateOperatingProfitMonthly(pastYear, pastMonth, Finance.GetCalculatedSalesProfit());
+            var salesDiff = sales - finance.CalculateSalesMonthly(pastYear, pastMonth);
+            var sprofitDiff = salesProfit - finance.GetCalculatedSalesProfit();
+            var operDiff = operProfit - finance.CalculateOperatingProfitMonthly(pastYear, pastMonth, finance.GetCalculatedSalesProfit());
             using (StreamWriter writer = new StreamWriter(path, true))
             {
-                writer.Write($"# {Target.Name} {year}년 {numMonth}월 {title}  ");
+                writer.Write($"# {title}  ");
                 writer.Write($"### {DateTime.Now}에 작성되었습니다.  ");
                 writer.Write($"본 보고서에서 다룰 항목은 아래와 같습니다.  ");
                 writer.Write("## 매출 | 매출이익 | 영업이익 | 자산 | 분개  ");
@@ -122,10 +124,10 @@ namespace BusinessEngine.Operating
                 writer.Write($"{monthlyCompareMessage(pastYear, pastMonth, operDiff)}");
                 writer.Write("====  ");
                 writer.Write($"* 자산  ");
-                writer.Write($"{Finance.GetAssets()} 원  ");
+                writer.Write($"{finance.GetAssets()} 원  ");
                 writer.Write("====  ");
                 writer.Write($"* 최다 분개 내용  ");
-                var jos = Finance.GetLoggedJournalObject(js);
+                var jos = finance.GetLoggedJournalObject(js);
                 var jo = getMostLoggedJournalObject(jos);
                 writer.Write($"{jo.Name} : {jos[jo]} 회  ");
                 writer.Write("====  ");

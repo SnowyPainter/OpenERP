@@ -1,4 +1,5 @@
-﻿using BusinessEngine.Sales;
+﻿using BusinessEngine.Operating;
+using BusinessEngine.Sales;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -12,14 +13,11 @@ namespace BusinessEngine.Accounting
     /// </summary>
     public class FinanceManage
     {
-        public Company Owner { get; }
-
         /// <summary>
         /// 예상 가능 운전자금
         /// </summary>
-        public float ReserveAssets { get; private set; }
-        public float Assets { get; private set; }
-        public List<AccountCom> WarnCompany;
+        private float reserveAsets;
+        private float assets;
 
         private List<Debt> debts;
         private List<Bond> bonds;
@@ -29,48 +27,46 @@ namespace BusinessEngine.Accounting
         private float salesProfit;
         private float sales;
 
-        public FinanceManage(Company c)
+        public FinanceManage()
         {
-            Owner = c;
             debts = new List<Debt>();
             bonds = new List<Bond>();
             accountingBook = new Book();
-            WarnCompany = new List<AccountCom>();
         }        
-        public FinanceManage(List<Debt> debts, List<Bond> bonds, Book book, List<AccountCom> accounts)
+        public FinanceManage(List<Debt> debts, List<Bond> bonds, Book book)
         {
             this.debts = debts;
             this.bonds = bonds;
             this.accountingBook = book;
-            this.WarnCompany = accounts;
-        } 
+        }
         /// <summary>
-        /// 채권회수가 어려워 보이는 회사를 반환합니다.
+        /// 필터에 맞는 데이터만 찾아 재무회계 데이터에 접근할수있습니다.
         /// </summary>
-        /// <param name="bonds"></param>
+        /// <param name="filter"></param>
         /// <returns></returns>
-        public List<Bond> GetBondsFromWarnCompany(List<Bond> bonds)
+        public IFinanceData GetData(FinanceDataFilter filter = null)
         {
-            List<Bond> dangerBond = new List<Bond>();
-            
-            bonds.ForEach((b) => {
-                WarnCompany.ForEach((c) => {
-                    if (b.Who.Name == c.Name)
-                        dangerBond.Add(b);
-                });
-            });
-            return dangerBond;
-        }
-
-        public void RemoveWarningCompany(AccountCom com)
-        {
-            if (WarnCompany.Contains(com))
-                WarnCompany.Remove(com);
-        }
-        public void AddWarningCompany(AccountCom com)
-        {
-            if(!WarnCompany.Contains(com))
-                WarnCompany.Add(com);
+            IFinanceData data = null;
+            if (filter == null)
+                filter = new FinanceDataFilter(FinanceDataProperty.All);
+            for (int i = 0; i < filter.FilterFlag.Count; i++)
+            {
+                var v = filter.FilterFlag[(FinanceDataProperty)i];
+                if (v)
+                    switch (filter.FilterFlag.Keys.ElementAt(i))
+                    {
+                        case FinanceDataProperty.Assets:
+                            data.Assets = GetAssets();
+                            break;
+                        case FinanceDataProperty.Debts:
+                            data.Debts = debts;
+                            break;
+                        case FinanceDataProperty.Bonds:
+                            data.Bonds = bonds;
+                            break;
+                    }
+            }
+            return data;
         }
 
         /// <summary>
@@ -79,7 +75,7 @@ namespace BusinessEngine.Accounting
         /// </summary>
         /// <param name="reserveMonths">지금으로부터 ~개월 후</param>
         /// <returns></returns>
-        public float OrganizeOperatingCapital(int reserveMonths = 3)
+        public float GetOrganizeOperatingCapital(int reserveMonths = 3)
         {
             var now = DateTime.Now;
             var debts = WarningDebts(reserveMonths).Select((d) => d.Amount).Sum();
@@ -129,32 +125,6 @@ namespace BusinessEngine.Accounting
             return bonds.Where((b) => now.Year >= b.Paydate.Year && now.Month >= b.Paydate.Month
                 || now.Year == b.Paydate.Year && now.Month >= b.Paydate.Month - allowMonths);
         }
-
-        /// <summary>
-        /// 채무 리스트를 XML로 변환합니다.
-        /// </summary>
-        /// <returns></returns>
-        public string ToDebtsXml()
-        {
-            return IO.XMLWriter.Serialize(debts);
-        }
-        /// <summary>
-        /// 채권 리스트를 XML로 변환합니다.
-        /// </summary>
-        /// <returns></returns>
-        public string ToBondsXml()
-        {
-            return IO.XMLWriter.Serialize(bonds);
-        }
-        /// <summary>
-        /// 분개가 정리된 회계장부를 XML로 변환합니다.
-        /// </summary>
-        /// <returns></returns>
-        public string ToBookXml()
-        {
-            return IO.XMLWriter.Serialize(accountingBook);
-        }
-
 
         /// <summary>
         /// CalculateSales에서 계산한 매출총이익 결과를 반환합니다.
@@ -283,11 +253,12 @@ namespace BusinessEngine.Accounting
         /// </summary>
         /// <param name="moneyAmount">출입금</param>
         /// <param name="debtor">돈의 목적지</param>
+        /// <param name="from">사용한 사람</param>
         /// <param name="whyType">무슨 종류의 돈</param>
         /// <param name="why">돈의 목적</param>
-        public void InsertJournalFullPayment(DateTime date, float moneyAmount, IJournalizeObject debtor, JournalizingKinds whyType, string why)
+        public void InsertJournalFullPayment(DateTime date, float moneyAmount, IJournalizeObject debtor, IJournalizeObject from,JournalizingKinds whyType, string why)
         {
-            accountingBook.Insert(new Journalizing(moneyAmount, date, Owner, debtor, whyType, why));
+            accountingBook.Insert(new Journalizing(moneyAmount, date, from, debtor, whyType, why));
         }
         /// <summary>
         /// 감가상각을 대비하여 년단위로 분개합니다.
@@ -298,12 +269,12 @@ namespace BusinessEngine.Accounting
         /// <param name="whyType"></param>
         /// <param name="why"></param>
         /// <param name="years">1년에 한번 지불합니다.</param>
-        public void InsertJournalYearInstallment(DateTime date, float moneyAmount, IJournalizeObject debtor, JournalizingKinds whyType, string why, int years)
+        public void InsertJournalYearInstallment(DateTime date, float moneyAmount, IJournalizeObject debtor, IJournalizeObject from, JournalizingKinds whyType, string why, int years)
         {
             for(int i = 0;i < years;i++)
             {
                 date = date.AddYears(i);
-                InsertJournalFullPayment(date, moneyAmount / (float)years, debtor, whyType, why);
+                InsertJournalFullPayment(date, moneyAmount / (float)years, debtor, from,whyType, why);
             }
         }
         /// <summary>
@@ -315,12 +286,12 @@ namespace BusinessEngine.Accounting
         /// <param name="whyType"></param>
         /// <param name="why"></param>
         /// <param name="months"></param>
-        public void InsertJournalMonthlyInstallment(DateTime date, float moneyAmount, IJournalizeObject debtor, JournalizingKinds whyType, string why, int months)
+        public void InsertJournalMonthlyInstallment(DateTime date, float moneyAmount, IJournalizeObject debtor, IJournalizeObject from,JournalizingKinds whyType, string why, int months)
         {
             for (int i = 0; i < months; i++)
             {
                 date = date.AddMonths(i);
-                InsertJournalFullPayment(date, moneyAmount / (float)months, debtor, whyType, why);
+                InsertJournalFullPayment(date, moneyAmount / (float)months, debtor, from,whyType, why);
             }
         }
         
@@ -341,8 +312,7 @@ namespace BusinessEngine.Accounting
             return graph;
         }
 
-        public List<Journalizing> GetJournalByCompany(List<Journalizing> js, string company) => js.Where(j => j.FromCompany.Name == company).ToList();
-        public List<Journalizing> GetJournalBySector(List<Journalizing> js, BusinessSector s) => js.Where(j => j.FromCompany.Sector == s).ToList();
+        public IEnumerable<Journalizing> GetJournalByCompany(List<Journalizing> js, string company) => js.Where(j => j.From.Name == company);
         public List<Journalizing> GetJournal(DateFilter filter)
         {
             List<Journalizing> js = new List<Journalizing>();
@@ -373,7 +343,7 @@ namespace BusinessEngine.Accounting
             float assets = 0;
             debts.ForEach((d) => assets += d.Amount);
             bonds.ForEach((b) => { if (!b.Abandonment) assets += b.Amount;  });
-            Assets = assets;
+            this.assets = assets;
             return assets;
         }
     }

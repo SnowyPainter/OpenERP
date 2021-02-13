@@ -21,17 +21,17 @@ namespace BusinessEngine.Accounting
     {
         public DateTime When { get; }
         [XmlIgnore]
-        public Company FromCompany { get; }
+        public IJournalizeObject From { get; }
         public IJournalizeObject To { get; }
         public JournalizingKinds For { get; set; }
         public string Description { get; set; }
         public float Amount { get;   }
 
-        public Journalizing(float amount, DateTime when, Company c, IJournalizeObject to, JournalizingKinds whatFor, string descript="")
+        public Journalizing(float amount, DateTime when, IJournalizeObject from, IJournalizeObject to, JournalizingKinds whatFor, string descript="")
         {
             Amount = amount;
             When = when;
-            FromCompany = c;
+            From = from;
             To = to;
             For = whatFor;
             Description = descript;

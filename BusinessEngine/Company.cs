@@ -1,4 +1,5 @@
 ﻿using BusinessEngine.Accounting;
+using BusinessEngine.Operating;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,30 +9,12 @@ using System.Text.Json.Serialization;
 
 namespace BusinessEngine
 {
-    public enum BusinessSector
+    public class Company:Operatable
     {
-        Wholesale,
-        Retail,
-        It,
-        Freelancer,
-        Bank,
-    }
-
-    public class Company:IJournalizeObject
-    {
-        public string Name { get; }
-        public BusinessSector Sector { get; }
-
-        //관리회계 -> 재무회계 -> 세무회계가 기초다.
-        private FinanceManage finance;
-        
-
-        public Company(string name, BusinessSector model)
+        public override string Name { get; }
+        public Company(string name)
         {
             Name = name;
-            Sector = model;
-
-            finance = new FinanceManage(this);
         }
     }
 }

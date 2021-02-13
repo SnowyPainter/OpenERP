@@ -5,9 +5,12 @@ using System.Text;
 
 namespace BusinessEngine
 {
-    public class AccountCom:Company
+    /// <summary>
+    /// 거래처입니다
+    /// </summary>
+    public class AccountComany:Company
     {
-        public AccountCom(string name, BusinessSector sector) : base(name, sector) { }
+        public AccountComany(string name, BusinessSector sector) : base(name, sector) { }
 
         public Warning WarningPoint { get; private set; } = Warning.None;
         public void SetWarningPoint(Warning w) => WarningPoint = w;

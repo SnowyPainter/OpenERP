@@ -21,13 +21,11 @@ namespace BusinessEngine.Operating
         None,
     }
 
-    public class Sales:Operate
+    public class AccountCompanyManage
     {
-        public List<AccountCom> AccountingCompanies;
+        public List<AccountComany> AccountingCompanies = new List<AccountComany>();
 
-        public Sales(Company com) : base(com) { }
-        
-        public void AddAccountingCompany(AccountCom com, Warning warn = Warning.None)
+        public void AddAccountingCompany(AccountComany com, Warning warn = Warning.None)
         {
             if(warn != Warning.None)
                 com.SetWarningPoint(warn);
