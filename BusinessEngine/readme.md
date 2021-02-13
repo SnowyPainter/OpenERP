@@ -1,13 +1,13 @@
 # Business Engine
 OpenERP 회계의 핵심 프로젝트입니다.  
 회계를 프로그램으로써 빠르고 정확하게 처리하며, 회계를 분석하여 경영적 지원을 할 수 있습니다.
-## Company
-각각의 회사를 나타내는 클래스입니다.  
 
 ## Operating
 
 클래스가 가지는 하위 필드는 모두 비공개이며, Operatable 클래스를 통하여 사용되어집니다.  
-각각의 ```Manage``` 클래스들은 Operatable과는 독립적인 클래스입니다.
+각각의 ```Manage``` 클래스들은 Operatable과는 독립적인 클래스입니다.  
+
+> Operatable를 상속하여 사용하는 것을 권장합니다.
 
 ### Operatable
 ```Company``` 클래스가 상속하고 있는 클래스입니다.  

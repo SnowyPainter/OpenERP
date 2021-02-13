@@ -9,6 +9,9 @@ using System.Text.Json.Serialization;
 
 namespace BusinessEngine
 {
+    /// <summary>
+    /// Operatable 상속자의 예시 형태
+    /// </summary>
     public class Company:Operatable
     {
         public override string Name { get; }
