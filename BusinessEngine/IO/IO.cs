@@ -7,26 +7,44 @@ using System.Xml.Serialization;
 
 namespace BusinessEngine.IO
 {
-    public static class XMLWriter {
-        public static string Serialize<T>(T book)
+    public static class XML {
+        public static void Serialize<T>(this T value, string file)
         {
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(T));
-            var xml = "";
-
-            using (var sww = new StringWriter())
+            XmlSerializer xs = new XmlSerializer(typeof(T));
+            using (StreamWriter wr = new StreamWriter(file))
             {
-                using (XmlWriter writer = XmlWriter.Create(sww))
+                xs.Serialize(wr, value);
+            }
+        }
+        public static string Serialize<T>(T serialisableObject)
+        {
+            var xmlSerializer = new XmlSerializer(serialisableObject.GetType());
+
+            using (var ms = new MemoryStream())
+            {
+                using (var xw = XmlWriter.Create(ms,
+                    new XmlWriterSettings()
+                    {
+                        Encoding = Encoding.UTF8,
+                        Indent = true,
+                    }))
                 {
-                    xsSubmit.Serialize(writer, book);
-                    xml = sww.ToString();
+                    xmlSerializer.Serialize(xw, serialisableObject);
+                    return Encoding.UTF8.GetString(ms.ToArray());
                 }
             }
-            return xml;
         }
-
+        public static T Load<T>(string fileName)
+        {
+            using (var stream = System.IO.File.OpenRead(fileName))
+            {
+                var serializer = new XmlSerializer(typeof(T));
+                return (T)serializer.Deserialize(stream);
+            }
+        }
         public static void ToFile(this string text, string filepath)
         {
-            File.WriteAllText(filepath, text);
+            File.WriteAllText(filepath, text, Encoding.UTF8);
         }
     }
 }

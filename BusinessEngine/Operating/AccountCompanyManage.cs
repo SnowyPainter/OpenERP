@@ -1,6 +1,8 @@
 ﻿using BusinessEngine.Sales;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 
 namespace BusinessEngine.Operating
@@ -12,7 +14,7 @@ namespace BusinessEngine.Operating
         /// </summary>
         PoorSupply,
         /// <summary>
-        /// 비탄력적인 시장의 공급을 합니다.
+        /// 비탄력적인 시장에 공급을 합니다.
         /// </summary>
         InelasticSupply,
         /// <summary>
@@ -23,7 +25,14 @@ namespace BusinessEngine.Operating
 
     public class AccountCompanyManage
     {
-        public List<AccountComany> AccountingCompanies = new List<AccountComany>();
+        public ObservableCollection<AccountComany> AccountingCompanies {
+            get; set;
+        }
+
+        public AccountCompanyManage()
+        {
+            AccountingCompanies = new ObservableCollection<AccountComany>();
+        }
 
         public void AddAccountingCompany(AccountComany com, Warning warn = Warning.None)
         {
@@ -39,7 +48,7 @@ namespace BusinessEngine.Operating
         public List<IProduct> GetProductFrom(Warning warnPoint, List<Sale> sales)
         {
             List<IProduct> prdts = new List<IProduct>();
-            sales.ForEach((s) => AccountingCompanies.ForEach((c) => s.Product.Costs.ForEach((p) => {
+            sales.ForEach((s) => AccountingCompanies.ToList().ForEach((c) => s.Product.Costs.ForEach((p) => {
                 if (p.Manufacturer.Name == c.Name && c.WarningPoint == warnPoint) prdts.Add(p);
             })));
             return prdts;

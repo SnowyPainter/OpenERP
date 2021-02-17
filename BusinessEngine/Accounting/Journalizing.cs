@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -17,16 +18,42 @@ namespace BusinessEngine.Accounting
     /// <summary>
     /// Journalizing belongs to Manage.cs
     /// </summary>
-    public class Journalizing
+    [Serializable]
+    public class Journalizing:INotifyPropertyChanged
     {
-        public DateTime When { get; }
-        [XmlIgnore]
-        public IJournalizeObject From { get; }
-        public IJournalizeObject To { get; }
-        public JournalizingKinds For { get; set; }
-        public string Description { get; set; }
-        public float Amount { get;   }
+        private DateTime when;
+        private IJournalizeObject from, to;
+        private JournalizingKinds whatFor;
+        private string description;
+        private float amount;
 
+
+        public DateTime When { 
+            get { return when; } 
+            set { when = value; NotifyPropertyChanged("When"); }
+        }
+        public IJournalizeObject From { 
+            get { return from; } 
+            set { from = value; NotifyPropertyChanged("From"); }
+        }
+        public IJournalizeObject To {
+            get { return to; } 
+            set { to = value; NotifyPropertyChanged("To"); }
+        }
+        public JournalizingKinds For { 
+            get { return whatFor; } 
+            set { whatFor = value; NotifyPropertyChanged("For"); } 
+        }
+        public string Description {
+            get { return description; } 
+            set { description = value; NotifyPropertyChanged("Description"); }
+        }
+        public float Amount {
+            get { return amount; }
+            set { amount = value; NotifyPropertyChanged("Amount"); }
+        }
+
+        public Journalizing() { }
         public Journalizing(float amount, DateTime when, IJournalizeObject from, IJournalizeObject to, JournalizingKinds whatFor, string descript="")
         {
             Amount = amount;
@@ -35,6 +62,12 @@ namespace BusinessEngine.Accounting
             To = to;
             For = whatFor;
             Description = descript;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void NotifyPropertyChanged(string property)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
     }
 }

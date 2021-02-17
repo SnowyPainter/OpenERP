@@ -1,6 +1,8 @@
-﻿using BusinessEngine.Operating;
+﻿using BusinessEngine.Accounting;
+using BusinessEngine.Operating;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace BusinessEngine
@@ -8,12 +10,36 @@ namespace BusinessEngine
     /// <summary>
     /// 거래처입니다
     /// </summary>
-    public class AccountComany:Company
+    [Serializable]
+    public class AccountComany:IJournalizeObject, INotifyPropertyChanged
     {
-        public AccountComany(string name, BusinessSector sector) : base(name, sector) { }
+        protected string name;
+        protected string note;
+        protected Warning warning;
 
-        public Warning WarningPoint { get; private set; } = Warning.None;
+        public string Name {
+            get { return name; }
+            set { name = value; NotifyPropertyChanged("Name"); }
+        }
+        public string Note { 
+            get { return note; }
+            set { note = value; NotifyPropertyChanged("Note"); }
+        }
+        public Warning WarningPoint {
+            get { return warning; }
+            set { warning = value; NotifyPropertyChanged("WarningPoint"); }
+        }
+
+        public AccountComany() { }
+        public AccountComany(string name) { Name = name; }
+
+        
         public void SetWarningPoint(Warning w) => WarningPoint = w;
 
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void NotifyPropertyChanged(string property)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        }
     }
 }

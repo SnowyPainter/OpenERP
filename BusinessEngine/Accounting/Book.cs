@@ -1,6 +1,9 @@
 ﻿using BusinessEngine.Sales;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -9,13 +12,14 @@ namespace BusinessEngine.Accounting
     /// <summary>
     /// 관리회계에서 분개와 판매를 기록합니다.
     /// </summary>
+    [Serializable]
     public class Book
     {
-        public List<Journalizing> Journals { get; private set; }
+        public ObservableCollection<Journalizing> Journals { get; set; }
 
-        public List<Sale> Sales { get; private set; }
+        public ObservableCollection<Sale> Sales { get; set; }
 
-        public Book() { Sales = new List<Sale>(); }
+        public Book() { Sales = new ObservableCollection<Sale>(); }
 
         public void Sold(Sale sold)
         {
@@ -28,7 +32,7 @@ namespace BusinessEngine.Accounting
         }
         public void SortJournals()
         {
-            Journals = Journals.OrderBy((j) => j.When).ToList();
+            Journals = new ObservableCollection<Journalizing>(Journals.OrderBy((j) => j.When));
         }
         
     }

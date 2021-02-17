@@ -10,5 +10,7 @@ namespace BusinessEngine.Accounting
 
         public List<Debt> Debts { get; set; }
         public List<Bond> Bonds { get; set; }
+
+        public FinanceData() { }
     }
 }

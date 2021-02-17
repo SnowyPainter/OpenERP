@@ -19,9 +19,12 @@ namespace BusinessEngine.Accounting
         private float reserveAsets;
         private float assets;
 
-        private List<Debt> debts;
-        private List<Bond> bonds;
-        private Book accountingBook;
+        public List<Debt> Debts { get; set; }
+        public List<Bond> Bonds { get; set; }
+        /// <summary>
+        /// Sale과 Journalizng을 저장합니다.
+        /// </summary>
+        public Book AccountingBook { get; set; }
 
         private float operatingProfit;
         private float salesProfit;
@@ -29,15 +32,15 @@ namespace BusinessEngine.Accounting
 
         public FinanceManage()
         {
-            debts = new List<Debt>();
-            bonds = new List<Bond>();
-            accountingBook = new Book();
+            Debts = new List<Debt>();
+            Bonds = new List<Bond>();
+            AccountingBook = new Book();
         }        
         public FinanceManage(List<Debt> debts, List<Bond> bonds, Book book)
         {
-            this.debts = debts;
-            this.bonds = bonds;
-            this.accountingBook = book;
+            this.Debts = debts;
+            this.Bonds = bonds;
+            this.AccountingBook = book;
         }
         /// <summary>
         /// 필터에 맞는 데이터만 찾아 재무회계 데이터에 접근할수있습니다.
@@ -59,10 +62,10 @@ namespace BusinessEngine.Accounting
                             data.Assets = GetAssets();
                             break;
                         case FinanceDataProperty.Debts:
-                            data.Debts = debts;
+                            data.Debts = Debts;
                             break;
                         case FinanceDataProperty.Bonds:
-                            data.Bonds = bonds;
+                            data.Bonds = Bonds;
                             break;
                     }
             }
@@ -92,7 +95,7 @@ namespace BusinessEngine.Accounting
                 opers += GetJournal(opersDf.SetYear(now.Year).SetMonthTerm(now.Month, now.Month + reserveMonths)).Select((j) => j.Amount).Sum();
             }
             var bonds = BondsSoonCash(reserveMonths).Select((b)=>b.Amount).Sum();
-            var profit = accountingBook.Sales.Where((s) => s.ExpectedDepositDate.Year == now.Year && //매출총이익
+            var profit = AccountingBook.Sales.Where((s) => s.ExpectedDepositDate != null && s.ExpectedDepositDate.Year == now.Year && //매출총이익
                 s.ExpectedDepositDate.Month >= now.Month - reserveMonths)
                 .Select((s)=>(s.Product.Price*s.DiscountRate - s.Product.GetAllCostsPrice())*s.Qty).Sum();
 
@@ -108,7 +111,7 @@ namespace BusinessEngine.Accounting
         public IEnumerable<Debt> WarningDebts(int allowMonths = 2)
         {
             var now = DateTime.Now;
-            return debts.Where((d) => now.Year >= d.Paydate.Year && now.Month >= d.Paydate.Month
+            return Debts.Where((d) => now.Year >= d.Paydate.Year && now.Month >= d.Paydate.Month
                 || now.Year == d.Paydate.Year && now.Month >= d.Paydate.Month - allowMonths);
         }
 
@@ -122,7 +125,7 @@ namespace BusinessEngine.Accounting
         public IEnumerable<Bond> BondsSoonCash(int allowMonths = 2)
         {
             var now = DateTime.Now;
-            return bonds.Where((b) => now.Year >= b.Paydate.Year && now.Month >= b.Paydate.Month
+            return Bonds.Where((b) => now.Year >= b.Paydate.Year && now.Month >= b.Paydate.Month
                 || now.Year == b.Paydate.Year && now.Month >= b.Paydate.Month - allowMonths);
         }
 
@@ -139,11 +142,11 @@ namespace BusinessEngine.Accounting
         {
             sales = 0;
             salesProfit = 0;
-            accountingBook.Sales.ForEach((s) =>
+            AccountingBook.Sales.ToList().ForEach((s) =>
             {
                 if (s.Date.Year == soldyear)
                 {
-                    float price = s.Product.Price * s.DiscountRate;
+                    float price = s.Product.Price - s.Product.Price * s.DiscountRate;
                     salesProfit += (price - s.Product.GetAllCostsPrice()) * s.Qty;
                     sales += price * s.Qty;
                 }
@@ -162,11 +165,11 @@ namespace BusinessEngine.Accounting
         {
             sales = 0;
             salesProfit = 0;
-            accountingBook.Sales.ForEach((s) =>
+            AccountingBook.Sales.ToList().ForEach((s) =>
             {
                 if(s.Date.Year == soldyear && s.Date.Month == (int)month)
                 {
-                    float price = s.Product.Price * s.DiscountRate;
+                    float price = s.Product.Price - s.Product.Price * s.DiscountRate;
                     salesProfit += (price - s.Product.GetAllCostsPrice()) * s.Qty;
                     sales += price * s.Qty;
                 }
@@ -187,7 +190,7 @@ namespace BusinessEngine.Accounting
             if (salesprofit == 0.0f)
                 CalculateSalesYearly(soldyear);
 
-            accountingBook.Journals.ForEach((j) =>
+            AccountingBook.Journals.ToList().ForEach((j) =>
             {
                 switch (j.For)
                 {
@@ -214,7 +217,7 @@ namespace BusinessEngine.Accounting
             if (salesprofit == 0.0f)
                 CalculateSalesMonthly(soldyear, month);
 
-            accountingBook.Journals.ForEach((j) =>
+            AccountingBook.Journals.ToList().ForEach((j) =>
             {
                 switch (j.For)
                 {
@@ -246,7 +249,7 @@ namespace BusinessEngine.Accounting
         /// <param name="qty">판매 갯수</param>
         public void AddSale(DateTime expectDepDate, DateTime sellDate, IProduct product, IJournalizeObject seller, int discountRate, int qty)
         {
-            accountingBook.Sold(new Sale(expectDepDate, sellDate, product, seller, discountRate, qty));
+            AccountingBook.Sold(new Sale(expectDepDate, sellDate, product, seller, discountRate, qty));
         }
         /// <summary>
         /// 회계장부에 일시불로 분개합니다.
@@ -258,7 +261,7 @@ namespace BusinessEngine.Accounting
         /// <param name="why">돈의 목적</param>
         public void InsertJournalFullPayment(DateTime date, float moneyAmount, IJournalizeObject debtor, IJournalizeObject from,JournalizingKinds whyType, string why)
         {
-            accountingBook.Insert(new Journalizing(moneyAmount, date, from, debtor, whyType, why));
+            AccountingBook.Insert(new Journalizing(moneyAmount, date, from, debtor, whyType, why));
         }
         /// <summary>
         /// 감가상각을 대비하여 년단위로 분개합니다.
@@ -316,7 +319,7 @@ namespace BusinessEngine.Accounting
         public List<Journalizing> GetJournal(DateFilter filter)
         {
             List<Journalizing> js = new List<Journalizing>();
-            accountingBook.Journals.ForEach((j) =>
+            AccountingBook.Journals.ToList().ForEach((j) =>
             {
                 var date = new int[] { j.When.Day, j.When.Month, j.When.Year };
                 var filterArr = filter.ToArray();
@@ -341,8 +344,8 @@ namespace BusinessEngine.Accounting
         public float GetAssets()
         {
             float assets = 0;
-            debts.ForEach((d) => assets += d.Amount);
-            bonds.ForEach((b) => { if (!b.Abandonment) assets += b.Amount;  });
+            Debts.ForEach((d) => assets += d.Amount);
+            Bonds.ForEach((b) => { if (!b.Abandonment) assets += b.Amount;  });
             this.assets = assets;
             return assets;
         }
