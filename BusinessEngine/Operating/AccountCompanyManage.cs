@@ -48,7 +48,7 @@ namespace BusinessEngine.Operating
         public List<IProduct> GetProductFrom(Warning warnPoint, List<Sale> sales)
         {
             List<IProduct> prdts = new List<IProduct>();
-            sales.ForEach((s) => AccountingCompanies.ToList().ForEach((c) => s.Product.Costs.ForEach((p) => {
+            sales.ForEach((s) => AccountingCompanies.ToList().ForEach((c) => s.Product.Costs.ToList().ForEach((p) => {
                 if (p.Manufacturer.Name == c.Name && c.WarningPoint == warnPoint) prdts.Add(p);
             })));
             return prdts;

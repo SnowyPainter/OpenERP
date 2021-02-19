@@ -244,12 +244,12 @@ namespace BusinessEngine.Accounting
         /// <param name="expectDepDate">판매 대금 입금일</param>
         /// <param name="sellDate">판매일</param>
         /// <param name="product">상품</param>
-        /// <param name="seller">판매자</param>
+        /// <param name="buyer">구매자</param>
         /// <param name="discountRate">할인율 1=100%</param>
         /// <param name="qty">판매 갯수</param>
-        public void AddSale(DateTime expectDepDate, DateTime sellDate, IProduct product, IJournalizeObject seller, int discountRate, int qty)
+        public void AddSale(DateTime expectDepDate, DateTime sellDate, IProduct product, AccountComany buyer, int discountRate, int qty)
         {
-            AccountingBook.Sold(new Sale(expectDepDate, sellDate, product, seller, discountRate, qty));
+            AccountingBook.Sold(new Sale(expectDepDate, sellDate, product, buyer, discountRate, qty));
         }
         /// <summary>
         /// 회계장부에 일시불로 분개합니다.

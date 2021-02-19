@@ -5,10 +5,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
-namespace BusinessEngine
+namespace BusinessEngine.Operating
 {
     /// <summary>
-    /// 거래처입니다
+    /// 거래처입니다.
+    /// 채무자,채권자도 포함
     /// </summary>
     [Serializable]
     public class AccountComany:IJournalizeObject, INotifyPropertyChanged

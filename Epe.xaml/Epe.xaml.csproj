@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="icon.png" />
+    <None Remove="Images\icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Windows.Interactivity.WPF" Version="2.0.20525" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessEngine\BusinessEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="FileSave.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>FileSave.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="FileSave.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>FileSave.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

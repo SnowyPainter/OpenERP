@@ -1,4 +1,5 @@
 ﻿using BusinessEngine.Accounting;
+using BusinessEngine.Operating;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,7 +16,7 @@ namespace BusinessEngine.Sales
     {
         private int dr;
         private int qty;
-        private IJournalizeObject seller;
+        private AccountComany to;
         private DateTime date, expectDeposit;
         private IProduct product;
 
@@ -29,10 +30,10 @@ namespace BusinessEngine.Sales
             get { return qty; }
             set { qty = value; NotifyPropertyChanged("Qty"); }
         }
-        public IJournalizeObject Seller
+        public AccountComany To
         {
-            get { return seller; }
-            set { seller = value; NotifyPropertyChanged("Seller"); }
+            get { return to; }
+            set { to = value; NotifyPropertyChanged("To"); }
         }
         public DateTime Date
         {
@@ -51,11 +52,11 @@ namespace BusinessEngine.Sales
         }
 
         public Sale() { }
-        public Sale(DateTime expectDepDate, DateTime sellDate, IProduct product, IJournalizeObject seller, int discountRate, int qty)
+        public Sale(DateTime expectDepDate, DateTime sellDate, IProduct product, AccountComany soldTo, int discountRate, int qty)
         {
             DiscountRate = discountRate;
             Qty = qty;
-            Seller = seller;
+            To = soldTo;
             ExpectedDepositDate = expectDepDate;
             Product = product;
         }

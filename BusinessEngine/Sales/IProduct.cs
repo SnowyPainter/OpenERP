@@ -1,16 +1,17 @@
-﻿using System;
+﻿using BusinessEngine.Operating;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text;
 
 namespace BusinessEngine.Sales
 {
-    public interface IProduct:INotifyPropertyChanged
+    public interface IProduct: INotifyPropertyChanged
     {
         string Name { get; }
-        Company Manufacturer { get; } 
+        AccountComany Manufacturer { get; } 
         float Price { get; } //정가
-        List<IProduct> Costs { get; } //매출 원가
-        float SetCost(IProduct c);
+        ObservableCollection<IProduct> Costs { get; set; } //매출 원가
     }
 }
