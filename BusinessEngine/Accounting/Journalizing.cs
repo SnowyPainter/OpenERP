@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 namespace BusinessEngine.Accounting
 {
     //광고, 접대, 회의, 교통비는 영업을 위한 것 입니다.
-    public enum JournalizingKinds
+    public enum UsedFor
     {
         Entertaining, //접대비
         Meeting, //회의비
@@ -23,7 +23,7 @@ namespace BusinessEngine.Accounting
     {
         private DateTime when;
         private IJournalizeObject from, to;
-        private JournalizingKinds whatFor;
+        private UsedFor whatFor;
         private string description;
         private float amount;
 
@@ -40,7 +40,7 @@ namespace BusinessEngine.Accounting
             get { return to; } 
             set { to = value; NotifyPropertyChanged("To"); }
         }
-        public JournalizingKinds For { 
+        public UsedFor For { 
             get { return whatFor; } 
             set { whatFor = value; NotifyPropertyChanged("For"); } 
         }
@@ -54,7 +54,7 @@ namespace BusinessEngine.Accounting
         }
 
         public Journalizing() { }
-        public Journalizing(float amount, DateTime when, IJournalizeObject from, IJournalizeObject to, JournalizingKinds whatFor, string descript="")
+        public Journalizing(float amount, DateTime when, IJournalizeObject from, IJournalizeObject to, UsedFor whatFor, string descript="")
         {
             Amount = amount;
             When = when;

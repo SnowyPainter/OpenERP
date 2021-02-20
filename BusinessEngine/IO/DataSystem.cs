@@ -9,6 +9,7 @@ using BusinessEngine.Operating;
 using BusinessEngine.Sales;
 using System.Linq;
 using Microsoft.VisualBasic;
+using BusinessEngine.Accounting;
 
 namespace BusinessEngine.IO
 {
@@ -109,8 +110,15 @@ namespace BusinessEngine.IO
         #endregion
         #endregion
         string sqlPath;
-        public DataSystem() {}
+        /// <summary>
+        /// ini, database를 총괄합니다.
+        /// </summary>
+        public DataSystem() { }
 
+        /// <summary>
+        /// DataSystem을 사용하기전 무조건 호출해야합니다.
+        /// </summary>
+        /// <param name="ownCompany"></param>
         public void Initialize()
         {
             if (!File.Exists(INISaveFile))
@@ -135,7 +143,48 @@ namespace BusinessEngine.IO
 
             Initialized = true;
         }
+        /// <summary>
+        /// 소유한 회사를 사용할 수 있도록 거래처 목록에 추가합니다. 
+        /// </summary>
+        /// <param name="company">바꿀 회사입니다.</param>
+        /// <param name="pastName">회사 이름을 바꿀경우에, 과거 이름을 나타냅니다.</param>
+        public void SetMyCompany(Company company, string pastName = "")
+        {
+            var ac = company.AsAC();
+            using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
+            {
+                sqlConnection.Open();
+                SQLiteCommand cmd = new SQLiteCommand(sqlConnection);
 
+                if (GetAccountingCompanyByName(ac.Name).Count <= 0) //not exists. -> insert
+                {
+                    cmd.CommandText = getInsertCommand(Table.AC, new string[]
+                        {
+                            "Name",
+                            "Note",
+                            "Warning"
+                        });
+
+                    cmd.Parameters.AddWithValue("Name", ac.Name);
+                    cmd.Parameters.AddWithValue("Note", ac.Note);
+                    cmd.Parameters.AddWithValue("Warning", (int)ac.WarningPoint);
+                    cmd.ExecuteNonQuery();
+                }
+                else //exists -> update
+                {
+                    var acname = pastName != "" ? pastName : ac.Name;
+                    var acid = getAccountCompanyIDByName(acname, sqlConnection);
+                    if (acid == null)
+                        throw new SQLiteException($"There's no account company like {ac.Name}");
+                    cmd.CommandText = getUpdateCommandByID(Table.AC, new KeyValuePair<string, object>[]
+                    {
+                        new KeyValuePair<string, object>("Name", ac.Name),
+                        new KeyValuePair<string, object>("Note", ac.Note),
+                        new KeyValuePair<string, object>("Warning", (int)ac.WarningPoint),
+                    }, (int)acid);
+                }
+            }
+        }
         public void SetProgramINI(string key, string value)
         {
             INI.Write(PROGRAM_SECTION, key, value, INISaveFile);
@@ -144,17 +193,140 @@ namespace BusinessEngine.IO
         {
             return INI.Read(PROGRAM_SECTION, key, INISaveFile);
         }
-        private string getInsertCommand(Table table, string[] queue)
-        {
-            string[] names = new string[queue.Length];
-            string[] questionmks = new string[queue.Length];
-            for (int i = 0; i < queue.Length; i++)
-            {
-                questionmks[i] = "?";
-                names[i] = $"'{queue[i]}'";
-            }
 
-            return $"INSERT INTO '{table.ToInt()}' ({string.Join(',', names)}) VALUES ({string.Join(',',questionmks)})";
+        public void AddDebt(AccountComany creditor, DateTime date, DateTime payday, float amount, string why)
+        {
+            using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
+            {
+                sqlConnection.Open();
+                SQLiteCommand cmd = new SQLiteCommand(sqlConnection);
+                cmd.CommandText = getInsertCommand(Table.Debt, new string[]
+                {
+                    "CreditorID",
+                    "Date",
+                    "PayDate",
+                    "Amount",
+                    "Why",
+                });
+                var id = getAccountCompanyID(creditor, sqlConnection);
+                if (id == null)
+                {
+                    throw new SQLiteException($"There is no Accounting Company (Creditor) like {creditor.Name},{creditor.Note}");
+                }
+                cmd.Parameters.AddWithValue("CreditorID", id);
+                cmd.Parameters.AddWithValue("Date",date.ToString(TimeFormat));
+                cmd.Parameters.AddWithValue("PayDate",payday.ToString(TimeFormat));
+                cmd.Parameters.AddWithValue("Amount",amount);
+                cmd.Parameters.AddWithValue("Why",why);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void AddBond(AccountComany debtor, DateTime date, DateTime payday, float amount, bool abdn = false)
+        {
+            using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
+            {
+                sqlConnection.Open();
+                SQLiteCommand cmd = new SQLiteCommand(sqlConnection);
+                cmd.CommandText = getInsertCommand(Table.Bond, new string[]
+                {
+                    "DebtorID",
+                    "Date",
+                    "PayDate",
+                    "Amount",
+                    "ABN",
+                });
+                var id = getAccountCompanyID(debtor, sqlConnection);
+                if (id == null)
+                {
+                    throw new SQLiteException($"There is no Accounting Company (Creditor) like {debtor.Name},{debtor.Note}");
+                }
+                cmd.Parameters.AddWithValue("DebtorID", id);
+                cmd.Parameters.AddWithValue("Date", date.ToString(TimeFormat));
+                cmd.Parameters.AddWithValue("PayDate", payday.ToString(TimeFormat));
+                cmd.Parameters.AddWithValue("Amount", amount);
+                cmd.Parameters.AddWithValue("ABN", abdn ? 1 : 0);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void AddAccountingCompany(AccountComany ac)
+        {
+            using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
+            {
+                sqlConnection.Open();
+                SQLiteCommand cmd = new SQLiteCommand(sqlConnection);
+                cmd.CommandText = getInsertCommand(Table.AC, new string[]
+                {
+                    "Name",
+                    "Note",
+                    "Warning"
+                });
+
+                cmd.Parameters.AddWithValue("Name", ac.Name);
+                cmd.Parameters.AddWithValue("Note", ac.Note);
+                cmd.Parameters.AddWithValue("Warning", (int)ac.WarningPoint);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void AddProduct(string name, float price, AccountComany manufacturer, params IProduct[] costs)
+        {
+            using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
+            {
+                sqlConnection.Open();
+                SQLiteCommand cmd = new SQLiteCommand(sqlConnection);
+                cmd.CommandText = getInsertCommand(Table.Product, new string[]
+                {
+                    "Name",
+                    "Price",
+                    "CostIDs",
+                    "ManufacturerID"
+                });
+                List<int> costIds = new List<int>();
+                for (int i = 0; i < costs.Length; i++)
+                {
+                    //id 못찾는 오류
+                    Debug.WriteLine(costs[i].Manufacturer.Name);
+                    var costId = getCostProductID(costs[i], sqlConnection);
+                    if (costId != null)
+                        costIds.Add((int)costId);
+                    else
+                        throw new SQLiteException($"Cost Product {costs[i].Name} doesn't exists in Cost table");
+                }
+                var id = getAccountCompanyID(manufacturer, sqlConnection);
+                if (id == null)
+                {
+                    throw new SQLiteException($"There is no manufacturer company (AC) like {manufacturer.Name},{manufacturer.Note}");
+                }
+
+                cmd.Parameters.AddWithValue("Name", name);
+                cmd.Parameters.AddWithValue("Price", price);
+                cmd.Parameters.AddWithValue("CostIDs", string.Join(',', costIds));
+                cmd.Parameters.AddWithValue("ManufacturerID",id);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void AddCostProduct(string name, float price, AccountComany manufacturer)
+        {
+            using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
+            {
+                sqlConnection.Open();
+                SQLiteCommand cmd = new SQLiteCommand(sqlConnection);
+                cmd.CommandText = getInsertCommand(Table.Cost, new string[]
+                {
+                    "Name",
+                    "Price",
+                    "ManufacturerID"
+                });
+
+                cmd.Parameters.AddWithValue("Name", name);
+                cmd.Parameters.AddWithValue("Price", price);
+                var id = getAccountCompanyID(manufacturer, sqlConnection);
+                if (id == null)
+                {
+                    throw new SQLiteException($"There is no manufacturer company (AC) like {manufacturer.Name},{manufacturer.Note}");
+                }
+                cmd.Parameters.AddWithValue("ManufacturerID",id);
+                cmd.ExecuteNonQuery();
+            }
         }
         public void AddSale(DateTime depositDate, DateTime sellDate, AccountComany buyer, IProduct product, float discountRate, int qty)
         {
@@ -171,24 +343,260 @@ namespace BusinessEngine.IO
                     "DiscountRate",
                     "Qty",
                 });
-                cmd.Parameters.Add(depositDate.ToString(TimeFormat));
-                cmd.Parameters.Add(sellDate.ToString(TimeFormat));
+                cmd.Parameters.AddWithValue("DepositDate", depositDate.ToString(TimeFormat));
+                cmd.Parameters.AddWithValue("SellDate", sellDate.ToString(TimeFormat));
+                var id = getAccountCompanyID(buyer, sqlConnection);
+                if (id == null)
+                {
+                    throw new SQLiteException($"There is no Accounting Company like {buyer.Name},{buyer.Note}");
+                }
+                var pid = getProductID(product, sqlConnection);
+                if (pid == null)
+                {
+                    throw new SQLiteException($"There is no Product like {product.Name}, price {product.Price}");
+                }
+                cmd.Parameters.AddWithValue("BuyerID", id);
+                cmd.Parameters.AddWithValue("ProductID", pid);
+                cmd.Parameters.AddWithValue("DiscountRate", discountRate);
+                cmd.Parameters.AddWithValue("Qty", qty);
 
-                //buyer정보랑 일치하는것 primary value 뽑아서 씀
-                //product정보랑 일치하는것 primary value ( = id)
-                //cmd.Parameters.Add(buyer);
-                //cmd.Parameters.Add(product);
-                cmd.Parameters.Add(discountRate);
-                cmd.Parameters.Add(qty);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void AddJournalizing(DateTime when, UsedFor whatfor, AccountComany from, AccountComany to, string description, float amount)
+        {
+            using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
+            {
+                sqlConnection.Open();
+                SQLiteCommand cmd = new SQLiteCommand(sqlConnection);
+                cmd.CommandText = getInsertCommand(Table.Journalizing, new string[]
+                {
+                    "When",
+                    "FromACID",
+                    "ToACID",
+                    "WhatFor",
+                    "Description",
+                    "Amount",
+                });
+                cmd.Parameters.AddWithValue("When", when.ToString(TimeFormat));
+                var fromid = getAccountCompanyID(from, sqlConnection);
+                if (fromid == null)
+                {
+                    throw new SQLiteException($"(Journalizing From) There's is no Accounting Company like {from.Name},{from.Note}");
+                }
+                var toid = getAccountCompanyID(to, sqlConnection);
+                if (toid == null)
+                {
+                    throw new SQLiteException($"(Journalizing To) There's No Accounting Company like {to.Name},{to.Note}");
+                }
+                cmd.Parameters.AddWithValue("FromACID", fromid);
+                cmd.Parameters.AddWithValue("ToACID", toid);
+                cmd.Parameters.AddWithValue("WhatFor", (int)whatfor);
+                cmd.Parameters.AddWithValue("Description", description);
+                cmd.Parameters.AddWithValue("Amount", amount);
+
+                cmd.ExecuteNonQuery();
             }
         }
 
+        public List<AccountComany> GetAccountingCompanyByName(string name)
+        {
+            var acs = new List<AccountComany>();
+            using (SQLiteConnection conn = new SQLiteConnection(@$"Data Source={sqlPath}"))
+            {
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    cmd.CommandText = $"SELECT * FROM '{Table.AC.ToInt()}' WHERE Name = '{name}';";
+                    SQLiteDataReader r = cmd.ExecuteReader();
+                    while (r.Read())
+                    {
+                        var c = new AccountComany(r["Name"].ToString());
+                        c.Note = r["Note"].ToString();
+                        c.WarningPoint = (Warning)(int.Parse(r["Warning"].ToString()));
+                        acs.Add(c);
+                    }
+                }
+            }
+            return acs;
+        }
+        public List<AccountComany> GetAccountingCompanies()
+        {
+            var acs = new List<AccountComany>();
+            using (SQLiteConnection conn = new SQLiteConnection(@$"Data Source={sqlPath}"))
+            {
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    cmd.CommandText = $"SELECT * FROM '{Table.AC.ToInt()}';";
+                    SQLiteDataReader r = cmd.ExecuteReader();
+                    while (r.Read())
+                    {
+                        var c = new AccountComany(r["Name"].ToString());
+                        c.Note = r["Note"].ToString();
+                        c.WarningPoint = (Warning)(int.Parse(r["Warning"].ToString()));
+                        acs.Add(c);
+                    }
+                }
+            }
+            return acs;
+        }
+        public List<IProduct> GetCostProducts()
+        {
+            var ps = new List<IProduct>();
+            using (SQLiteConnection conn = new SQLiteConnection(@$"Data Source={sqlPath}"))
+            {
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    cmd.CommandText = $"SELECT * FROM '{Table.Cost.ToInt()}';";
+                    SQLiteDataReader r = cmd.ExecuteReader();
+                    while (r.Read())
+                    {
+                        var i = r["ManufacturerID"].ToString();
+                        var m = getAccountingCompanyById(int.Parse(i), conn);
 
+                        var c = new Product()
+                        {
+                            Name = r["Name"].ToString(),
+                            Price = int.Parse(r["Price"].ToString()),
+                            Manufacturer = m
+                        };
+
+                        ps.Add(c);
+                    }
+                }
+            }
+            return ps;
+        }
+        public List<IProduct> GetProducts()
+        {
+            var ps = new List<IProduct>();
+            using (SQLiteConnection conn = new SQLiteConnection(@$"Data Source={sqlPath}"))
+            {
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    cmd.CommandText = $"SELECT * FROM '{Table.Product.ToInt()}';";
+                    SQLiteDataReader r = cmd.ExecuteReader();
+                    while (r.Read())
+                    {
+                        var c = new Product()
+                        {
+                            Name = r["Name"].ToString(),
+                            Price = int.Parse(r["Price"].ToString()),
+                            Manufacturer = getAccountingCompanyById(int.Parse(r["ManufacturerID"].ToString()), conn)
+                        };
+                        var costs = r["CostIDs"].ToString().Split(',');
+                        for (int i = 0;i < costs.Length;i++)
+                        {
+                            c.Costs.Add(getCostProductById(int.Parse(costs[i].ToString()), conn));
+                        }
+                        
+                        ps.Add(c);
+                    }
+                }
+            }
+            return ps;
+        }
+        private IProduct getCostProductById(int id, SQLiteConnection conn)
+        {
+            var product = new Product();
+            using (SQLiteCommand cmd = new SQLiteCommand(conn))
+            {
+                cmd.CommandText = $"SELECT * FROM '{Table.Cost.ToInt()}' WHERE Id = {id};";
+                SQLiteDataReader r = cmd.ExecuteReader();
+                if (r.HasRows && r.Read())
+                {
+                    product.Name = r["Name"].ToString();
+                    product.Price = int.Parse(r["Price"].ToString());
+                    product.Manufacturer = getAccountingCompanyById(int.Parse(r["ManufacturerID"].ToString()), conn);
+                }
+            }
+
+            return product;
+        }
+        private int? getCostProductID(IProduct product, SQLiteConnection conn)
+        {
+            int? id = null;
+            using (var cmd = new SQLiteCommand(conn))
+            {
+                cmd.CommandText = $"SELECT Id FROM '{Table.Cost.ToInt()}' WHERE Name='{product.Name}' AND Price={product.Price}";
+                var reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    id = int.Parse(reader["Id"].ToString());
+                }
+            }
+            return id;
+        }
+        private int? getProductID(IProduct product, SQLiteConnection conn)
+        {
+            int? id = null;
+            using (var cmd = new SQLiteCommand(conn))
+            {
+                cmd.CommandText = $"SELECT Id FROM '{Table.Product}' WHERE Name='{product.Name}' AND Price={product.Price}";
+                var reader = cmd.ExecuteReader();
+                if (reader.FieldCount > 0)
+                    id = int.Parse(reader["Id"].ToString());
+            }
+            return id;
+        }
+        private AccountComany getAccountingCompanyById(int id, SQLiteConnection conn)
+        {
+            AccountComany ac = null;
+            using (SQLiteCommand cmd = new SQLiteCommand(conn))
+            {
+                cmd.CommandText = $"SELECT * FROM '{Table.AC.ToInt()}' WHERE Id={id};";
+                SQLiteDataReader r = cmd.ExecuteReader();
+                if (r.HasRows && r.Read())
+                {
+                    ac = new AccountComany(r["Name"].ToString());
+                    ac.Note = r["Note"].ToString();
+                    ac.WarningPoint = (Warning)(int.Parse(r["Warning"].ToString()));
+                }
+            }
+
+            return ac;
+        }
+        private int? getAccountCompanyID(AccountComany ac, SQLiteConnection conn)
+        {
+            int? id = null;
+            using (var cmd = new SQLiteCommand(conn))
+            {
+                cmd.CommandText = $"SELECT Id FROM '{Table.AC.ToInt()}' WHERE Name='{ac.Name}' AND Note='{ac.Note}';";
+                var reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    id = int.Parse(reader["Id"].ToString());
+                }
+
+            }
+            return id;
+        }
+        private int? getAccountCompanyIDByName(string name, SQLiteConnection conn)
+        {
+            int? id = null;
+            using (var cmd = new SQLiteCommand(conn))
+            {
+                cmd.CommandText = $"SELECT Id FROM '{Table.AC.ToInt()}' WHERE Name='{name}';";
+                var reader = cmd.ExecuteReader();
+                if (reader.FieldCount > 0)
+                {
+                    reader.Read();
+                    id = int.Parse(reader["Id"].ToString());
+                }
+
+            }
+            return id;
+        }
         private KeyValuePair<string, string> tableElement(string name, string typenetc)
         {
             return new KeyValuePair<string, string>(name, typenetc);
         }
-        private string getTableCreationCommand(bool onlyNotExist, bool columnId, string name,KeyValuePair<string,string>[] elements)
+        private string getTableCreationCommand(bool onlyNotExist, bool columnId, string name, KeyValuePair<string, string>[] elements)
         {
             string ifnotexists = "IF NOT EXISTS", id = "'Id' INTEGER PRIMARY KEY AUTOINCREMENT";
             string table = $"CREATE TABLE {(onlyNotExist ? ifnotexists : "")} '{name}'({id}";
@@ -199,11 +607,33 @@ namespace BusinessEngine.IO
             table += ");";
             return table;
         }
+        private string getInsertCommand(Table table, string[] queue)
+        {
+            string[] names = new string[queue.Length];
+            string[] questionmks = new string[queue.Length];
+            for (int i = 0; i < queue.Length; i++)
+            {
+                questionmks[i] = "?";
+                names[i] = $"'{queue[i]}'";
+            }
+
+            return $"INSERT INTO '{table.ToInt()}' ({string.Join(',', names)}) VALUES ({string.Join(',', questionmks)})";
+        }
+        private string getUpdateCommandByID(Table table, KeyValuePair<string, object>[] sets, int whereId)
+        {
+            string[] setting = new string[sets.Length];
+            for (int i = 0; i < sets.Length; i++)
+            {
+                setting[i] = $"{sets[i].Key}='{sets[i].Value}'";
+            }
+            return $"UPDATE {table.ToInt()} SET {string.Join(',', setting)} WHERE Id={whereId}";
+        }
         private void createTablesIfNotExists(SQLiteConnection conn)
         {
             using (var command = new SQLiteCommand(conn))
             {
-                var a = getTableCreationCommand(true, true, Table.Sale.ToInt().ToString(), new KeyValuePair<string, string>[]
+                //Sale table
+                command.CommandText = getTableCreationCommand(true, true, Table.Sale.ToInt().ToString(), new KeyValuePair<string, string>[]
                 {
                         tableElement("DepositDate","TEXT"),
                         tableElement("SellDate", "TEXT"),
@@ -212,11 +642,6 @@ namespace BusinessEngine.IO
                         tableElement("DiscountRate", "INTEGER"),
                         tableElement("Qty", "INTEGER")
                 });
-
-                Debug.WriteLine(a);
-
-                //Sale table
-                command.CommandText = a;
                 command.ExecuteNonQuery();
                 //Debt table
                 command.CommandText = getTableCreationCommand(true, true, Table.Debt.ToInt().ToString(), new KeyValuePair<string, string>[]
@@ -235,7 +660,7 @@ namespace BusinessEngine.IO
                         tableElement("Date", "TEXT"),
                         tableElement("PayDate", "TEXT"),
                         tableElement("Amount", "INTEGER"),
-                        tableElement("ADN", "INTEGER"),
+                        tableElement("ABN", "INTEGER"),
                 });
                 command.ExecuteNonQuery();
                 //AC table
@@ -263,14 +688,15 @@ namespace BusinessEngine.IO
                         tableElement("Name", "TEXT"),
                         tableElement("CostIDs", "TEXT"), // '1,2,3'
                         tableElement("Price", "INTEGER"),
-                        tableElement("ManufacturerID", "INTEGER") //대부분 자신
+                        tableElement("ManufacturerID", "INTEGER")
                 });
+                command.ExecuteNonQuery();
                 //Cost table
                 command.CommandText = getTableCreationCommand(true, true, Table.Cost.ToInt().ToString(), new KeyValuePair<string, string>[]
                 {
                         tableElement("Name", "TEXT"),
                         tableElement("Price", "INTEGER"),
-                        tableElement("ACID", "INTEGER")
+                        tableElement("ManufacturerID", "INTEGER")
                 });
                 command.ExecuteNonQuery();
             }

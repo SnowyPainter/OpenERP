@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Epe.xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        x:Name="ThisWindow" WindowStyle="None" MinHeight="600" MinWidth="1200" Height="900" Width="1500" Icon="/Images/icon.ico">
+        x:Name="ThisWindow" WindowStyle="None" MinHeight="600" MinWidth="1200" Height="900" Width="1500" Icon="/Images/icon.ico" WindowStartupLocation="CenterScreen">
     <Grid Background="{StaticResource Dark}">
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>

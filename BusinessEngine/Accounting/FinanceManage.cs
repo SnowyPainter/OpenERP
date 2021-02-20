@@ -194,15 +194,15 @@ namespace BusinessEngine.Accounting
             {
                 switch (j.For)
                 {
-                    case JournalizingKinds.ETC:
+                    case UsedFor.ETC:
                         break;
                     //
                     //case ... 
                     //
-                    case JournalizingKinds.Advert:
-                    case JournalizingKinds.Entertaining:
-                    case JournalizingKinds.Meeting:
-                    case JournalizingKinds.Transportation:
+                    case UsedFor.Advert:
+                    case UsedFor.Entertaining:
+                    case UsedFor.Meeting:
+                    case UsedFor.Transportation:
                         operatingCost += j.Amount;
                         break;
                 }
@@ -221,15 +221,15 @@ namespace BusinessEngine.Accounting
             {
                 switch (j.For)
                 {
-                    case JournalizingKinds.ETC:
+                    case UsedFor.ETC:
                         break;
                     //
                     //case ... 
                     //
-                    case JournalizingKinds.Advert:
-                    case JournalizingKinds.Entertaining:
-                    case JournalizingKinds.Meeting:
-                    case JournalizingKinds.Transportation:
+                    case UsedFor.Advert:
+                    case UsedFor.Entertaining:
+                    case UsedFor.Meeting:
+                    case UsedFor.Transportation:
                         operatingCost += j.Amount;
                         break;
                 } 
@@ -259,7 +259,7 @@ namespace BusinessEngine.Accounting
         /// <param name="from">사용한 사람</param>
         /// <param name="whyType">무슨 종류의 돈</param>
         /// <param name="why">돈의 목적</param>
-        public void InsertJournalFullPayment(DateTime date, float moneyAmount, IJournalizeObject debtor, IJournalizeObject from,JournalizingKinds whyType, string why)
+        public void InsertJournalFullPayment(DateTime date, float moneyAmount, IJournalizeObject debtor, IJournalizeObject from,UsedFor whyType, string why)
         {
             AccountingBook.Insert(new Journalizing(moneyAmount, date, from, debtor, whyType, why));
         }
@@ -272,7 +272,7 @@ namespace BusinessEngine.Accounting
         /// <param name="whyType"></param>
         /// <param name="why"></param>
         /// <param name="years">1년에 한번 지불합니다.</param>
-        public void InsertJournalYearInstallment(DateTime date, float moneyAmount, IJournalizeObject debtor, IJournalizeObject from, JournalizingKinds whyType, string why, int years)
+        public void InsertJournalYearInstallment(DateTime date, float moneyAmount, IJournalizeObject debtor, IJournalizeObject from, UsedFor whyType, string why, int years)
         {
             for(int i = 0;i < years;i++)
             {
@@ -289,7 +289,7 @@ namespace BusinessEngine.Accounting
         /// <param name="whyType"></param>
         /// <param name="why"></param>
         /// <param name="months"></param>
-        public void InsertJournalMonthlyInstallment(DateTime date, float moneyAmount, IJournalizeObject debtor, IJournalizeObject from,JournalizingKinds whyType, string why, int months)
+        public void InsertJournalMonthlyInstallment(DateTime date, float moneyAmount, IJournalizeObject debtor, IJournalizeObject from,UsedFor whyType, string why, int months)
         {
             for (int i = 0; i < months; i++)
             {

@@ -1,5 +1,6 @@
 ﻿using BusinessEngine;
 using BusinessEngine.IO;
+using BusinessEngine.Operating;
 using BusinessEngine.Sales;
 using Epe.xaml.ViewModels;
 using System;
@@ -29,8 +30,9 @@ namespace Epe.xaml
     public partial class AddProductWindow : Window,INotifyPropertyChanged
     {
         private int selectedItem = -1, selectedCostItem = -1;
+        private AccountComany selectedAC;
         private DataSystem ds;
-        private bool forCostItem = false;
+        private bool windowForCostProduct = false;
 
         public IProduct Product;
 
@@ -41,6 +43,13 @@ namespace Epe.xaml
 
         public ObservableCollection<IProduct> Costs { get; set; } = new ObservableCollection<IProduct>();
         public ObservableCollection<IProduct> ProductList { get; set; } = new ObservableCollection<IProduct>();
+
+        public ObservableCollection<AccountComany> ACList { get; set; } = new ObservableCollection<AccountComany>();
+        public AccountComany SelectedAC
+        {
+            get { return selectedAC; }
+            set { selectedAC = value; NotifyPropertyChanged("SelectedAC"); }
+        }
 
         public int SelectedCostItem
         {
@@ -58,14 +67,22 @@ namespace Epe.xaml
         {
             ds = new DataSystem();
             InitializeComponent();
+            ds.Initialize();
+            this.DataContext = this;
 
             AddCostButton.IsEnabled = notCostItem;
-            forCostItem = !notCostItem;
+            windowForCostProduct = !notCostItem;
             ProductListView.Visibility = Visibility.Hidden;
-            var title = forCostItem ? "원재료 추가" : "상품 추가";
+            var title = windowForCostProduct ? "원재료 추가" : "상품 추가";
             TitleBar.DataContext = new TitleBarViewModel(title);
-            ds.Initialize();
 
+            if(windowForCostProduct) {
+                ProductList = new ObservableCollection<IProduct>(ds.GetCostProducts());
+            }
+            else
+                ProductList = new ObservableCollection<IProduct>(ds.GetProducts());
+            ACList = new ObservableCollection<AccountComany>(ds.GetAccountingCompanies());
+            
         }
         private bool isCreationGrid()
         {
@@ -79,16 +96,6 @@ namespace Epe.xaml
                 ProductListView.Visibility = Visibility.Visible;
                 CreationGrid.Visibility = Visibility.Hidden;
                 SelectProductButton.Content = CreationText;
-                
-                if(forCostItem)
-                {
-                    //list from cost table
-                }
-                else
-                {
-                    //products table
-                }
-
             }
             else
             {
@@ -98,38 +105,33 @@ namespace Epe.xaml
                 Product = null;
             }
         }
-        private List<IProduct> getProducts()
-        {
-            return new List<IProduct>();
-        }
-        private void addCostToDB(IProduct product)
-        {
-            if (product == null) return;
-
-            Debug.WriteLine("원품목 추가");
-            Debug.WriteLine($"상품명: {product.Name}");
-            Debug.WriteLine($"정가 : {product.Price}");
-        }
         private void AddProductDB_Click(object sender, RoutedEventArgs e)
         {
-            int price = -1;
+            int price = 0;
 
-            if (ProductName.Text != "" 
-                && int.TryParse(Price.Text, out price) && price >= 0
-                && isCreationGrid())
+            if (isCreationGrid())
             {
-                Product = new Product
+                if (ProductName.Text != "" && int.TryParse(Price.Text, out price) && price >= 0 && SelectedAC != null)
                 {
-                    Price = price,
-                    Name = ProductName.Text
-                }; 
-                Product.Costs = Costs;
-                
-                if(forCostItem)
-                {
-                    //원재료 항목에서 Ok버튼 누를 경우, 그 이전 Window에서 처리하기 때문에 넘김
+                    Product = new Product
+                    {
+                        Price = price,
+                        Name = ProductName.Text,
+                        Manufacturer = SelectedAC,
+                    };
+                    if (!windowForCostProduct)
+                        Product.Costs = Costs;
+
+                    if (windowForCostProduct)
+                    {
+                        //원재료 항목에서 Ok버튼 누를 경우, 그 이전 Window에서 처리하기 때문에 넘김
+                    }
+
                 }
-                
+                else
+                {
+                    //입력확인
+                }
                 this.Close();
             }
             else if (ProductListView.SelectedItem != null)
@@ -152,12 +154,24 @@ namespace Epe.xaml
 
         private void AddCostButton_Click(object sender, RoutedEventArgs e)
         {
+            //원재료 추가
             var a = new AddProductWindow(false);
             a.ShowDialog();
-            addCostToDB(a.Product);
-            Costs.Add(a.Product);
+            if (a.Product != null && a.windowForCostProduct)
+            {
+                if(a.isCreationGrid())
+                    addCostToDB(a.Product);
+                Costs.Add(a.Product);
+            }
+            else if(a.windowForCostProduct)
+                MessageBox.Show("원재료를 추가해주세요.");
         }
+        private void addCostToDB(IProduct product)
+        {
+            if (product == null) return;
 
+            ds.AddCostProduct(product.Name, product.Price, product.Manufacturer);
+        }
         protected virtual void NotifyPropertyChanged(string property)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));

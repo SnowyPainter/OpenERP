@@ -31,7 +31,7 @@ namespace BusinessEngine.Sales
             set { price = value; NotifyPropertyChanged("Price"); }
         }
 
-        public ObservableCollection<IProduct> Costs { get; set; }
+        public ObservableCollection<IProduct> Costs { get; set; } = new ObservableCollection<IProduct>();
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void NotifyPropertyChanged(string property)

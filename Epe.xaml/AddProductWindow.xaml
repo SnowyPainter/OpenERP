@@ -42,6 +42,7 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -65,9 +66,9 @@
                     <TextBlock Style="{StaticResource PropertyName}" Text="제품명" Grid.Row="0"/>
                     <TextBlock Style="{StaticResource PropertyName}" Text="원가" Grid.Row="1"/>
                     <TextBlock Style="{StaticResource PropertyName}" Text="정가" Grid.Row="2"/>
-
-                    <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1">
-                        <ListBox Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Costs}" SelectedIndex="{Binding SelectedCostItem}" Height="25" Width="162">
+                    <TextBlock Style="{StaticResource PropertyName}" Text="제조사" Grid.Row="3"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="1">
+                        <ListBox Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Costs}" SelectedIndex="{Binding SelectedCostItem}" Width="120">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Background="{StaticResource LightGreen}">
@@ -86,16 +87,25 @@
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
-                        <Button Style="{StaticResource GreenButton}" x:Name="AddCostButton" Click="AddCostButton_Click" Content="원재료 추가" Margin="10" Height="31" Width="76"/>
+                        <Button Style="{StaticResource GreenButton}" x:Name="AddCostButton" Click="AddCostButton_Click" Content="원재료 추가" Width="80"/>
                     </StackPanel>
                     <TextBox Style="{StaticResource Property}" x:Name="ProductName" Grid.Row="0"/>
                     <TextBox Style="{StaticResource Property}" x:Name="Price" Grid.Row="2"/>
+                    <Grid Grid.Row="3" Grid.Column="1">
+                        <ComboBox ItemsSource="{Binding ACList}" SelectedItem="{Binding SelectedAC}" SelectedIndex="0" Width="200" Height="30">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </Grid>
                 </Grid>
                 <ListView x:Name="ProductListView" ItemsSource="{Binding ProductList}" SelectedIndex="{Binding SelectedProduct}" Visibility="Hidden">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="품명" Width="100" DisplayMemberBinding="{Binding Name}"/>
-                            <GridViewColumn Header="가격" Width="100" DisplayMemberBinding="{Binding Price}"/>
+                            <GridViewColumn Header="품명" Width="170" DisplayMemberBinding="{Binding Name}"/>
+                            <GridViewColumn Header="가격" Width="110" DisplayMemberBinding="{Binding Price}"/>
                         </GridView>
                     </ListView.View>
                 </ListView>

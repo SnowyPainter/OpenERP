@@ -55,5 +55,15 @@ namespace BusinessEngine
             Reporter = new ReportManage();
             AccountCManage = new AccountCompanyManage();
         }
+
+        public AccountComany AsAC()
+        {
+            return new AccountComany
+            {
+                Name = this.Name,
+                Note = "소유한 회사",
+                WarningPoint = Warning.None
+            };
+        }
     }
 }

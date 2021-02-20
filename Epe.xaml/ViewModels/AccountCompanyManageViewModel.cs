@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -87,15 +88,27 @@ namespace Epe.xaml.ViewModels
 
             Company = new Company(name);
             ds = new DataSystem();
-            for(int i = 0;i < 10;i++)
-            {
-                var com = new AccountComany($"회사 {i}");
-                com.Note = $"note {i}.";
-                Company.AccountCManage.AddAccountingCompany(com);
-            }
-            SelectedAccountCompanyIndex = 0;
-
             ds.Initialize();
+
+            ds.SetMyCompany(Company);
+            
+            /*for(int i = 0;i < 5;i++)
+            {
+                ds.AddAccountingCompany(new AccountComany
+                {
+                    Name = $"회사{i}",
+                    Note = $"노트{i}",
+                    WarningPoint = Warning.None
+                });
+            }*/
+
+            var acs = ds.GetAccountingCompanies();
+            for (int i = 0;i < acs.Count;i++)
+            {
+                Company.AccountCManage.AddAccountingCompany(acs[i]);
+            }
+            Company.AccountCManage.AccountingCompanies.Remove(Company.AsAC());
+            SelectedAccountCompanyIndex = 0;
         }
 
         public void RemoveAccountCompany(int i)
@@ -117,6 +130,7 @@ namespace Epe.xaml.ViewModels
             var acw = new AddCompanyWindow();
             acw.ShowDialog();
 
+            //회사추가 기능 구현해야함
             //acw.SelectedCompany;
         }
         public void AddSalesAndOpenSalesWindow()
@@ -132,7 +146,10 @@ namespace Epe.xaml.ViewModels
 
             addProductWindow.ShowDialog();
 
-            //addProductWindow.Product;
+            var product = addProductWindow.Product;
+            if (product == null || product.Name == "" || product.Price < 0) return;
+
+            ds.AddProduct(product.Name, product.Price, product.Manufacturer, product.Costs.ToArray());
         }
         public void OnACSelectedChanged(int i)
         {
