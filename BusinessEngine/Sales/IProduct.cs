@@ -10,7 +10,7 @@ namespace BusinessEngine.Sales
     public interface IProduct: INotifyPropertyChanged
     {
         string Name { get; }
-        AccountComany Manufacturer { get; } 
+        AccountCompany Manufacturer { get; } 
         float Price { get; } //정가
         ObservableCollection<IProduct> Costs { get; set; } //매출 원가
     }

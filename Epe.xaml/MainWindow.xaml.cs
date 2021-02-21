@@ -24,7 +24,7 @@ namespace Epe.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        public ObservableCollection<AccountComany> A { get; set; }
+        public ObservableCollection<AccountCompany> A { get; set; }
 
         public MainWindow()
         {

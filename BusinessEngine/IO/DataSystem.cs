@@ -90,10 +90,12 @@ namespace BusinessEngine.IO
         /// <summary>
         /// program.ini의 저장위치입니다.
         /// </summary>
-        public readonly string INISaveFile = "./program.ini";
+        public readonly string INISaveFile = "./settings.ini";
         public readonly string DefaultDBSave = "./database.db";
         public readonly string TimeFormat = "yyyy-MM-dd HH:mm:ss";
         public bool Initialized = false;
+        public AccountCompany MyCompany { get; private set; }
+        public readonly int MyCompanyID = -1;
         #endregion
         #region ini
         #region sections
@@ -101,19 +103,28 @@ namespace BusinessEngine.IO
         /// 프로그램 설정 섹션의 섹션 이름입니다.
         /// </summary>
         public static readonly string PROGRAM_SECTION = "PROGRAM";
+        /// <summary>
+        /// 회사 설정 섹션의 섹션 이름입니다.
+        /// </summary>
+        public static readonly string COMPANY_SECTION = "COMPANY";
         #endregion
         /// <summary>
         /// sql파일의 저장위치값의 키값입니다.
         /// </summary>
         #region keys
         public static readonly string SAVEPATH_KEY = "SavePath";
+        public static readonly string COMPANY_NAME_KEY = "Name";
         #endregion
         #endregion
         string sqlPath;
+        const string myCompanyNote = "TXlDb21wYW55";
         /// <summary>
         /// ini, database를 총괄합니다.
         /// </summary>
-        public DataSystem() { }
+        public DataSystem() {
+            MyCompany = new AccountCompany();
+            MyCompany.Note = myCompanyNote;
+        }
 
         /// <summary>
         /// DataSystem을 사용하기전 무조건 호출해야합니다.
@@ -148,42 +159,14 @@ namespace BusinessEngine.IO
         /// </summary>
         /// <param name="company">바꿀 회사입니다.</param>
         /// <param name="pastName">회사 이름을 바꿀경우에, 과거 이름을 나타냅니다.</param>
-        public void SetMyCompany(Company company, string pastName = "")
+        public void SetMyCompany(Company company)
         {
-            var ac = company.AsAC();
-            using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
-            {
-                sqlConnection.Open();
-                SQLiteCommand cmd = new SQLiteCommand(sqlConnection);
-
-                if (GetAccountingCompanyByName(ac.Name).Count <= 0) //not exists. -> insert
-                {
-                    cmd.CommandText = getInsertCommand(Table.AC, new string[]
-                        {
-                            "Name",
-                            "Note",
-                            "Warning"
-                        });
-
-                    cmd.Parameters.AddWithValue("Name", ac.Name);
-                    cmd.Parameters.AddWithValue("Note", ac.Note);
-                    cmd.Parameters.AddWithValue("Warning", (int)ac.WarningPoint);
-                    cmd.ExecuteNonQuery();
-                }
-                else //exists -> update
-                {
-                    var acname = pastName != "" ? pastName : ac.Name;
-                    var acid = getAccountCompanyIDByName(acname, sqlConnection);
-                    if (acid == null)
-                        throw new SQLiteException($"There's no account company like {ac.Name}");
-                    cmd.CommandText = getUpdateCommandByID(Table.AC, new KeyValuePair<string, object>[]
-                    {
-                        new KeyValuePair<string, object>("Name", ac.Name),
-                        new KeyValuePair<string, object>("Note", ac.Note),
-                        new KeyValuePair<string, object>("Warning", (int)ac.WarningPoint),
-                    }, (int)acid);
-                }
-            }
+            INI.Write(COMPANY_SECTION, COMPANY_NAME_KEY, company.Name, INISaveFile);
+            MyCompany.Name = company.Name;
+        }
+        public string GetMyCompanyName()
+        {
+            return INI.Read(COMPANY_SECTION, COMPANY_NAME_KEY, INISaveFile);
         }
         public void SetProgramINI(string key, string value)
         {
@@ -194,7 +177,7 @@ namespace BusinessEngine.IO
             return INI.Read(PROGRAM_SECTION, key, INISaveFile);
         }
 
-        public void AddDebt(AccountComany creditor, DateTime date, DateTime payday, float amount, string why)
+        public void AddDebt(AccountCompany creditor, DateTime date, DateTime payday, float amount, string why)
         {
             using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
             {
@@ -221,7 +204,7 @@ namespace BusinessEngine.IO
                 cmd.ExecuteNonQuery();
             }
         }
-        public void AddBond(AccountComany debtor, DateTime date, DateTime payday, float amount, bool abdn = false)
+        public void AddBond(AccountCompany debtor, DateTime date, DateTime payday, float amount, bool abdn = false)
         {
             using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
             {
@@ -248,8 +231,9 @@ namespace BusinessEngine.IO
                 cmd.ExecuteNonQuery();
             }
         }
-        public void AddAccountingCompany(AccountComany ac)
+        public void AddAccountingCompany(AccountCompany ac)
         {
+            if (ac == null) return;
             using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
             {
                 sqlConnection.Open();
@@ -267,8 +251,10 @@ namespace BusinessEngine.IO
                 cmd.ExecuteNonQuery();
             }
         }
-        public void AddProduct(string name, float price, AccountComany manufacturer, params IProduct[] costs)
+        public void AddProduct(string name, float price, AccountCompany manufacturer, params IProduct[] costs)
         {
+            if (manufacturer == null) return;
+
             using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
             {
                 sqlConnection.Open();
@@ -283,8 +269,6 @@ namespace BusinessEngine.IO
                 List<int> costIds = new List<int>();
                 for (int i = 0; i < costs.Length; i++)
                 {
-                    //id 못찾는 오류
-                    Debug.WriteLine(costs[i].Manufacturer.Name);
                     var costId = getCostProductID(costs[i], sqlConnection);
                     if (costId != null)
                         costIds.Add((int)costId);
@@ -304,8 +288,10 @@ namespace BusinessEngine.IO
                 cmd.ExecuteNonQuery();
             }
         }
-        public void AddCostProduct(string name, float price, AccountComany manufacturer)
+        public void AddCostProduct(string name, float price, AccountCompany manufacturer)
         {
+            if (manufacturer == null) return;
+
             using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
             {
                 sqlConnection.Open();
@@ -328,8 +314,9 @@ namespace BusinessEngine.IO
                 cmd.ExecuteNonQuery();
             }
         }
-        public void AddSale(DateTime depositDate, DateTime sellDate, AccountComany buyer, IProduct product, float discountRate, int qty)
+        public void AddSale(DateTime depositDate, DateTime sellDate, AccountCompany buyer, IProduct product, float discountRate, int qty)
         {
+            if (depositDate == null || sellDate == null || buyer == null || product == null || discountRate < 0) return;
             using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
             {
                 sqlConnection.Open();
@@ -363,7 +350,7 @@ namespace BusinessEngine.IO
                 cmd.ExecuteNonQuery();
             }
         }
-        public void AddJournalizing(DateTime when, UsedFor whatfor, AccountComany from, AccountComany to, string description, float amount)
+        public void AddJournalizing(DateTime when, UsedFor whatfor, AccountCompany from, AccountCompany to, string description, float amount)
         {
             using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
             {
@@ -398,10 +385,64 @@ namespace BusinessEngine.IO
                 cmd.ExecuteNonQuery();
             }
         }
-
-        public List<AccountComany> GetAccountingCompanyByName(string name)
+        /// <summary>
+        /// 업데이트 하기전에 ID를 먼저 알아야합니다.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="newData"></param>
+        public void UpdateAccountingCompany(AccountCompany oldData,AccountCompany newData)
         {
-            var acs = new List<AccountComany>();
+            int id = 0;
+
+            using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
+            {
+                sqlConnection.Open();
+                int? nid = getAccountCompanyID(oldData, sqlConnection);
+                if (nid != null)
+                    id = (int)nid;
+                else if (nid == null || nid == MyCompanyID)
+                    return;
+                using (SQLiteCommand cmd = new SQLiteCommand(sqlConnection))
+                {
+                    cmd.CommandText = $"UPDATE '{Table.AC.ToInt()}' SET Name='{newData.Name}', Note='{newData.Note}', Warning={(int)newData.WarningPoint} WHERE Id={id}";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public void DeleteAccountingCompany(AccountCompany ac)
+        {
+            int id = 0;
+            using (var sqlConnection = new SQLiteConnection($@"Data Source={sqlPath}"))
+            {
+                sqlConnection.Open();
+                int? nid = getAccountCompanyID(ac, sqlConnection);
+                if (nid != null)
+                    id = (int)nid;
+                else if (nid == null || nid == MyCompanyID)
+                    return;
+                using (SQLiteCommand cmd = new SQLiteCommand(sqlConnection))
+                {
+                    cmd.CommandText = $"DELETE FROM '{Table.AC.ToInt()}' WHERE Id={id}";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        /*
+        public int? GetACID(AccountCompany ac)
+        {
+            int? id = null;
+            if (ac.Note == myCompanyNote) return MyCompanyID;
+            using (SQLiteConnection conn = new SQLiteConnection(@$"Data Source={sqlPath}"))
+            {
+                conn.Open();
+                id = getAccountCompanyID(ac, conn);
+            }
+            return id;
+        }
+        */
+        public List<AccountCompany> GetAccountingCompanyByName(string name)
+        {
+            var acs = new List<AccountCompany>();
             using (SQLiteConnection conn = new SQLiteConnection(@$"Data Source={sqlPath}"))
             {
                 conn.Open();
@@ -411,7 +452,7 @@ namespace BusinessEngine.IO
                     SQLiteDataReader r = cmd.ExecuteReader();
                     while (r.Read())
                     {
-                        var c = new AccountComany(r["Name"].ToString());
+                        var c = new AccountCompany(r["Name"].ToString());
                         c.Note = r["Note"].ToString();
                         c.WarningPoint = (Warning)(int.Parse(r["Warning"].ToString()));
                         acs.Add(c);
@@ -420,9 +461,9 @@ namespace BusinessEngine.IO
             }
             return acs;
         }
-        public List<AccountComany> GetAccountingCompanies()
+        public List<AccountCompany> GetAccountingCompanies()
         {
-            var acs = new List<AccountComany>();
+            var acs = new List<AccountCompany>();
             using (SQLiteConnection conn = new SQLiteConnection(@$"Data Source={sqlPath}"))
             {
                 conn.Open();
@@ -432,7 +473,7 @@ namespace BusinessEngine.IO
                     SQLiteDataReader r = cmd.ExecuteReader();
                     while (r.Read())
                     {
-                        var c = new AccountComany(r["Name"].ToString());
+                        var c = new AccountCompany(r["Name"].ToString());
                         c.Note = r["Note"].ToString();
                         c.WarningPoint = (Warning)(int.Parse(r["Warning"].ToString()));
                         acs.Add(c);
@@ -543,16 +584,18 @@ namespace BusinessEngine.IO
             }
             return id;
         }
-        private AccountComany getAccountingCompanyById(int id, SQLiteConnection conn)
+        private AccountCompany getAccountingCompanyById(int id, SQLiteConnection conn)
         {
-            AccountComany ac = null;
+            AccountCompany ac = null;
+            if (id == MyCompanyID)
+                return MyCompany;
             using (SQLiteCommand cmd = new SQLiteCommand(conn))
             {
                 cmd.CommandText = $"SELECT * FROM '{Table.AC.ToInt()}' WHERE Id={id};";
                 SQLiteDataReader r = cmd.ExecuteReader();
                 if (r.HasRows && r.Read())
                 {
-                    ac = new AccountComany(r["Name"].ToString());
+                    ac = new AccountCompany(r["Name"].ToString());
                     ac.Note = r["Note"].ToString();
                     ac.WarningPoint = (Warning)(int.Parse(r["Warning"].ToString()));
                 }
@@ -560,9 +603,12 @@ namespace BusinessEngine.IO
 
             return ac;
         }
-        private int? getAccountCompanyID(AccountComany ac, SQLiteConnection conn)
+        private int? getAccountCompanyID(AccountCompany ac, SQLiteConnection conn)
         {
             int? id = null;
+            if (ac == null) return id;
+            if (ac.Note == myCompanyNote)
+                return MyCompanyID;
             using (var cmd = new SQLiteCommand(conn))
             {
                 cmd.CommandText = $"SELECT Id FROM '{Table.AC.ToInt()}' WHERE Name='{ac.Name}' AND Note='{ac.Note}';";

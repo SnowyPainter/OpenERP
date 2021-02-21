@@ -30,7 +30,7 @@ namespace Epe.xaml
     public partial class AddProductWindow : Window,INotifyPropertyChanged
     {
         private int selectedItem = -1, selectedCostItem = -1;
-        private AccountComany selectedAC;
+        private AccountCompany selectedAC;
         private DataSystem ds;
         private bool windowForCostProduct = false;
 
@@ -44,8 +44,8 @@ namespace Epe.xaml
         public ObservableCollection<IProduct> Costs { get; set; } = new ObservableCollection<IProduct>();
         public ObservableCollection<IProduct> ProductList { get; set; } = new ObservableCollection<IProduct>();
 
-        public ObservableCollection<AccountComany> ACList { get; set; } = new ObservableCollection<AccountComany>();
-        public AccountComany SelectedAC
+        public ObservableCollection<AccountCompany> ACList { get; set; } = new ObservableCollection<AccountCompany>();
+        public AccountCompany SelectedAC
         {
             get { return selectedAC; }
             set { selectedAC = value; NotifyPropertyChanged("SelectedAC"); }
@@ -63,26 +63,33 @@ namespace Epe.xaml
             get { return selectedCostItem; }
             set { selectedCostItem = value; NotifyPropertyChanged("SelectedProduct"); }
         }
-        public AddProductWindow(bool notCostItem=true)
+        public AddProductWindow(bool notCostItem=true, bool hideSearchBtn=false)
         {
             ds = new DataSystem();
             InitializeComponent();
             ds.Initialize();
+            var title = windowForCostProduct ? "원재료 추가" : "상품 추가";
+            TitleBar.DataContext = new TitleBarViewModel(title);
             this.DataContext = this;
 
             AddCostButton.IsEnabled = notCostItem;
             windowForCostProduct = !notCostItem;
             ProductListView.Visibility = Visibility.Hidden;
-            var title = windowForCostProduct ? "원재료 추가" : "상품 추가";
-            TitleBar.DataContext = new TitleBarViewModel(title);
 
-            if(windowForCostProduct) {
+
+            if (hideSearchBtn)
+                SelectProductButton.Visibility = Visibility.Hidden;
+
+            if (windowForCostProduct) {
                 ProductList = new ObservableCollection<IProduct>(ds.GetCostProducts());
             }
             else
                 ProductList = new ObservableCollection<IProduct>(ds.GetProducts());
-            ACList = new ObservableCollection<AccountComany>(ds.GetAccountingCompanies());
-            
+
+            ACList = new ObservableCollection<AccountCompany>(ds.GetAccountingCompanies());
+
+            ACComboBox.IsEnabled = true;
+
         }
         private bool isCreationGrid()
         {
@@ -111,26 +118,33 @@ namespace Epe.xaml
 
             if (isCreationGrid())
             {
-                if (ProductName.Text != "" && int.TryParse(Price.Text, out price) && price >= 0 && SelectedAC != null)
+                if (ProductName.Text != "" && int.TryParse(Price.Text, out price) && price >= 0 && (OtherCompany.IsChecked ?? false && SelectedAC != null))
                 {
+                    if(SelectedAC.Name == ds.GetMyCompanyName())
+                    {
+                        MessageBox.Show("회사명과 다른 이름을 가진 회사를 선택하셔야합니다.");
+                        return;
+                    }
+                    var ischecked = OtherCompany.IsChecked;
+                    if(ischecked == null)
+                    {
+                        MessageBox.Show("체크 확인 부탁드립니다.");
+                    }
                     Product = new Product
                     {
                         Price = price,
                         Name = ProductName.Text,
-                        Manufacturer = SelectedAC,
+                        Manufacturer = ischecked ?? true ? SelectedAC : ds.MyCompany,
                     };
                     if (!windowForCostProduct)
                         Product.Costs = Costs;
 
-                    if (windowForCostProduct)
-                    {
-                        //원재료 항목에서 Ok버튼 누를 경우, 그 이전 Window에서 처리하기 때문에 넘김
-                    }
-
                 }
                 else
                 {
-                    //입력확인
+                    if (MessageBox.Show("상품 추가 절차를 중단하시겠습니까?", "창을 닫으시겠습니까?", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                        return;
+                    
                 }
                 this.Close();
             }
@@ -172,6 +186,17 @@ namespace Epe.xaml
 
             ds.AddCostProduct(product.Name, product.Price, product.Manufacturer);
         }
+
+        private void ManufacturerIsOtherCompany_Checked(object sender, RoutedEventArgs e)
+        {
+            ACComboBox.IsEnabled = true;
+        }
+
+        private void ManufacturerIsOtherCompany_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ACComboBox.IsEnabled = false;
+        }
+
         protected virtual void NotifyPropertyChanged(string property)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));

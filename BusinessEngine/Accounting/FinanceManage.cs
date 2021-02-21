@@ -247,7 +247,7 @@ namespace BusinessEngine.Accounting
         /// <param name="buyer">구매자</param>
         /// <param name="discountRate">할인율 1=100%</param>
         /// <param name="qty">판매 갯수</param>
-        public void AddSale(DateTime expectDepDate, DateTime sellDate, IProduct product, AccountComany buyer, int discountRate, int qty)
+        public void AddSale(DateTime expectDepDate, DateTime sellDate, IProduct product, AccountCompany buyer, int discountRate, int qty)
         {
             AccountingBook.Sold(new Sale(expectDepDate, sellDate, product, buyer, discountRate, qty));
         }

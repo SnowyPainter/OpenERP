@@ -6,13 +6,13 @@ namespace BusinessEngine
 {
     public class Debt
     {
-        public AccountComany Creditor;
+        public AccountCompany Creditor;
         public DateTime When;
         public DateTime Paydate;
         public float Amount;
         public string Why;
 
-        public Debt(AccountComany creditor, DateTime when, DateTime paydate, float amount, string why)
+        public Debt(AccountCompany creditor, DateTime when, DateTime paydate, float amount, string why)
         {
             Creditor = creditor;
             When = when;

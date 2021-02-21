@@ -1,5 +1,6 @@
 ﻿using BusinessEngine;
 using BusinessEngine.IO;
+using BusinessEngine.Operating;
 using Epe.xaml.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -26,12 +27,24 @@ namespace Epe.xaml
         readonly string SearchingText = "찾아보기";
         readonly string CreationText = "생성하기";
 
-        public Company SelectedCompany;
+        DataSystem ds;
 
-        public AddCompanyWindow()
+        public AccountCompany SelectedCompany;
+
+        public AddCompanyWindow(bool hideSearchBtn=false)
         {
             InitializeComponent();
             TitleBar.DataContext = new TitleBarViewModel();
+            this.DataContext = this;
+
+            ds = new DataSystem();
+            ds.Initialize();
+            if (hideSearchBtn)
+                SelectCompanyButton.Visibility = Visibility.Hidden;
+            else
+            {
+                CompanyListView.ItemsSource = ds.GetAccountingCompanies();
+            }
             CompanyListView.Visibility = Visibility.Hidden;
         }
         private bool isCreationGrid()
@@ -58,16 +71,16 @@ namespace Epe.xaml
         }
         private void AddCompanyXML_Click(object sender, RoutedEventArgs e)
         {
-            if(CompanyName.Text != "" && isCreationGrid())
+            if(isCreationGrid() && CompanyName.Text != "")
             {
-                SelectedCompany = new Company(CompanyName.Text);
+                SelectedCompany = new AccountCompany(CompanyName.Text);
+                SelectedCompany.Note = CompanyNote.Text;
 
                 this.Close();
             }
             else if(CompanyListView.SelectedItem != null)
             {
-                SelectedCompany = CompanyListView.SelectedItem as Company;
-
+                SelectedCompany = CompanyListView.SelectedItem as AccountCompany;
                 this.Close();
             }
             else

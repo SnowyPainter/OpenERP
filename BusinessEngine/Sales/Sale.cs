@@ -16,7 +16,7 @@ namespace BusinessEngine.Sales
     {
         private int dr;
         private int qty;
-        private AccountComany to;
+        private AccountCompany to;
         private DateTime date, expectDeposit;
         private IProduct product;
 
@@ -30,7 +30,7 @@ namespace BusinessEngine.Sales
             get { return qty; }
             set { qty = value; NotifyPropertyChanged("Qty"); }
         }
-        public AccountComany To
+        public AccountCompany To
         {
             get { return to; }
             set { to = value; NotifyPropertyChanged("To"); }
@@ -52,7 +52,7 @@ namespace BusinessEngine.Sales
         }
 
         public Sale() { }
-        public Sale(DateTime expectDepDate, DateTime sellDate, IProduct product, AccountComany soldTo, int discountRate, int qty)
+        public Sale(DateTime expectDepDate, DateTime sellDate, IProduct product, AccountCompany soldTo, int discountRate, int qty)
         {
             DiscountRate = discountRate;
             Qty = qty;

@@ -12,7 +12,7 @@ namespace BusinessEngine.Operating
     /// 채무자,채권자도 포함
     /// </summary>
     [Serializable]
-    public class AccountComany:IJournalizeObject, INotifyPropertyChanged
+    public class AccountCompany:IJournalizeObject, INotifyPropertyChanged
     {
         protected string name;
         protected string note;
@@ -31,8 +31,8 @@ namespace BusinessEngine.Operating
             set { warning = value; NotifyPropertyChanged("WarningPoint"); }
         }
 
-        public AccountComany() { }
-        public AccountComany(string name) { Name = name; }
+        public AccountCompany() { }
+        public AccountCompany(string name) { Name = name; }
 
         
         public void SetWarningPoint(Warning w) => WarningPoint = w;

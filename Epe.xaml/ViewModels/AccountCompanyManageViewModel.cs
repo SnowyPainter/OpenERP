@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml;
@@ -22,9 +23,9 @@ namespace Epe.xaml.ViewModels
         private int selectedACIndex;
 
         #region ACINFO
-        private AccountComany selectedAC; 
+        private AccountCompany selectedAC;
         #endregion
-        
+
         #endregion
         #region Properties
         public int SelectedAccountCompanyIndex
@@ -32,7 +33,10 @@ namespace Epe.xaml.ViewModels
             get { return selectedACIndex; }
             set { selectedACIndex = value; NotifyPropertyChanged("SelectedAccountCompanyIndex"); }
         }
-        public AccountComany SelectedAC
+        /// <summary>
+        /// =로 셋하기 전에 무조건 clone으로 해라
+        /// </summary>
+        public AccountCompany SelectedAC
         {
             get { return selectedAC; }
             set { selectedAC = value; NotifyPropertyChanged("SelectedAC"); }
@@ -40,14 +44,21 @@ namespace Epe.xaml.ViewModels
         public Company Company { get; set; }
         #endregion
         #region private Commands
-        private RelayCommand<object> deleteAccountCompany, showSalesOfSelectedAC, addSales, addProduct, addAC;
+        private RelayCommand<object> deleteAccountCompany, showSalesOfSelectedAC, addSales, addProduct, addAC, saveAC;
         #endregion
         #region Command Impls
+        public ICommand SaveAccountCompanyInfo
+        {
+            get
+            {
+                return saveAC ?? (saveAC = new RelayCommand<object>(o => UpdateAccountCompany()));
+            }
+        }
         public ICommand DeleteAccountCompany
         {
             get
             {
-                return deleteAccountCompany ?? (deleteAccountCompany = new RelayCommand<object>(o=>RemoveAccountCompany(SelectedAccountCompanyIndex)));
+                return deleteAccountCompany ?? (deleteAccountCompany = new RelayCommand<object>(o => RemoveAccountCompany(SelectedAccountCompanyIndex)));
             }
         }
         public ICommand ShowSalesOfSelectedAC
@@ -81,7 +92,6 @@ namespace Epe.xaml.ViewModels
         #endregion
 
         private DataSystem ds;
-
         public AccountCompanyManageViewModel(string name, string manage)
         {
             PropertyChanged += AccountCompanyManageViewModel_PropertyChanged;
@@ -89,34 +99,24 @@ namespace Epe.xaml.ViewModels
             Company = new Company(name);
             ds = new DataSystem();
             ds.Initialize();
-
             ds.SetMyCompany(Company);
-            
-            /*for(int i = 0;i < 5;i++)
-            {
-                ds.AddAccountingCompany(new AccountComany
-                {
-                    Name = $"회사{i}",
-                    Note = $"노트{i}",
-                    WarningPoint = Warning.None
-                });
-            }*/
 
             var acs = ds.GetAccountingCompanies();
             for (int i = 0;i < acs.Count;i++)
             {
                 Company.AccountCManage.AddAccountingCompany(acs[i]);
             }
-            Company.AccountCManage.AccountingCompanies.Remove(Company.AsAC());
             SelectedAccountCompanyIndex = 0;
+            //왜인지는 모르겠는데 여기서는 OnPropertychanged 내부 동작안함
+            //그러므로 직접설정하겠음
+            SelectedAC = getCloneAC(Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex]);
         }
-
+        private AccountCompany getCloneAC(AccountCompany ac) => new AccountCompany { Name = ac.Name, Note = ac.Note, WarningPoint = ac.WarningPoint };
         public void RemoveAccountCompany(int i)
         {
-            /*
-             * 필수 항목 : 리스트에서 삭제, 인덱스 disable, 선택항목 삭제
-             */
             if (i < 0 || i >= Company.AccountCManage.AccountingCompanies.Count) return;
+
+            ds.DeleteAccountingCompany(Company.AccountCManage.AccountingCompanies[i]);
             Company.AccountCManage.AccountingCompanies.RemoveAt(i);
             SelectedAccountCompanyIndex = -1;
             SelectedAC = null;
@@ -127,11 +127,12 @@ namespace Epe.xaml.ViewModels
         }
         public void AddAC()
         {
-            var acw = new AddCompanyWindow();
+            var acw = new AddCompanyWindow(true);
             acw.ShowDialog();
+            if (acw.SelectedCompany == null) return;
 
-            //회사추가 기능 구현해야함
-            //acw.SelectedCompany;
+            ds.AddAccountingCompany(acw.SelectedCompany);
+            Company.AccountCManage.AddAccountingCompany(acw.SelectedCompany);
         }
         public void AddSalesAndOpenSalesWindow()
         {
@@ -140,9 +141,9 @@ namespace Epe.xaml.ViewModels
 
             //salesProfileWindow.SaleData;
         }
-        private void AddProductAndOpenProductWindow()
+        public void AddProductAndOpenProductWindow()
         {
-            var addProductWindow = new AddProductWindow();
+            var addProductWindow = new AddProductWindow(true, true);
 
             addProductWindow.ShowDialog();
 
@@ -151,10 +152,22 @@ namespace Epe.xaml.ViewModels
 
             ds.AddProduct(product.Name, product.Price, product.Manufacturer, product.Costs.ToArray());
         }
+        public void UpdateAccountCompany()
+        {
+            if (SelectedAccountCompanyIndex < 0 || SelectedAccountCompanyIndex >= Company.AccountCManage.AccountingCompanies.Count) return;
+
+            AccountCompany old = Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex], newData = SelectedAC;
+
+            ds.UpdateAccountingCompany(old, newData);
+            Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex] = newData;
+
+            MessageBox.Show("정보 변경 완료되었습니다");
+        }
         public void OnACSelectedChanged(int i)
         {
             var acinfo = Company.AccountCManage.AccountingCompanies[i];
-            SelectedAC = acinfo;
+            //binding 2개 겹치면 a=b, b=a 자동으로됨. 그래서 clone하는것
+            SelectedAC = getCloneAC(acinfo);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -163,7 +176,7 @@ namespace Epe.xaml.ViewModels
             switch (e.PropertyName)
             {
                 case "SelectedAccountCompanyIndex":
-                    if(SelectedAccountCompanyIndex >= 0 && SelectedAccountCompanyIndex < Company.AccountCManage.AccountingCompanies.Count)
+                    if (SelectedAccountCompanyIndex >= 0 && SelectedAccountCompanyIndex < Company.AccountCManage.AccountingCompanies.Count)
                         OnACSelectedChanged(SelectedAccountCompanyIndex);
                     break;
             }
