@@ -85,17 +85,24 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Grid HorizontalAlignment="Stretch" Grid.Row="0" Background="{StaticResource Green}">
+                        <Grid.Resources>
+                            <Style TargetType="Button" BasedOn="{StaticResource DarkButton}">
+                                <Setter Property="Height" Value="35"/>
+                                <Setter Property="Width" Value="45"/>
+                                <Setter Property="FontSize" Value="13"/>
+                            </Style>
+                        </Grid.Resources>
                         <StackPanel Orientation="Horizontal">
-                            <Button Style="{StaticResource DarkButton}" Content="1개월" FontSize="12 " Height="25" Width="45"/>
-                            <Button Style="{StaticResource DarkButton}" Content="3개월" FontSize="12 " Height="25" Width="45"/>
-                            <Button Style="{StaticResource DarkButton}" Content="6개월" FontSize="12 " Height="25" Width="45"/>
-                            <Button Style="{StaticResource DarkButton}" Content="12개월" FontSize="12 " Height="25" Width="45"/>
+                            <Button Content="1개월"/>
+                            <Button Content="3개월"/>
+                            <Button Content="6개월"/>
+                            <Button Content="12개월"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <TextBlock Text="{Binding Selected}" VerticalAlignment="Center"/>
                             <TextBlock Text="판매 내역" VerticalAlignment="Center" Margin="10"/>
-                            <TextBox VerticalAlignment="Center" Width="100" Height="25" Foreground="White" BorderBrush="{StaticResource Dark}"/>
-                            <Button Style="{StaticResource DarkButton}" Command="" Content="검색" Height="25" Width="30" Margin="5"/>
+                            <TextBox VerticalAlignment="Center" Width="100" Height="35" FontSize="14" Foreground="White" BorderBrush="{StaticResource Dark}"/>
+                            <Button Command="{Binding SearchSaleLogByName}" Content="검색" Margin="5"/>
                         </StackPanel>
                     </Grid>
                     <ListView x:Name="RecentlyAccountLog" ItemsSource="{Binding RecentlySalesLog}" Grid.Row="1" Background="{StaticResource Dark}">
@@ -129,7 +136,7 @@
                     <RowDefinition Height="20*"/>
                     <RowDefinition Height="30*"/>
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0">
+                <Grid Grid.Row="0" IsEnabled="{Binding UpdatingACEnabled}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="3*"/>
@@ -138,8 +145,8 @@
                         <RowDefinition Height="2*"/>
                         <RowDefinition Height="3*"/>
                         <RowDefinition Height="3*"/>
-                        <!-- 세팅 -->
                         <RowDefinition Height="2*"/>
+                        <!-- 세팅 -->
                         <RowDefinition Height="2*"/>
                     </Grid.RowDefinitions>
                     <Grid.Resources>
@@ -147,6 +154,11 @@
                             <Setter Property="Width" Value="55"/>
                             <Setter Property="Height" Value="40"/>
                             <Setter Property="FontSize" Value="13"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Background" Value="Gray"/>
+                                </Trigger>
+                            </Style.Triggers>
                         </Style>
                         <Style TargetType="StackPanel">
                             <Setter Property="Orientation" Value="Horizontal"/>
@@ -157,15 +169,53 @@
                     <TextBox Height="25" VerticalContentAlignment="Center" TextWrapping="Wrap" Text="{Binding SelectedAC.Name}" Grid.Row="1" Grid.Column="1"/>
                     <TextBlock Text="노트" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"/>
                     <TextBox Height="70" TextWrapping="Wrap" Text="{Binding SelectedAC.Note}" Grid.Row="2" Grid.Column="1"/>
-                    <StackPanel Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Right">
+                    <TextBlock Text="주의" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"/>
+                    <ComboBox Height="40" ItemsSource="{Binding WarningPointArray}" SelectedValue="{Binding SelectedAC.WarningPoint}" Foreground="Black" Grid.Row="3" Grid.Column="1">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Foreground="Black" FontSize="17" Text="{Binding}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <StackPanel Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Right">
                         <Button Content="거래처 판매내역 보기" Width="150" Command="{Binding ShowSalesOfSelectedAC}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="추가" Command="{Binding AddAccountingCompany}" Margin="0,0,10,0"/>
                         <Button Content="수정" Command="{Binding SaveAccountCompanyInfo}"/>
-                        <Button Content="삭제" Command="{Binding DeleteAccountCompany}"/>
+                        <Button Content="삭제" Width="40" Height="40" Style="{StaticResource OnHoverRedBasedGreenButton}" Command="{Binding DeleteAccountCompany}"/>
                     </StackPanel>
-                    
+                </Grid>
+                <Grid Grid.Row="1" Background="{StaticResource Dark}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="6*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.Resources>
+                        <Style TargetType="Button" BasedOn="{StaticResource GreenButton}">
+                            <Setter Property="Width" Value="50"/>
+                            <Setter Property="Height" Value="50"/>
+                            <Setter Property="FontSize" Value="15"/>
+                        </Style>
+                    </Grid.Resources>
+                    <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <StackPanel.Resources>
+                            <Style TargetType="Button" BasedOn="{StaticResource GreenButton}">
+                                <Setter Property="Width" Value="50"/>
+                                <Setter Property="Height" Value="50"/>
+                                <Setter Property="FontSize" Value="15"/>
+                            </Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="Margin" Value="10"/>
+                                <Setter Property="FontSize" Value="20"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBlock Text="새 거래처"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                            <Button Content="추가" Command="{Binding AddAccountingCompany}"/>
+                        </StackPanel>
+                    </StackPanel>
                 </Grid>
             </Grid>
         </Grid>

@@ -4,10 +4,10 @@
              xmlns:local="clr-namespace:Epe.xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <SolidColorBrush x:Key="Dark" Color="#2E3D59"/>
-        <SolidColorBrush x:Key="LightDark" Color="#4A608C"/>
-        <SolidColorBrush x:Key="Green" Color="#71734C"/>
-        <SolidColorBrush x:Key="LightGreen" Color="#8A8C51"/>
+        <SolidColorBrush x:Key="Dark" Color="#00526e"/>
+        <SolidColorBrush x:Key="LightDark" Color="#049DBF"/>
+        <SolidColorBrush x:Key="Green" Color="#3B592D"/>
+        <SolidColorBrush x:Key="LightGreen" Color="#D99E6A"/>
         <SolidColorBrush x:Key="White" Color="White"/>
 
         <Style x:Key="TitleBar" TargetType="Grid">
@@ -15,6 +15,7 @@
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="Background" Value="{StaticResource Dark}"/>
         </Style>
+        
         <Style TargetType="Button" x:Key="GreenButton">
             <Setter Property="Background" Value="{StaticResource Green}"/>
             <Setter Property="Foreground" Value="{StaticResource White}"/>
@@ -34,7 +35,13 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
+        <Style TargetType="Button" BasedOn="{StaticResource GreenButton}" x:Key="OnHoverRedBasedGreenButton">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="Red"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <Style TargetType="Button" x:Key="DarkButton">
             <Setter Property="Background" Value="{StaticResource Dark}"/>
             <Setter Property="Foreground" Value="{StaticResource White}"/>

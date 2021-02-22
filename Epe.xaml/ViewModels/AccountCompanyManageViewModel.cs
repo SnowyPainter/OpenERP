@@ -21,7 +21,7 @@ namespace Epe.xaml.ViewModels
     {
         #region private Properties
         private int selectedACIndex;
-
+        private bool updatingACEnabled;
         #region ACINFO
         private AccountCompany selectedAC;
         #endregion
@@ -32,6 +32,15 @@ namespace Epe.xaml.ViewModels
         {
             get { return selectedACIndex; }
             set { selectedACIndex = value; NotifyPropertyChanged("SelectedAccountCompanyIndex"); }
+        }
+        public bool UpdatingACEnabled
+        {
+            get { return updatingACEnabled; }
+            set { updatingACEnabled = value; NotifyPropertyChanged("UpdatingACEnabled"); }
+        }
+        public Array WarningPointArray
+        {
+            get { return Enum.GetValues(typeof(Warning)); }
         }
         /// <summary>
         /// =로 셋하기 전에 무조건 clone으로 해라
@@ -101,25 +110,32 @@ namespace Epe.xaml.ViewModels
             ds.Initialize();
             ds.SetMyCompany(Company);
 
+            UpdatingACEnabled = false;
+
             var acs = ds.GetAccountingCompanies();
             for (int i = 0;i < acs.Count;i++)
             {
                 Company.AccountCManage.AddAccountingCompany(acs[i]);
             }
-            SelectedAccountCompanyIndex = 0;
-            //왜인지는 모르겠는데 여기서는 OnPropertychanged 내부 동작안함
-            //그러므로 직접설정하겠음
-            SelectedAC = getCloneAC(Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex]);
+            
+            if(acs.Count > 0)
+            {
+                SelectedAccountCompanyIndex = 0;
+                //OnPropertychanged 내부 동작안함
+                SelectedAC = getCloneAC(Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex]);
+                UpdatingACEnabled = true;
+            }
         }
         private AccountCompany getCloneAC(AccountCompany ac) => new AccountCompany { Name = ac.Name, Note = ac.Note, WarningPoint = ac.WarningPoint };
         public void RemoveAccountCompany(int i)
         {
             if (i < 0 || i >= Company.AccountCManage.AccountingCompanies.Count) return;
 
+            if (MessageBox.Show("정말 삭제하시겠습니까?", $"{SelectedAC.Name}", MessageBoxButton.OKCancel) != MessageBoxResult.OK) return;
+
             ds.DeleteAccountingCompany(Company.AccountCManage.AccountingCompanies[i]);
             Company.AccountCManage.AccountingCompanies.RemoveAt(i);
-            SelectedAccountCompanyIndex = -1;
-            SelectedAC = null;
+            unselectAC();
         }
         public void ShowSalesFromAC(string acname)
         {
@@ -133,6 +149,12 @@ namespace Epe.xaml.ViewModels
 
             ds.AddAccountingCompany(acw.SelectedCompany);
             Company.AccountCManage.AddAccountingCompany(acw.SelectedCompany);
+
+            if (Company.AccountCManage.AccountingCompanies.Count == 1)
+            {
+                SelectedAC = getCloneAC(Company.AccountCManage.AccountingCompanies[0]);
+                UpdatingACEnabled = true;
+            }
         }
         public void AddSalesAndOpenSalesWindow()
         {
@@ -151,6 +173,7 @@ namespace Epe.xaml.ViewModels
             if (product == null || product.Name == "" || product.Price < 0) return;
 
             ds.AddProduct(product.Name, product.Price, product.Manufacturer, product.Costs.ToArray());
+            MessageBox.Show($"상품이 정상적으로 추가 완료되었습니다.", $"{product.Name}({product.Price})");
         }
         public void UpdateAccountCompany()
         {
@@ -158,16 +181,28 @@ namespace Epe.xaml.ViewModels
 
             AccountCompany old = Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex], newData = SelectedAC;
 
+            if (old.Name == newData.Name && old.Note == newData.Note && old.WarningPoint == newData.WarningPoint) return;
+            
             ds.UpdateAccountingCompany(old, newData);
             Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex] = newData;
 
             MessageBox.Show("정보 변경 완료되었습니다");
+
+            unselectAC();
         }
         public void OnACSelectedChanged(int i)
         {
             var acinfo = Company.AccountCManage.AccountingCompanies[i];
             //binding 2개 겹치면 a=b, b=a 자동으로됨. 그래서 clone하는것
             SelectedAC = getCloneAC(acinfo);
+            UpdatingACEnabled = true;
+        }
+
+        private void unselectAC()
+        {
+            SelectedAccountCompanyIndex = -1;
+            SelectedAC = null;
+            UpdatingACEnabled = false;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

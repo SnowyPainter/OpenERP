@@ -68,14 +68,16 @@ namespace Epe.xaml
             ds = new DataSystem();
             InitializeComponent();
             ds.Initialize();
+
+            AddCostButton.IsEnabled = notCostItem;
+            windowForCostProduct = !notCostItem;
+
             var title = windowForCostProduct ? "원재료 추가" : "상품 추가";
             TitleBar.DataContext = new TitleBarViewModel(title);
             this.DataContext = this;
 
-            AddCostButton.IsEnabled = notCostItem;
-            windowForCostProduct = !notCostItem;
+            
             ProductListView.Visibility = Visibility.Hidden;
-
 
             if (hideSearchBtn)
                 SelectProductButton.Visibility = Visibility.Hidden;
@@ -118,29 +120,38 @@ namespace Epe.xaml
 
             if (isCreationGrid())
             {
-                if (ProductName.Text != "" && int.TryParse(Price.Text, out price) && price >= 0 && (OtherCompany.IsChecked ?? false && SelectedAC != null))
-                {
-                    if(SelectedAC.Name == ds.GetMyCompanyName())
-                    {
-                        MessageBox.Show("회사명과 다른 이름을 가진 회사를 선택하셔야합니다.");
-                        return;
-                    }
+                if (ProductName.Text != "" && int.TryParse(Price.Text, out price) && price >= 0)
+                { 
                     var ischecked = OtherCompany.IsChecked;
                     if(ischecked == null)
                     {
                         MessageBox.Show("체크 확인 부탁드립니다.");
+                        return;
                     }
-                    Product = new Product
+                    else if(ischecked == true && SelectedAC == null)
                     {
-                        Price = price,
-                        Name = ProductName.Text,
-                        Manufacturer = ischecked ?? true ? SelectedAC : ds.MyCompany,
-                    };
-                    if (!windowForCostProduct)
-                        Product.Costs = Costs;
+                        MessageBox.Show("제조사 확인 부탁드립니다.");
+                        return;
+                    }
+                    else if(ischecked == true && SelectedAC != null && SelectedAC.Name == ds.GetMyCompanyName())
+                    {
+                        MessageBox.Show("회사명과 다른 이름을 가진 회사를 선택하셔야합니다.");
+                        return;
+                    }
+                    else
+                    {
+                        Product = new Product
+                        {
+                            Price = price,
+                            Name = ProductName.Text,
+                            Manufacturer = ischecked == true ? SelectedAC : ds.MyCompany,
+                        };
+                        if (!windowForCostProduct)
+                            Product.Costs = Costs;
+                    }
 
                 }
-                else
+                else// if((OtherCompany.IsChecked == true && SelectedAC != null) || OtherCompany.IsChecked == false)
                 {
                     if (MessageBox.Show("상품 추가 절차를 중단하시겠습니까?", "창을 닫으시겠습니까?", MessageBoxButton.YesNo) == MessageBoxResult.No)
                         return;
