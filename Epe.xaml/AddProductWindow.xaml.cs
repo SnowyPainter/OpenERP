@@ -208,6 +208,7 @@ namespace Epe.xaml
             ACComboBox.IsEnabled = false;
         }
 
+
         protected virtual void NotifyPropertyChanged(string property)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));

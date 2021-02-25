@@ -75,6 +75,7 @@ namespace Epe.xaml
             {
                 SelectedCompany = new AccountCompany(CompanyName.Text);
                 SelectedCompany.Note = CompanyNote.Text;
+                SelectedCompany.WarningPoint = Warning.None;
 
                 this.Close();
             }

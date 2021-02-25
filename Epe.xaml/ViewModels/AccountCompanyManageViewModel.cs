@@ -19,6 +19,19 @@ namespace Epe.xaml.ViewModels
 {
     public class AccountCompanyManageViewModel : ViewBase, INotifyPropertyChanged
     {
+        /*
+         * 
+         *  처리해야할 업무
+         * 
+         * 상품 보기 및 업데이트
+         * 거래처 삭제할때 관련 상품 조회 (필수)
+         * 
+         * 디자인은 무조건 카드형식
+         * 
+         * 
+         */
+
+
         #region private Properties
         private int selectedACIndex;
         private bool updatingACEnabled;

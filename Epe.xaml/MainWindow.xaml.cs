@@ -24,13 +24,11 @@ namespace Epe.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        public ObservableCollection<AccountCompany> A { get; set; }
-
         public MainWindow()
         {
             InitializeComponent();
 
-            var title = "업체명";
+            var title = "민우회사";
             TitleBar.DataContext = new TitleBarViewModel(title);
             AccountCompanyManageGrid.DataContext = new AccountCompanyManageViewModel("My Company", FileSave.AccountCompaniesXML);
 
