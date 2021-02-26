@@ -24,7 +24,7 @@ namespace BusinessEngine.Accounting
         /// <summary>
         /// Sale과 Journalizng을 저장합니다.
         /// </summary>
-        public Book AccountingBook { get; set; }
+        public Book Book { get; set; }
 
         private float operatingProfit;
         private float salesProfit;
@@ -34,13 +34,13 @@ namespace BusinessEngine.Accounting
         {
             Debts = new List<Debt>();
             Bonds = new List<Bond>();
-            AccountingBook = new Book();
+            Book = new Book();
         }        
         public FinanceManage(List<Debt> debts, List<Bond> bonds, Book book)
         {
             this.Debts = debts;
             this.Bonds = bonds;
-            this.AccountingBook = book;
+            this.Book = book;
         }
         /// <summary>
         /// 필터에 맞는 데이터만 찾아 재무회계 데이터에 접근할수있습니다.
@@ -95,7 +95,7 @@ namespace BusinessEngine.Accounting
                 opers += GetJournal(opersDf.SetYear(now.Year).SetMonthTerm(now.Month, now.Month + reserveMonths)).Select((j) => j.Amount).Sum();
             }
             var bonds = BondsSoonCash(reserveMonths).Select((b)=>b.Amount).Sum();
-            var profit = AccountingBook.Sales.Where((s) => s.ExpectedDepositDate != null && s.ExpectedDepositDate.Year == now.Year && //매출총이익
+            var profit = Book.Sales.Where((s) => s.ExpectedDepositDate != null && s.ExpectedDepositDate.Year == now.Year && //매출총이익
                 s.ExpectedDepositDate.Month >= now.Month - reserveMonths)
                 .Select((s)=>(s.Product.Price*s.DiscountRate - s.Product.GetAllCostsPrice())*s.Qty).Sum();
 
@@ -142,7 +142,7 @@ namespace BusinessEngine.Accounting
         {
             sales = 0;
             salesProfit = 0;
-            AccountingBook.Sales.ToList().ForEach((s) =>
+            Book.Sales.ToList().ForEach((s) =>
             {
                 if (s.Date.Year == soldyear)
                 {
@@ -165,7 +165,7 @@ namespace BusinessEngine.Accounting
         {
             sales = 0;
             salesProfit = 0;
-            AccountingBook.Sales.ToList().ForEach((s) =>
+            Book.Sales.ToList().ForEach((s) =>
             {
                 if(s.Date.Year == soldyear && s.Date.Month == (int)month)
                 {
@@ -190,7 +190,7 @@ namespace BusinessEngine.Accounting
             if (salesprofit == 0.0f)
                 CalculateSalesYearly(soldyear);
 
-            AccountingBook.Journals.ToList().ForEach((j) =>
+            Book.Journals.ToList().ForEach((j) =>
             {
                 switch (j.For)
                 {
@@ -217,7 +217,7 @@ namespace BusinessEngine.Accounting
             if (salesprofit == 0.0f)
                 CalculateSalesMonthly(soldyear, month);
 
-            AccountingBook.Journals.ToList().ForEach((j) =>
+            Book.Journals.ToList().ForEach((j) =>
             {
                 switch (j.For)
                 {
@@ -249,7 +249,7 @@ namespace BusinessEngine.Accounting
         /// <param name="qty">판매 갯수</param>
         public void AddSale(DateTime expectDepDate, DateTime sellDate, IProduct product, AccountCompany buyer, int discountRate, int qty)
         {
-            AccountingBook.Sold(new Sale(expectDepDate, sellDate, product, buyer, discountRate, qty));
+            Book.Sold(new Sale(expectDepDate, sellDate, product, buyer, discountRate, qty));
         }
         /// <summary>
         /// 회계장부에 일시불로 분개합니다.
@@ -261,7 +261,7 @@ namespace BusinessEngine.Accounting
         /// <param name="why">돈의 목적</param>
         public void InsertJournalFullPayment(DateTime date, float moneyAmount, IJournalizeObject debtor, IJournalizeObject from,UsedFor whyType, string why)
         {
-            AccountingBook.Insert(new Journalizing(moneyAmount, date, from, debtor, whyType, why));
+            Book.Insert(new Journalizing(moneyAmount, date, from, debtor, whyType, why));
         }
         /// <summary>
         /// 감가상각을 대비하여 년단위로 분개합니다.
@@ -319,7 +319,7 @@ namespace BusinessEngine.Accounting
         public List<Journalizing> GetJournal(DateFilter filter)
         {
             List<Journalizing> js = new List<Journalizing>();
-            AccountingBook.Journals.ToList().ForEach((j) =>
+            Book.Journals.ToList().ForEach((j) =>
             {
                 var date = new int[] { j.When.Day, j.When.Month, j.When.Year };
                 var filterArr = filter.ToArray();

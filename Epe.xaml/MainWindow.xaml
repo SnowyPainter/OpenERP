@@ -270,44 +270,72 @@
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="50"/><!--Header-->
-                                
-                                <RowDefinition Height="2*"/>
                                 <RowDefinition Height="*"/>
+                                <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
                             <Grid Grid.Row="0">
                                 <TextBlock Text="상품 관리" FontSize="18"/>
                             </Grid>
                             <Grid Grid.Row="1">
-                                <ListView Grid.Row="0"
-                                      ItemsSource="{Binding Company.Finance.AccountingBook.Products}" 
+                                <ListBox Grid.Row="0"
+                                      ItemsSource="{Binding Company.Finance.Book.Products}" 
                                       SelectedIndex="{Binding SelectedProductIndex}"
-                                      SelectionMode="Single" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                    <ListView.Resources>
+                                      SelectionMode="Single">
+                                    <ListBox.Resources>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="VerticalAlignment" Value="Center"/>
                                             <Setter Property="TextAlignment" Value="Right"/>
                                             <Setter Property="Height" Value="35"/>
                                         </Style>
-                                    </ListView.Resources>
-                                    <ListView.View>
-                                        <GridView>
-                                            <GridViewColumn Header="상품" Width="120">
-                                                <GridViewColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding Name}"/>
-                                                    </DataTemplate>
-                                                </GridViewColumn.CellTemplate>
-                                            </GridViewColumn>
-                                            <GridViewColumn Header="정가" Width="120">
-                                                <GridViewColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding Price}"/>
-                                                    </DataTemplate>
-                                                </GridViewColumn.CellTemplate>
-                                            </GridViewColumn>
-                                        </GridView>
-                                    </ListView.View>
-                                </ListView>
+                                    </ListBox.Resources>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Expander Header="{Binding Name}" Width="Auto" HorizontalAlignment="Center" Padding="10,0,10,10">
+                                                <StackPanel Orientation="Vertical">
+                                                    <TextBlock>
+                                                        <Run Text="제조사 : "/>
+                                                        <Run Text="{Binding Manufacturer.Name}">
+                                                        </Run>
+                                                    </TextBlock>
+                                                    <TextBlock>
+                                                        <Run Text="정가 : "/>
+                                                        <Run Text="{Binding Price}"/>
+                                                    </TextBlock>
+                                                    <Expander Header="원가">
+                                                        <ListView ItemsSource="{Binding Costs}" SelectionMode="Single">
+                                                            <ListView.Resources>
+                                                            </ListView.Resources>
+                                                            <ListView.View>
+                                                                <GridView>  
+                                                                    <GridViewColumn Header="제조사" DisplayMemberBinding="{Binding Manufacturer.Name}"/>
+                                                                    <GridViewColumn Header="제품명" DisplayMemberBinding="{Binding Name}"/>
+                                                                    <GridViewColumn Header="매입가" DisplayMemberBinding="{Binding Price}"/>
+                                                                </GridView>
+                                                            </ListView.View>
+                                                        </ListView>
+                                                    </Expander>
+                                                </StackPanel>
+                                            </Expander>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Grid>
+                            <Grid Grid.Row="2">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}">
+                                            <Setter Property="Width" Value="40"/>
+                                            <Setter Property="Height" Value="40"/>
+                                            <Setter Property="Margin" Value="0,0,10,0"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource DarkAccent}"/>
+                                            <Setter Property="Background" Value="White"/>
+                                        </Style>
+                                    </StackPanel.Resources>
+                                    <Button Foreground="Red" 
+                                            Command="{Binding DeleteProductCommand}" Padding="0"
+                                            Content="{materialDesign:PackIcon Kind=Trash}"/>
+                                </StackPanel>
                             </Grid>
                         </Grid>
                     </materialDesign:Card>

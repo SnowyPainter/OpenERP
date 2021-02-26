@@ -21,19 +21,6 @@ namespace Epe.xaml.ViewModels
 {
     public class MainViewModel : ViewBase, INotifyPropertyChanged
     {
-        /*
-         * 
-         *  처리해야할 업무
-         * 
-         * 상품 보기 및 업데이트
-         * 거래처 삭제할때 관련 상품 조회 (필수)
-         * 
-         * 디자인은 무조건 카드형식
-         * 
-         * 
-         */
-
-
         #region private Properties
         private int selectedACIndex, selectedProductIndex;
         private bool updatingACEnabled;
@@ -80,6 +67,7 @@ namespace Epe.xaml.ViewModels
         #endregion
         #region private Commands
         private RelayCommand<object> deleteAccountCompany, showSalesOfSelectedAC, addSales, addProduct, addAC, saveAC;
+        private RelayCommand<object> deleteProductCommand;
         #endregion
         #region Command Impls
         #region Accounting Company Command
@@ -129,6 +117,13 @@ namespace Epe.xaml.ViewModels
                 return addProduct ?? (addProduct = new RelayCommand<object>(o => AddProductAndOpenProductWindow()));
             }
         }
+        public ICommand DeleteProductCommand
+        {
+            get
+            {
+                return deleteProductCommand ?? (deleteProductCommand = new RelayCommand<object>(o => RemoveProduct(SelectedProductIndex)));
+            }
+        }
         #endregion
         #endregion
         public DataSystem DataSys { get; set; }
@@ -157,11 +152,11 @@ namespace Epe.xaml.ViewModels
             var products = await getProductTask;
 
             vm.Company.AccountCManage.AccountingCompanies = new ObservableCollection<AccountCompany>(acs);
-            vm.Company.Finance.AccountingBook.Products = new ObservableCollection<IProduct>(products);
+            vm.Company.Finance.Book.Products = new ObservableCollection<IProduct>(products);
             if (products.Count > 0)
             {
                 vm.SelectedProductIndex = 0;
-                vm.SelectedProduct = getCloneProduct(vm.Company.Finance.AccountingBook.Products[vm.SelectedProductIndex]);
+                vm.SelectedProduct = getCloneProduct(vm.Company.Finance.Book.Products[vm.SelectedProductIndex]);
             }
             if (acs.Count > 0)
             {
@@ -178,11 +173,23 @@ namespace Epe.xaml.ViewModels
         {
             if (i < 0 || i >= Company.AccountCManage.AccountingCompanies.Count) return;
 
-            if (MessageBox.Show("정말 삭제하시겠습니까?", $"{SelectedAC.Name}", MessageBoxButton.OKCancel) != MessageBoxResult.OK) return;
+            if (MessageBox.Show($"{Company.AccountCManage.AccountingCompanies[i].Name}을 정말 삭제할까요?", "삭제 경고", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                DataSys.DeleteAccountingCompany(Company.AccountCManage.AccountingCompanies[i]);
+                Company.AccountCManage.AccountingCompanies.RemoveAt(i);
+                unselectAC();
+            }
+        }
+        public void RemoveProduct(int i)
+        {
+            if (i < 0 || i >= Company.Finance.Book.Products.Count) return;
 
-            DataSys.DeleteAccountingCompany(Company.AccountCManage.AccountingCompanies[i]);
-            Company.AccountCManage.AccountingCompanies.RemoveAt(i);
-            unselectAC();
+            if (MessageBox.Show($"{Company.Finance.Book.Products[i].Name}을 정말 삭제할까요?", "삭제 경고", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                DataSys.DeleteProduct(SelectedProduct);
+                Company.Finance.Book.Products.RemoveAt(i);
+                unselectPd();
+            }
         }
         public void ShowSalesFromAC(string acname)
         {
@@ -199,8 +206,8 @@ namespace Epe.xaml.ViewModels
 
             if (Company.AccountCManage.AccountingCompanies.Count == 1)
             {
-                SelectedAC = getCloneAC(Company.AccountCManage.AccountingCompanies[0]);
-                UpdatingACEnabled = true;
+                SelectedAccountCompanyIndex = -1;
+                SelectedAccountCompanyIndex = 1;
             }
         }
         public void AddSalesAndOpenSalesWindow()
@@ -220,7 +227,14 @@ namespace Epe.xaml.ViewModels
             if (product == null || product.Name == "" || product.Price < 0) return;
 
             DataSys.AddProduct(product.Name, product.Price, product.Manufacturer, product.Costs.ToArray());
-            Company.Finance.AccountingBook.Products.Add(product);
+            Company.Finance.Book.Products.Add(product);
+
+            if (Company.Finance.Book.Products.Count == 1)
+            {
+                SelectedProductIndex = -1;
+                SelectedProductIndex = 1;
+            }
+
             MessageBox.Show($"상품이 정상적으로 추가 완료되었습니다.", $"{product.Name}({product.Price})");
         }
         public void UpdateAccountCompany()
@@ -238,12 +252,17 @@ namespace Epe.xaml.ViewModels
 
             unselectAC();
         }
-        public void OnACSelectedChanged(int i)
+        private void onACSelectedChanged(int i)
         {
             var acinfo = Company.AccountCManage.AccountingCompanies[i];
             //binding 2개 겹치면 a=b, b=a 자동으로됨. 그래서 clone하는것
             SelectedAC = getCloneAC(acinfo);
             UpdatingACEnabled = true;
+        }
+        private void onProductChanged(int i)
+        {
+            var product = Company.Finance.Book.Products[i];
+            SelectedProduct = getCloneProduct(product);
         }
 
         private void unselectAC()
@@ -251,6 +270,11 @@ namespace Epe.xaml.ViewModels
             SelectedAccountCompanyIndex = -1;
             SelectedAC = null;
             UpdatingACEnabled = false;
+        }
+        private void unselectPd()
+        {
+            SelectedProductIndex = -1;
+            SelectedProduct = null;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -260,7 +284,11 @@ namespace Epe.xaml.ViewModels
             {
                 case "SelectedAccountCompanyIndex":
                     if (SelectedAccountCompanyIndex >= 0 && SelectedAccountCompanyIndex < Company.AccountCManage.AccountingCompanies.Count)
-                        OnACSelectedChanged(SelectedAccountCompanyIndex);
+                        onACSelectedChanged(SelectedAccountCompanyIndex);
+                    break;
+                case "SelectedProductIndex":
+                    if (SelectedProductIndex >= 0 && SelectedProductIndex < Company.Finance.Book.Products.Count)
+                        onProductChanged(SelectedProductIndex);
                     break;
             }
         }
