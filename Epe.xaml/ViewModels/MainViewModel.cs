@@ -1,6 +1,7 @@
 ﻿using BusinessEngine;
 using BusinessEngine.IO;
 using BusinessEngine.Operating;
+using BusinessEngine.Sales;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -17,7 +19,7 @@ using System.Xml.Serialization;
 
 namespace Epe.xaml.ViewModels
 {
-    public class AccountCompanyManageViewModel : ViewBase, INotifyPropertyChanged
+    public class MainViewModel : ViewBase, INotifyPropertyChanged
     {
         /*
          * 
@@ -33,8 +35,9 @@ namespace Epe.xaml.ViewModels
 
 
         #region private Properties
-        private int selectedACIndex;
+        private int selectedACIndex, selectedProductIndex;
         private bool updatingACEnabled;
+        private IProduct selectedProduct;
         #region ACINFO
         private AccountCompany selectedAC;
         #endregion
@@ -45,6 +48,11 @@ namespace Epe.xaml.ViewModels
         {
             get { return selectedACIndex; }
             set { selectedACIndex = value; NotifyPropertyChanged("SelectedAccountCompanyIndex"); }
+        }
+        public int SelectedProductIndex
+        {
+            get { return selectedProductIndex; }
+            set { selectedProductIndex = value; NotifyPropertyChanged("SelectedProductIndex"); }
         }
         public bool UpdatingACEnabled
         {
@@ -63,12 +71,18 @@ namespace Epe.xaml.ViewModels
             get { return selectedAC; }
             set { selectedAC = value; NotifyPropertyChanged("SelectedAC"); }
         }
+        public IProduct SelectedProduct
+        {
+            get { return selectedProduct; }
+            set { selectedProduct = value; NotifyPropertyChanged("SelectedProduct"); }
+        }
         public Company Company { get; set; }
         #endregion
         #region private Commands
         private RelayCommand<object> deleteAccountCompany, showSalesOfSelectedAC, addSales, addProduct, addAC, saveAC;
         #endregion
         #region Command Impls
+        #region Accounting Company Command
         public ICommand SaveAccountCompanyInfo
         {
             get
@@ -83,6 +97,15 @@ namespace Epe.xaml.ViewModels
                 return deleteAccountCompany ?? (deleteAccountCompany = new RelayCommand<object>(o => RemoveAccountCompany(SelectedAccountCompanyIndex)));
             }
         }
+        public ICommand AddAccountingCompany
+        {
+            get
+            {
+                return addAC ?? (addAC = new RelayCommand<object>(o => AddAC()));
+            }
+        }
+        #endregion
+        #region Sales Command
         public ICommand ShowSalesOfSelectedAC
         {
             get
@@ -97,6 +120,8 @@ namespace Epe.xaml.ViewModels
                 return addSales ?? (addSales = new RelayCommand<object>(o => AddSalesAndOpenSalesWindow()));
             }
         }
+        #endregion
+        #region Products Command
         public ICommand AddProduct
         {
             get
@@ -104,55 +129,64 @@ namespace Epe.xaml.ViewModels
                 return addProduct ?? (addProduct = new RelayCommand<object>(o => AddProductAndOpenProductWindow()));
             }
         }
-        public ICommand AddAccountingCompany
-        {
-            get
-            {
-                return addAC ?? (addAC = new RelayCommand<object>(o => AddAC()));
-            }
-        }
         #endregion
+        #endregion
+        public DataSystem DataSys { get; set; }
 
-        private DataSystem ds;
-        public AccountCompanyManageViewModel(string name, string manage)
+        private static AccountCompany getCloneAC(AccountCompany ac) => new AccountCompany { Name = ac.Name, Note = ac.Note, WarningPoint = ac.WarningPoint };
+        private static IProduct getCloneProduct(IProduct p) => new Product { Costs = p.Costs, Manufacturer = p.Manufacturer, Name = p.Name, Price = p.Price };
+        
+        public MainViewModel(string name)
         {
             PropertyChanged += AccountCompanyManageViewModel_PropertyChanged;
-
+            DataSys = new DataSystem();
             Company = new Company(name);
-            ds = new DataSystem();
-            ds.Initialize();
-            ds.SetMyCompany(Company);
-
-            UpdatingACEnabled = false;
-
-            var acs = ds.GetAccountingCompanies();
-            for (int i = 0;i < acs.Count;i++)
-            {
-                Company.AccountCManage.AddAccountingCompany(acs[i]);
-            }
-            
-            if(acs.Count > 0)
-            {
-                SelectedAccountCompanyIndex = 0;
-                //OnPropertychanged 내부 동작안함
-                SelectedAC = getCloneAC(Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex]);
-                UpdatingACEnabled = true;
-            }
+            UpdatingACEnabled = false;            
         }
-        private AccountCompany getCloneAC(AccountCompany ac) => new AccountCompany { Name = ac.Name, Note = ac.Note, WarningPoint = ac.WarningPoint };
+        public static async Task<MainViewModel> Build(string name)
+        {
+            var vm = new MainViewModel(name);
+
+            var initTask = Task.Run(() => vm.DataSys.Initialize());
+            await initTask;
+            vm.DataSys.SetMyCompany(vm.Company);
+            var getProductTask = Task.Run(() => vm.DataSys.GetProducts());
+            var getACTask = Task.Run(() => vm.DataSys.GetAccountingCompanies());
+
+            var acs = await getACTask;
+            var products = await getProductTask;
+
+            vm.Company.AccountCManage.AccountingCompanies = new ObservableCollection<AccountCompany>(acs);
+            vm.Company.Finance.AccountingBook.Products = new ObservableCollection<IProduct>(products);
+            if (products.Count > 0)
+            {
+                vm.SelectedProductIndex = 0;
+                vm.SelectedProduct = getCloneProduct(vm.Company.Finance.AccountingBook.Products[vm.SelectedProductIndex]);
+            }
+            if (acs.Count > 0)
+            {
+                vm.SelectedAccountCompanyIndex = 0;
+                //OnPropertychanged 내부 동작안함
+                vm.SelectedAC = getCloneAC(vm.Company.AccountCManage.AccountingCompanies[vm.SelectedAccountCompanyIndex]);
+                vm.UpdatingACEnabled = true;
+            }
+
+            return vm;
+        }
+        
         public void RemoveAccountCompany(int i)
         {
             if (i < 0 || i >= Company.AccountCManage.AccountingCompanies.Count) return;
 
             if (MessageBox.Show("정말 삭제하시겠습니까?", $"{SelectedAC.Name}", MessageBoxButton.OKCancel) != MessageBoxResult.OK) return;
 
-            ds.DeleteAccountingCompany(Company.AccountCManage.AccountingCompanies[i]);
+            DataSys.DeleteAccountingCompany(Company.AccountCManage.AccountingCompanies[i]);
             Company.AccountCManage.AccountingCompanies.RemoveAt(i);
             unselectAC();
         }
         public void ShowSalesFromAC(string acname)
         {
-
+            
         }
         public void AddAC()
         {
@@ -160,7 +194,7 @@ namespace Epe.xaml.ViewModels
             acw.ShowDialog();
             if (acw.SelectedCompany == null) return;
 
-            ds.AddAccountingCompany(acw.SelectedCompany);
+            DataSys.AddAccountingCompany(acw.SelectedCompany);
             Company.AccountCManage.AddAccountingCompany(acw.SelectedCompany);
 
             if (Company.AccountCManage.AccountingCompanies.Count == 1)
@@ -185,7 +219,8 @@ namespace Epe.xaml.ViewModels
             var product = addProductWindow.Product;
             if (product == null || product.Name == "" || product.Price < 0) return;
 
-            ds.AddProduct(product.Name, product.Price, product.Manufacturer, product.Costs.ToArray());
+            DataSys.AddProduct(product.Name, product.Price, product.Manufacturer, product.Costs.ToArray());
+            Company.Finance.AccountingBook.Products.Add(product);
             MessageBox.Show($"상품이 정상적으로 추가 완료되었습니다.", $"{product.Name}({product.Price})");
         }
         public void UpdateAccountCompany()
@@ -196,7 +231,7 @@ namespace Epe.xaml.ViewModels
 
             if (old.Name == newData.Name && old.Note == newData.Note && old.WarningPoint == newData.WarningPoint) return;
             
-            ds.UpdateAccountingCompany(old, newData);
+            DataSys.UpdateAccountingCompany(old, newData);
             Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex] = newData;
 
             MessageBox.Show("정보 변경 완료되었습니다");

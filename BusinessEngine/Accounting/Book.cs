@@ -15,11 +15,13 @@ namespace BusinessEngine.Accounting
     [Serializable]
     public class Book
     {
-        public ObservableCollection<Journalizing> Journals { get; set; }
+        public ObservableCollection<Journalizing> Journals { get; set; } = new ObservableCollection<Journalizing>();
 
-        public ObservableCollection<Sale> Sales { get; set; }
+        public ObservableCollection<Sale> Sales { get; set; } = new ObservableCollection<Sale>();
 
-        public Book() { Sales = new ObservableCollection<Sale>(); }
+        public ObservableCollection<IProduct> Products { get; set; } = new ObservableCollection<IProduct>();
+
+        public Book() { }
 
         public void Sold(Sale sold)
         {

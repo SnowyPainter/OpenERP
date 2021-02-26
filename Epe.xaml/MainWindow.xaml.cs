@@ -28,10 +28,13 @@ namespace Epe.xaml
         {
             InitializeComponent();
 
+        }
+
+        private async void ThisWindow_Loaded(object sender, RoutedEventArgs e)
+        {
             var title = "민우회사";
             TitleBar.DataContext = new TitleBarViewModel(title);
-            AccountCompanyManageGrid.DataContext = new AccountCompanyManageViewModel("My Company", FileSave.AccountCompaniesXML);
-
+            AccountCompanyManageGrid.DataContext = await MainViewModel.Build(title);
         }
     }
 }

@@ -8,7 +8,7 @@
         xmlns:local="clr-namespace:Epe.xaml"
         mc:Ignorable="d"
         Name="ThisWindow" WindowStyle="None" ResizeMode="NoResize" Height="314" Width="350">
-    <Grid Background="{StaticResource LightGreen}">
+    <Grid Background="{StaticResource LightBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
@@ -85,7 +85,7 @@
                         <Setter Property="Background" Value="{StaticResource DarkAccent}"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource LightDark}"/>
+                                <Setter Property="Background" Value="{StaticResource LightDarkAccent}"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>

@@ -7,19 +7,8 @@
         xmlns:local="clr-namespace:Epe.xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        x:Name="ThisWindow" WindowStyle="None" MinHeight="900" MinWidth="1500" Height="900" Width="1500" Icon="/Images/icon.ico" WindowStartupLocation="CenterScreen">
-    <Window.Resources>
-        <SolidColorBrush x:Key="DarkAccent" Color="#59163B"/>
-        <SolidColorBrush x:Key="LightDarkAccent" Color="#A62E66"/>
-        <SolidColorBrush x:Key="LLightAccent" Color="#A65390"/>
-        <SolidColorBrush x:Key="LightBlue" Color="#A3BFD9"/>
-        <Style x:Key="TitleBar" TargetType="Grid">
-            <Setter Property="VerticalAlignment" Value="Top"/>
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="Background" Value="{StaticResource DarkAccent}"/>
-        </Style>
-    </Window.Resources>
-    <Grid Background="{StaticResource DarkAccent}">
+        x:Name="ThisWindow" Loaded="ThisWindow_Loaded" WindowStyle="None" MinHeight="900" MinWidth="1500" Height="900" Width="1500" Icon="/Images/icon.ico" WindowStartupLocation="CenterScreen">
+    <Grid Background="{StaticResource LightBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
             <RowDefinition Height="*"/>
@@ -56,7 +45,7 @@
                         Command="{Binding CloseButton_Click}" CommandParameter="{x:Reference Name=ThisWindow}"/>
             </StackPanel>
         </Grid>
-        <Grid x:Name="AccountCompanyManageGrid" Margin="5" Background="{StaticResource LightBlue}" Grid.Row="1" VerticalAlignment="Stretch">
+        <Grid x:Name="AccountCompanyManageGrid" Margin="0" Background="{StaticResource LightBackground}" Grid.Row="1" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
@@ -194,6 +183,7 @@
                             <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
                                 <Setter Property="Height" Value="50"/>
                                 <Setter Property="Margin" Value="0,0,10,0"/>
+                                <Setter Property="Padding" Value="5"/>
                             </Style>
                         </Grid.Resources>
                         <TextBlock Text="거래처 정보" Grid.Row="0" Grid.ColumnSpan="2" FontSize="18" Margin="10" VerticalAlignment="Center" FontWeight="Bold"/>
@@ -224,10 +214,11 @@
                                     <Setter Property="Foreground" Value="White"/>
                                     <Setter Property="Background" Value="{StaticResource DarkAccent}"/>
                                     <Setter Property="Margin" Value="5,0,5,0"/>
+                                    <Setter Property="Padding" Value="0"/>
                                     <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="10"/>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{StaticResource LightBlue}"/>
+                                            <Setter Property="Background" Value="{StaticResource LightBackground}"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -278,14 +269,46 @@
                     <materialDesign:Card Grid.Row="1" Margin="10,0,10,10" Background="White">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="50"/>
-                                <!--Header-->
+                                <RowDefinition Height="50"/><!--Header-->
+                                
+                                <RowDefinition Height="2*"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <Grid Grid.Row="0">
                                 <TextBlock Text="상품 관리" FontSize="18"/>
                             </Grid>
-
+                            <Grid Grid.Row="1">
+                                <ListView Grid.Row="0"
+                                      ItemsSource="{Binding Company.Finance.AccountingBook.Products}" 
+                                      SelectedIndex="{Binding SelectedProductIndex}"
+                                      SelectionMode="Single" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <ListView.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="TextAlignment" Value="Right"/>
+                                            <Setter Property="Height" Value="35"/>
+                                        </Style>
+                                    </ListView.Resources>
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="상품" Width="120">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Name}"/>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="정가" Width="120">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Price}"/>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </Grid>
                         </Grid>
                     </materialDesign:Card>
                 </Grid>

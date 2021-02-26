@@ -33,7 +33,7 @@
                 <TextBlock Text="판매 추가"/>
             </StackPanel>
         </Grid>
-        <Grid Grid.Row="1" Background="{StaticResource LightGreen}">
+        <Grid Grid.Row="1" Background="{StaticResource LightBackground}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="70"/>
@@ -74,7 +74,7 @@
                         <Setter Property="FontSize" Value="16"/>
                         <Setter Property="VerticalAlignment" Value="Center"/>
                         <Setter Property="Foreground" Value="White"/>
-                        <Setter Property="Background" Value="{StaticResource LightDark}"/>
+                        <Setter Property="Background" Value="{StaticResource LightDarkAccent}"/>
                         <Setter Property="Grid.Column" Value="1"/>
                     </Style>
                     <Style TargetType="ComboBox" x:Key="ListProperty" BasedOn="{StaticResource MaterialDesignFilledComboBox}">
@@ -86,7 +86,7 @@
                     <Style TargetType="DatePicker" x:Key="DateProperty" BasedOn="{StaticResource MaterialDesignFilledDatePicker}">
                         <Setter Property="Height" Value="40"/>
                         <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="Background" Value="{StaticResource LightDark}"/>
+                        <Setter Property="Background" Value="{StaticResource LightDarkAccent}"/>
                         <Setter Property="Width" Value="300"/>
                         <Setter Property="Grid.Column" Value="1"/>
                     </Style>
@@ -97,7 +97,7 @@
                 <TextBlock Style="{StaticResource PropertyName}" Text="입금일" Grid.Row="3"/>
                 <TextBlock Style="{StaticResource PropertyName}" Text="할인률" Grid.Row="4"/>
 
-                <ComboBox Padding="3" Style="{StaticResource ListProperty}" Background="{StaticResource LightDark}" x:Name="ProductCombobox" Grid.Row="0">
+                <ComboBox Padding="3" Style="{StaticResource ListProperty}" Background="{StaticResource LightDarkAccent}" x:Name="ProductCombobox" Grid.Row="0">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock TextAlignment="Center">
@@ -115,10 +115,10 @@
                 <Button x:Name="SetNowButton1" Click="SetNowButton1_Click" Style="{StaticResource ETCButton}" Content="현재로 설정" Grid.Row="2" Grid.Column="2"/>
                 <Button x:Name="SetNowButton2" Click="SetNowButton2_Click" Style="{StaticResource ETCButton}" Content="현재로 설정" Grid.Row="3" Grid.Column="2"/>
             </Grid>
-            <Grid Grid.Row="1" Background="{StaticResource LightDark}">
+            <Grid Grid.Row="1" Background="{StaticResource LightDarkAccent}">
                 <Grid HorizontalAlignment="Center">
                     <Button Click="CompleteButton_Click" Content="완료"
-                            Background="{StaticResource Green}" BorderBrush="{StaticResource DarkAccent}" Width="80" Height="45"/>
+                            Background="{StaticResource LightDarkAccent}" BorderBrush="{StaticResource DarkAccent}" Width="80" Height="45"/>
                 </Grid>
             </Grid>
         </Grid>

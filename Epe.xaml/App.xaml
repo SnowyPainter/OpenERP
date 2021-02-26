@@ -13,9 +13,9 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml" />
                 <ResourceDictionary>
                     <SolidColorBrush x:Key="DarkAccent" Color="#59163B"/>
-                    <SolidColorBrush x:Key="LightDark" Color="#A62E66"/>
-                    <SolidColorBrush x:Key="Green" Color="#A65390"/>
-                    <SolidColorBrush x:Key="LightGreen" Color="#A3BFD9"/>
+                    <SolidColorBrush x:Key="LightDarkAccent" Color="#A62E66"/>
+                    <SolidColorBrush x:Key="LLightAccent" Color="#A65390"/>
+                    <SolidColorBrush x:Key="LightBackground" Color="#A3BFD9"/>
                     <Style x:Key="TitleBar" TargetType="Grid">
                         <Setter Property="VerticalAlignment" Value="Top"/>
                         <Setter Property="HorizontalAlignment" Value="Stretch"/>
