@@ -2,6 +2,7 @@
 using BusinessEngine.IO;
 using BusinessEngine.Operating;
 using BusinessEngine.Sales;
+using Epe.xaml.Message;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -173,7 +174,10 @@ namespace Epe.xaml.ViewModels
         {
             if (i < 0 || i >= Company.AccountCManage.AccountingCompanies.Count) return;
 
-            if (MessageBox.Show($"{Company.AccountCManage.AccountingCompanies[i].Name}을 정말 삭제할까요?", "삭제 경고", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            var name = Company.AccountCManage.AccountingCompanies[i].Name;
+            VerityBox box = new VerityBox($"{name}을 정말 삭제할까요?", "삭제 경고", name);
+            box.ShowDialog();
+            if (box.Ok)
             {
                 DataSys.DeleteAccountingCompany(Company.AccountCManage.AccountingCompanies[i]);
                 Company.AccountCManage.AccountingCompanies.RemoveAt(i);
@@ -184,7 +188,10 @@ namespace Epe.xaml.ViewModels
         {
             if (i < 0 || i >= Company.Finance.Book.Products.Count) return;
 
-            if (MessageBox.Show($"{Company.Finance.Book.Products[i].Name}을 정말 삭제할까요?", "삭제 경고", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            var name = Company.Finance.Book.Products[i].Name;
+            VerityBox box = new VerityBox($"{name}을 정말 삭제할까요?", "삭제 경고", name);
+            box.ShowDialog();
+            if (box.Ok)
             {
                 DataSys.DeleteProduct(SelectedProduct);
                 Company.Finance.Book.Products.RemoveAt(i);
@@ -234,8 +241,8 @@ namespace Epe.xaml.ViewModels
                 SelectedProductIndex = -1;
                 SelectedProductIndex = 1;
             }
-
-            MessageBox.Show($"상품이 정상적으로 추가 완료되었습니다.", $"{product.Name}({product.Price})");
+            var alert = new AlertBox("상품이 정상적으로 추가되었습니다.", $"상품 추가 {product.Name}({product.Price})");
+            alert.ShowDialog();
         }
         public void UpdateAccountCompany()
         {
@@ -248,7 +255,8 @@ namespace Epe.xaml.ViewModels
             DataSys.UpdateAccountingCompany(old, newData);
             Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex] = newData;
 
-            MessageBox.Show("정보 변경 완료되었습니다");
+            var alert = new AlertBox("정보가 변경되었습니다.", "정보 변경");
+            alert.ShowDialog();
 
             unselectAC();
         }

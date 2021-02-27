@@ -218,7 +218,7 @@
                                     <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="10"/>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{StaticResource LightBackground}"/>
+                                            <Setter Property="Background" Value="{StaticResource LightDarkAccent}"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -294,22 +294,22 @@
                                                 <StackPanel Orientation="Vertical">
                                                     <TextBlock>
                                                         <Run Text="제조사 : "/>
-                                                        <Run Text="{Binding Manufacturer.Name}">
+                                                        <Run Text="{Binding Manufacturer.Name, FallbackValue=확인불가}">
                                                         </Run>
                                                     </TextBlock>
                                                     <TextBlock>
                                                         <Run Text="정가 : "/>
-                                                        <Run Text="{Binding Price}"/>
+                                                        <Run Text="{Binding Price, FallbackValue=확인불가}"/>
                                                     </TextBlock>
                                                     <Expander Header="원가">
                                                         <ListView ItemsSource="{Binding Costs}" SelectionMode="Single">
                                                             <ListView.Resources>
                                                             </ListView.Resources>
                                                             <ListView.View>
-                                                                <GridView>  
-                                                                    <GridViewColumn Header="제조사" DisplayMemberBinding="{Binding Manufacturer.Name}"/>
-                                                                    <GridViewColumn Header="제품명" DisplayMemberBinding="{Binding Name}"/>
-                                                                    <GridViewColumn Header="매입가" DisplayMemberBinding="{Binding Price}"/>
+                                                                <GridView>
+                                                                    <GridViewColumn Header="제조사" DisplayMemberBinding="{Binding Manufacturer.Name, FallbackValue=확인불가}"/>
+                                                                    <GridViewColumn Header="제품명" DisplayMemberBinding="{Binding Name, FallbackValue=확인불가}"/>
+                                                                    <GridViewColumn Header="매입가" DisplayMemberBinding="{Binding Price, FallbackValue=확인불가}"/>
                                                                 </GridView>
                                                             </ListView.View>
                                                         </ListView>
@@ -331,7 +331,17 @@
                                             <Setter Property="BorderBrush" Value="{StaticResource DarkAccent}"/>
                                             <Setter Property="Background" Value="White"/>
                                         </Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody2TextBlock}">
+                                            <Setter Property="Margin" Value="0,0,10,0"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
                                     </StackPanel.Resources>
+                                    <TextBlock TextWrapping="Wrap">
+                                        <Run Text="선택된 상품 : "/>
+                                        <Run Text="{Binding SelectedProduct.Name}"/>
+                                        <Run Text=", "/>
+                                        <Run Text="{Binding SelectedProduct.Price}"/>
+                                    </TextBlock>
                                     <Button Foreground="Red" 
                                             Command="{Binding DeleteProductCommand}" Padding="0"
                                             Content="{materialDesign:PackIcon Kind=Trash}"/>

@@ -2,6 +2,7 @@
 using BusinessEngine.IO;
 using BusinessEngine.Operating;
 using BusinessEngine.Sales;
+using Epe.xaml.Message;
 using Epe.xaml.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -114,9 +115,14 @@ namespace Epe.xaml
                 Product = null;
             }
         }
+        private AlertBox getErrorAlert(string text)
+        {
+            return new AlertBox(text, "추가 오류");
+        }
         private void AddProductDB_Click(object sender, RoutedEventArgs e)
         {
             int price = 0;
+            AlertBox alert;
 
             if (isCreationGrid())
             {
@@ -125,17 +131,20 @@ namespace Epe.xaml
                     var ischecked = OtherCompany.IsChecked;
                     if(ischecked == null)
                     {
-                        MessageBox.Show("체크 확인 부탁드립니다.");
+                        alert = getErrorAlert("체크 확인 부탁드립니다.");
+                        alert.ShowDialog();
                         return;
                     }
                     else if(ischecked == true && SelectedAC == null)
                     {
-                        MessageBox.Show("제조사 확인 부탁드립니다.");
+                        alert = getErrorAlert("제조사 확인 부탁드립니다.");
+                        alert.ShowDialog();
                         return;
                     }
                     else if(ischecked == true && SelectedAC != null && SelectedAC.Name == ds.GetMyCompanyName())
                     {
-                        MessageBox.Show("회사명과 다른 이름을 가진 회사를 선택하셔야합니다.");
+                        alert = getErrorAlert("회사명과 다른 이름을 가진 회사를 선택하셔야합니다.");
+                        alert.ShowDialog();
                         return;
                     }
                     else
@@ -153,9 +162,10 @@ namespace Epe.xaml
                 }
                 else// if((OtherCompany.IsChecked == true && SelectedAC != null) || OtherCompany.IsChecked == false)
                 {
-                    if (MessageBox.Show("상품 추가 절차를 중단하시겠습니까?", "창을 닫으시겠습니까?", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    WarningBox box = new WarningBox($"{(windowForCostProduct ? "원재료 추가" : "상품 추가")} 절차를 중단하시겠습니까?", "창을 닫으시겠습니까?");
+                    box.ShowDialog();
+                    if (box.Ok == false)
                         return;
-                    
                 }
                 this.Close();
             }
@@ -184,12 +194,12 @@ namespace Epe.xaml
             a.ShowDialog();
             if (a.Product != null && a.windowForCostProduct)
             {
-                if(a.isCreationGrid())
+                if (a.isCreationGrid())
                     addCostToDB(a.Product);
                 Costs.Add(a.Product);
             }
-            else if(a.windowForCostProduct)
-                MessageBox.Show("원재료를 추가해주세요.");
+            else if (a.windowForCostProduct)
+                getErrorAlert("원재료를 추가해주세요.").ShowDialog();
         }
         private void addCostToDB(IProduct product)
         {

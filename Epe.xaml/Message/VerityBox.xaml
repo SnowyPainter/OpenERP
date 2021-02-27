@@ -1,0 +1,60 @@
+﻿<Window x:Class="Epe.xaml.Message.VerityBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Epe.xaml.Message"
+        mc:Ignorable="d"
+        x:Name="ThisWindow" Height="350" Width="400" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None">
+    <Grid>
+        <materialDesign:Card>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDown">
+                    <i:InvokeCommandAction Command="{Binding DragMoveCommand}" CommandParameter="{x:Reference Name=ThisWindow}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="50"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Grid.Row="0">
+                    <TextBlock Text="{Binding Title}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"
+                               FontWeight="Bold" Foreground="{StaticResource DarkAccent}" TextWrapping="Wrap" FontSize="20"/>
+                </StackPanel>
+                <Grid Grid.Row="1" Margin="10">
+                    <TextBlock Text="{Binding Text}" Foreground="Black" FontSize="14" TextWrapping="Wrap"/>
+                </Grid>
+                <StackPanel Orientation="Vertical" Grid.Row="2" Margin="10">
+                    <TextBlock Text="아래 글자를 입력해주세요." HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="Vt" TextAlignment="Center" HorizontalAlignment="Center" Margin="10" Text="{Binding VerityText}"/>
+                </StackPanel>
+
+                <Grid Grid.Row="3" Margin="10">
+                    <TextBox x:Name="InputBox" Text="{Binding InputText}" FontSize="18" Background="White" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                </Grid>
+                <Grid Grid.Row="4">
+                    <Grid.Resources>
+                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}">
+                            <Setter Property="Width" Value="100"/>
+                            <Setter Property="Height" Value="35"/>
+                            <Setter Property="Background" Value="{StaticResource DarkAccent}"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </Grid.Resources>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Button Content="확인" Click="Button_Click" 
+                                Margin="0,0,10,0"/>
+                        <Button Content="취소" Command="{Binding CancelCloseCommand}" CommandParameter="{x:Reference Name=ThisWindow}" 
+                                Background="{StaticResource LightDarkAccent}"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </materialDesign:Card>
+    </Grid>
+</Window>
