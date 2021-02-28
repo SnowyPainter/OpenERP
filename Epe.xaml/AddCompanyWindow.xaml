@@ -65,9 +65,9 @@
                         </Style>
                     </Grid.Resources>
                     <TextBlock Style="{StaticResource PropertyName}" Text="회사명" Grid.Row="0"/>
-                    <TextBox Style="{StaticResource Property}" materialDesign:HintAssist.Hint="회사명" x:Name="CompanyName" Grid.Row="0" Grid.Column="1" Height="56" Margin="9,0,18,0"/>
+                    <TextBox MaxLength="25" Style="{StaticResource Property}" materialDesign:HintAssist.Hint="회사명" x:Name="CompanyName" Grid.Row="0" Grid.Column="1" Height="56" Margin="9,0,18,0"/>
                     <TextBlock Style="{StaticResource PropertyName}" Text="노트" Grid.Row="1"/>
-                    <TextBox Style="{StaticResource Property}" materialDesign:HintAssist.Hint="노트" x:Name="CompanyNote" Grid.Row="1" TextWrapping="Wrap" AcceptsReturn="True" Height="84" Grid.Column="1" Margin="9,0,18,0"/>
+                    <TextBox Style="{StaticResource Property}" materialDesign:HintAssist.Hint="노트" x:Name="CompanyNote" Grid.Row="1" TextWrapping="Wrap" AcceptsReturn="True" Height="84" Grid.Column="1" Margin="9,0,18,0" Cursor="Hand"/>
                 </Grid>
                 <ListView x:Name="CompanyListView" Visibility="Hidden">
                     <ListView.View>

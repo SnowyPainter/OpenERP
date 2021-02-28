@@ -58,6 +58,7 @@ namespace BusinessEngine.Sales
             Qty = qty;
             To = soldTo;
             ExpectedDepositDate = expectDepDate;
+            Date = sellDate;
             Product = product;
         }
 

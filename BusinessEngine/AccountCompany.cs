@@ -34,7 +34,13 @@ namespace BusinessEngine.Operating
         public AccountCompany() { }
         public AccountCompany(string name) { Name = name; }
 
-        
+        public bool Equals(AccountCompany ac)
+        {
+            return (this.Name == ac.Name
+                && this.Note == ac.Note
+                && this.WarningPoint == ac.WarningPoint);
+        }
+
         public void SetWarningPoint(Warning w) => WarningPoint = w;
 
         public event PropertyChangedEventHandler PropertyChanged;

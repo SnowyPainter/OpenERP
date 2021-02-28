@@ -3,6 +3,7 @@ using BusinessEngine.IO;
 using BusinessEngine.Operating;
 using BusinessEngine.Sales;
 using Epe.xaml.Message;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,26 +11,25 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
-using System.Xml;
-using System.Xml.Serialization;
 
 namespace Epe.xaml.ViewModels
 {
     public class MainViewModel : ViewBase, INotifyPropertyChanged
     {
         #region private Properties
-        private int selectedACIndex, selectedProductIndex;
+        private int selectedACIndex, selectedProductIndex, selectedSaleIndex;
         private bool updatingACEnabled;
+        private string currentSaleDisplayStateString;
+        private ObservableCollection<Sale> salesForDisplay;
         private IProduct selectedProduct;
         #region ACINFO
         private AccountCompany selectedAC;
         #endregion
-
         #endregion
         #region Properties
         public int SelectedAccountCompanyIndex
@@ -41,6 +41,22 @@ namespace Epe.xaml.ViewModels
         {
             get { return selectedProductIndex; }
             set { selectedProductIndex = value; NotifyPropertyChanged("SelectedProductIndex"); }
+        }
+        public int SelectedSaleIndex
+        {
+            get { return selectedSaleIndex; }
+            set { selectedSaleIndex = value; NotifyPropertyChanged("SelectedSaleIndex"); }
+        }
+        public string CurrentSaleDisplayStateString
+        {
+            get { return currentSaleDisplayStateString; }
+            set { currentSaleDisplayStateString = value; NotifyPropertyChanged("CurrentSaleDisplayStateString"); }
+        }
+
+        public ObservableCollection<Sale> SalesForDisplay
+        {
+            get { return salesForDisplay; }
+            set { salesForDisplay = value; NotifyPropertyChanged("SalesForDisplay"); }
         }
         public bool UpdatingACEnabled
         {
@@ -67,8 +83,11 @@ namespace Epe.xaml.ViewModels
         public Company Company { get; set; }
         #endregion
         #region private Commands
-        private RelayCommand<object> deleteAccountCompany, showSalesOfSelectedAC, addSales, addProduct, addAC, saveAC;
-        private RelayCommand<object> deleteProductCommand;
+        private RelayCommand<object> deleteAccountCompany, showSalesOfSelectedAC, showAllSales,addSales, addProduct, addAC, saveAC;
+        private RelayCommand<object> deleteProductCommand, deleteSelectedSale;
+        private RelayCommand<object> exportDBCommand;
+        private RelayCommand<Window> importDBCommand;
+        private RelayCommand<string> showSalesMonthly, showSalesByProductName;
         #endregion
         #region Command Impls
         #region Accounting Company Command
@@ -95,11 +114,29 @@ namespace Epe.xaml.ViewModels
         }
         #endregion
         #region Sales Command
+        public ICommand ShowAllSales
+        {
+            get
+            {
+                return showAllSales ?? (showAllSales = new RelayCommand<object>(o => ShowSaleListAll()));
+            }
+        }
+        public ICommand ShowSalesByProductName
+        {
+            get { return showSalesByProductName ?? (showSalesByProductName = new RelayCommand<string>(search => ShowSaleListByProductName(search))); }
+        }
         public ICommand ShowSalesOfSelectedAC
         {
             get
             {
-                return showSalesOfSelectedAC ?? (showSalesOfSelectedAC = new RelayCommand<object>(o => ShowSalesFromAC(SelectedAC.Name)));
+                return showSalesOfSelectedAC ?? (showSalesOfSelectedAC = new RelayCommand<object>(o => ShowSaleListFromAC(SelectedAC)));
+            }
+        }
+        public ICommand ShowSalesMonthly
+        {
+            get
+            {
+                return showSalesMonthly ?? (showSalesMonthly = new RelayCommand<string>(monthFromNow => ShowSaleListMonthly(int.Parse(monthFromNow))));
             }
         }
         public ICommand AddSales
@@ -107,6 +144,14 @@ namespace Epe.xaml.ViewModels
             get
             {
                 return addSales ?? (addSales = new RelayCommand<object>(o => AddSalesAndOpenSalesWindow()));
+            }
+        }
+        public ICommand DeleteSelectedSale
+        {
+            get
+            {
+                return deleteSelectedSale ?? (deleteSelectedSale = new RelayCommand<object>(o
+                    => RemoveSelectedSale(SalesForDisplay[SelectedSaleIndex])));
             }
         }
         #endregion
@@ -126,6 +171,22 @@ namespace Epe.xaml.ViewModels
             }
         }
         #endregion
+        #region import/export
+        public ICommand ExportDBCommand
+        {
+            get
+            {
+                return exportDBCommand ?? (exportDBCommand = new RelayCommand<object>(o => ExportDB()));
+            }
+        }
+        public ICommand ImportDBCommand
+        {
+            get
+            {
+                return importDBCommand ?? (importDBCommand = new RelayCommand<Window>(w => ImportDB(w)));
+            }
+        }
+        #endregion
         #endregion
         public DataSystem DataSys { get; set; }
 
@@ -137,7 +198,7 @@ namespace Epe.xaml.ViewModels
             PropertyChanged += AccountCompanyManageViewModel_PropertyChanged;
             DataSys = new DataSystem();
             Company = new Company(name);
-            UpdatingACEnabled = false;            
+            UpdatingACEnabled = false;
         }
         public static async Task<MainViewModel> Build(string name)
         {
@@ -146,14 +207,20 @@ namespace Epe.xaml.ViewModels
             var initTask = Task.Run(() => vm.DataSys.Initialize());
             await initTask;
             vm.DataSys.SetMyCompany(vm.Company);
+            
             var getProductTask = Task.Run(() => vm.DataSys.GetProducts());
             var getACTask = Task.Run(() => vm.DataSys.GetAccountingCompanies());
+            var getSalesTask = Task.Run(() => vm.DataSys.GetSales());
 
             var acs = await getACTask;
             var products = await getProductTask;
+            var sales = await getSalesTask;
 
             vm.Company.AccountCManage.AccountingCompanies = new ObservableCollection<AccountCompany>(acs);
             vm.Company.Finance.Book.Products = new ObservableCollection<IProduct>(products);
+            vm.Company.Finance.Book.Sales = new ObservableCollection<Sale>(sales);
+            vm.SalesForDisplay = new ObservableCollection<Sale>(sales); //표시용 판매 기재 목록
+            vm.CurrentSaleDisplayStateString = "전체 보기";
             if (products.Count > 0)
             {
                 vm.SelectedProductIndex = 0;
@@ -166,10 +233,42 @@ namespace Epe.xaml.ViewModels
                 vm.SelectedAC = getCloneAC(vm.Company.AccountCManage.AccountingCompanies[vm.SelectedAccountCompanyIndex]);
                 vm.UpdatingACEnabled = true;
             }
+            if(sales.Count > 0)
+            {
+                vm.SelectedSaleIndex = 0;
+                //SelectedSaleIndex는 항상 ItemSource인 SalesForDisplay의 Index이다.
+                //주의가 필요하다.
+            }
 
             return vm;
         }
         
+        public void ExportDB()
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Filter = "Database (*.db)|*.db|All files (*.*)|*.*";
+            if (dialog.ShowDialog() == true)
+            {
+                File.Copy(DataSys.GetDBPath(), dialog.FileName);
+            }
+        }
+        public void ImportDB(Window w)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Database (*.db)|*.db|All files (*.*)|*.*";
+            if (dialog.ShowDialog() == true)
+            {
+                WarningBox box = new WarningBox("데이터베이스를 변경하는 것 입니다. 그대로 진행하시겠습니까?", "불러오기 및 종료");
+                box.ShowDialog();
+
+                if(box.Ok)
+                {
+                    DataSys.SetDBPath(dialog.FileName);
+                    w.Close();
+                }
+            }
+        }
+
         public void RemoveAccountCompany(int i)
         {
             if (i < 0 || i >= Company.AccountCManage.AccountingCompanies.Count) return;
@@ -198,32 +297,73 @@ namespace Epe.xaml.ViewModels
                 unselectPd();
             }
         }
-        public void ShowSalesFromAC(string acname)
+        public void RemoveSelectedSale(Sale sale)
         {
-            
-        }
-        public void AddAC()
-        {
-            var acw = new AddCompanyWindow(true);
-            acw.ShowDialog();
-            if (acw.SelectedCompany == null) return;
-
-            DataSys.AddAccountingCompany(acw.SelectedCompany);
-            Company.AccountCManage.AddAccountingCompany(acw.SelectedCompany);
-
-            if (Company.AccountCManage.AccountingCompanies.Count == 1)
+            var name = $"기재된 판매 {sale.Product.Name} {sale.Qty}개";
+            VerityBox box = new VerityBox($"{name} 정말 삭제할까요?", "삭제 경고", name);
+            box.ShowDialog();
+            if (box.Ok)
             {
-                SelectedAccountCompanyIndex = -1;
-                SelectedAccountCompanyIndex = 1;
+                Company.Finance.Book.Sales.Remove(sale);
+                DataSys.DeleteSale(sale);
+                //삭제할때, 전체보기로 Refresh
+                ShowSaleListAll();
             }
         }
+        public void ShowSaleListByProductName(string productName)
+        {
+            if (productName == "") return;
+
+            SalesForDisplay = new ObservableCollection<Sale>(Company.Finance.GetSaleByProductName(productName));
+            CurrentSaleDisplayStateString = $"상품명 {productName} 표시";
+        }
+        public void ShowSaleListMonthly(int monthFromNow)
+        {
+            if (monthFromNow <= 0) return;
+
+            SalesForDisplay = new ObservableCollection<Sale>(Company.Finance.GetSalesMonthly(monthFromNow));
+            CurrentSaleDisplayStateString = $"지난 {monthFromNow}개월만 표시";
+        }
+        public void ShowSaleListFromAC(AccountCompany ac)
+        {
+            if (ac == null) return;
+
+            SalesForDisplay = new ObservableCollection<Sale>(Company.Finance.GetSalesByBuyer(ac));
+            CurrentSaleDisplayStateString = $"구매자 {ac.Name}만 표시";
+        }
+        public void ShowSaleListAll()
+        {
+            SalesForDisplay = Company.Finance.Book.Sales;
+            CurrentSaleDisplayStateString = "전체 표시";
+        }
+        
         public void AddSalesAndOpenSalesWindow()
         {
             var salesProfileWindow = new AddSalesWindow();
             salesProfileWindow.ShowDialog();
+            if(salesProfileWindow.SaleData == null)
+            {
+                AlertBox box = new AlertBox("판매 사실 기재에 실패했습니다.", "판매 기재 오류");
+                box.ShowDialog();
+            }
+            else
+            {
+                var data = salesProfileWindow.SaleData;
+                DataSys.AddSale(
+                    data.ExpectedDepositDate,
+                    data.Date,
+                    data.To,
+                    data.Product,
+                    data.DiscountRate,
+                    data.Qty
+                );
+                Company.Finance.Book.Sold(data);
 
-            //salesProfileWindow.SaleData;
+                //새로 추가할때, 전체보기로 Refresh
+                ShowSaleListAll();
+            }
         }
+        
         public void AddProductAndOpenProductWindow()
         {
             var addProductWindow = new AddProductWindow(true, true);
@@ -232,6 +372,16 @@ namespace Epe.xaml.ViewModels
 
             var product = addProductWindow.Product;
             if (product == null || product.Name == "" || product.Price < 0) return;
+            if (DataSys.CheckMyCompany(product.Manufacturer.Note) && product.Manufacturer.Name == null)
+            {
+                for(int i = 0;i < product.Costs.Count;i++)
+                {
+                    var c = product.Costs[i];
+                    if (DataSys.CheckMyCompany(c.Manufacturer.Note) && c.Manufacturer.Name == null)
+                        product.Costs[i].Manufacturer = DataSys.MyCompany;
+                }
+                product.Manufacturer = DataSys.MyCompany;
+            }
 
             DataSys.AddProduct(product.Name, product.Price, product.Manufacturer, product.Costs.ToArray());
             Company.Finance.Book.Products.Add(product);
@@ -260,6 +410,21 @@ namespace Epe.xaml.ViewModels
 
             unselectAC();
         }
+        public void AddAC()
+        {
+            var acw = new AddCompanyWindow(true);
+            acw.ShowDialog();
+            if (acw.SelectedCompany == null) return;
+
+            DataSys.AddAccountingCompany(acw.SelectedCompany);
+            Company.AccountCManage.AddAccountingCompany(acw.SelectedCompany);
+
+            if (Company.AccountCManage.AccountingCompanies.Count == 1)
+            {
+                SelectedAccountCompanyIndex = -1; //calling on property -changed-
+                SelectedAccountCompanyIndex = 1;
+            }
+        }
         private void onACSelectedChanged(int i)
         {
             var acinfo = Company.AccountCManage.AccountingCompanies[i];
@@ -272,7 +437,6 @@ namespace Epe.xaml.ViewModels
             var product = Company.Finance.Book.Products[i];
             SelectedProduct = getCloneProduct(product);
         }
-
         private void unselectAC()
         {
             SelectedAccountCompanyIndex = -1;

@@ -2,6 +2,7 @@
 using BusinessEngine.Sales;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
 using System.Text;
@@ -251,6 +252,22 @@ namespace BusinessEngine.Accounting
         {
             Book.Sold(new Sale(expectDepDate, sellDate, product, buyer, discountRate, qty));
         }
+
+        public IEnumerable<Sale> GetSalesMonthly(int monthFromNow)
+        {
+            return Book.Sales.Where(s => ((((DateTime.Now.Year - s.Date.Year) * 12) + DateTime.Now.Month - s.Date.Month) <= monthFromNow));
+        }
+        public IEnumerable<Sale> GetSalesByBuyer(AccountCompany buyer)
+        {
+            if (buyer == null) return null;
+
+            return Book.Sales.Where(s => s.To.Equals(buyer));
+        }
+        public IEnumerable<Sale> GetSaleByProductName(string product)
+        {
+            return Book.Sales.Where(s => s.Product.Name.Contains(product));
+        }
+        
         /// <summary>
         /// 회계장부에 일시불로 분개합니다.
         /// </summary>

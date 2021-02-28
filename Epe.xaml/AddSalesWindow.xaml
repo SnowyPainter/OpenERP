@@ -7,7 +7,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        Name="ThisWindow" WindowStyle="None" Height="474" Width="600" MinHeight="350" MinWidth="600">
+        Name="ThisWindow" WindowStyle="None" Height="474" Width="600" MinHeight="350" MinWidth="600" Loaded="ThisWindow_Loaded">
 
     <Grid Background="{StaticResource DarkAccent}">
         <Grid.RowDefinitions>
@@ -45,6 +45,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
@@ -91,13 +92,14 @@
                         <Setter Property="Grid.Column" Value="1"/>
                     </Style>
                 </Grid.Resources>
-                <TextBlock Style="{StaticResource PropertyName}" Text="상품명" Grid.Row="0"/>
-                <TextBlock Style="{StaticResource PropertyName}" Text="갯수" Grid.Row="1"/>
-                <TextBlock Style="{StaticResource PropertyName}" Text="판매일" Grid.Row="2"/>
-                <TextBlock Style="{StaticResource PropertyName}" Text="입금일" Grid.Row="3"/>
-                <TextBlock Style="{StaticResource PropertyName}" Text="할인률" Grid.Row="4"/>
+                <TextBlock Style="{StaticResource PropertyName}" Text="상품" Grid.Row="0"/>
+                <TextBlock Style="{StaticResource PropertyName}" Text="구매자" Grid.Row="1"/>
+                <TextBlock Style="{StaticResource PropertyName}" Text="갯수" Grid.Row="2"/>
+                <TextBlock Style="{StaticResource PropertyName}" Text="판매일" Grid.Row="3"/>
+                <TextBlock Style="{StaticResource PropertyName}" Text="입금일" Grid.Row="4"/>
+                <TextBlock Style="{StaticResource PropertyName}" Text="할인률(%)" Grid.Row="5"/>
 
-                <ComboBox Padding="3" Style="{StaticResource ListProperty}" Background="{StaticResource LightDarkAccent}" x:Name="ProductCombobox" Grid.Row="0">
+                <ComboBox Padding="3" Style="{StaticResource ListProperty}" Foreground="Black" Background="White" x:Name="ProductCombobox" Grid.Row="0">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock TextAlignment="Center">
@@ -108,12 +110,21 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <TextBox Padding="5" TextAlignment="Center" x:Name="SellQTY" Text="1" Style="{StaticResource Property}" Grid.Row="1"/>
-                <DatePicker Padding="3" x:Name="SellDate" Style="{StaticResource DateProperty}" Grid.Row="2"/>
-                <DatePicker Padding="3" x:Name="ExpectedDepositDate" Style="{StaticResource DateProperty}" Grid.Row="3"/>
-                <TextBox Padding="10" x:Name="DiscountRate" Text="0" Style="{StaticResource Property}" Grid.Row="4" TextAlignment="Center" Grid.Column="1" Grid.RowSpan="2" Height="44" Margin="30,0,30,0"/>
-                <Button x:Name="SetNowButton1" Click="SetNowButton1_Click" Style="{StaticResource ETCButton}" Content="현재로 설정" Grid.Row="2" Grid.Column="2"/>
-                <Button x:Name="SetNowButton2" Click="SetNowButton2_Click" Style="{StaticResource ETCButton}" Content="현재로 설정" Grid.Row="3" Grid.Column="2"/>
+                <ComboBox Padding="3" Style="{StaticResource ListProperty}" Foreground="Black" Background="White" x:Name="ACComboBox" Grid.Row="1">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock TextAlignment="Center">
+                                <Run Text="{Binding Name}"/>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBox PreviewTextInput="OnlyNumber_PreviewTextInput" Padding="5" MaxLength="5" TextAlignment="Center" x:Name="SellQTY" Text="1" Style="{StaticResource Property}" Grid.Row="2" Grid.Column="1" Height="40" Margin="30,0,30,0"/>
+                <DatePicker FontSize="14" Padding="3" x:Name="SellDate" Style="{StaticResource DateProperty}" Grid.Row="3"/>
+                <DatePicker FontSize="14" Padding="3" x:Name="ExpectedDepositDate" Style="{StaticResource DateProperty}" Grid.Row="4"/>
+                <TextBox Padding="0,3,0,0" TextAlignment="Center" Margin="30,6,30,0" VerticalAlignment="Top" MaxLength="3" PreviewTextInput="OnlyNumber_PreviewTextInput" x:Name="DiscountRate" Text="0" Style="{StaticResource Property}" Grid.Row="5" Grid.Column="1" Height="36"/>
+                <Button x:Name="SetNowButton1" Click="SetNowButton1_Click" Style="{StaticResource ETCButton}" Content="현재로 설정" Grid.Row="3" Grid.Column="2"/>
+                <Button x:Name="SetNowButton2" Click="SetNowButton2_Click" Style="{StaticResource ETCButton}" Content="현재로 설정" Grid.Row="4" Grid.Column="2"/>
             </Grid>
             <Grid Grid.Row="1" Background="{StaticResource LightDarkAccent}">
                 <Grid HorizontalAlignment="Center">

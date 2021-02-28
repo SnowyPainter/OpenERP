@@ -93,8 +93,8 @@
                         <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Background="{StaticResource LLightAccent}"  Foreground="White"
                                 x:Name="AddCostButton" Click="AddCostButton_Click" Content="원재료" Width="68" Height="57"/>
                     </StackPanel>
-                    <TextBox Style="{StaticResource Property}" x:Name="ProductName" Grid.Row="0" Grid.Column="1"/>
-                    <TextBox Style="{StaticResource Property}" x:Name="Price" Grid.Row="2" Grid.Column="1"/>
+                    <TextBox MaxLength="20" Style="{StaticResource Property}" x:Name="ProductName" Grid.Row="0" Grid.Column="1"/>
+                    <TextBox MaxLength="9" PreviewTextInput="OnlyNumber_PreviewTextInput" Style="{StaticResource Property}" x:Name="Price" Grid.Row="2" Grid.Column="1"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="3" Grid.Column="1" Margin="0,3,0,0" Width="249">
                         <ComboBox x:Name="ACComboBox" ItemsSource="{Binding ACList}" SelectedItem="{Binding SelectedAC}" SelectedIndex="0" Height="39" Width="166" Foreground="Black">
                             <ComboBox.ItemTemplate>
