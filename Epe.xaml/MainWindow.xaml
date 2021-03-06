@@ -61,6 +61,12 @@
                     <Setter Property="Foreground" Value="White"/>
                     <Setter Property="FontSize" Value="14"/>
                 </Style>
+                <Style TargetType="TextBlock" x:Key="HeaderTextBlock">
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="Foreground" Value="Black"/>
+                    <Setter Property="Margin" Value="10"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </Style>
             </Grid.Resources>
             <Grid HorizontalAlignment="Stretch" Grid.Column="0">
                 <Grid.RowDefinitions>
@@ -122,9 +128,13 @@
                                 <Button Content="12개월" Command="{Binding ShowSalesMonthly}" CommandParameter="12"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <TextBlock Text="{Binding Selected}" VerticalAlignment="Center"/>
                                 <TextBlock Text="판매 상품" VerticalAlignment="Center" Margin="10"/>
-                                <TextBox x:Name="SaleSearchText" VerticalAlignment="Center" Margin="0,0,10,0" Width="146" Height="35" FontSize="14" Foreground="White" BorderBrush="{StaticResource DarkAccent}"/>
+                                <TextBox x:Name="SaleSearchText" VerticalAlignment="Center" Margin="0,0,10,0" Width="146" Height="35" FontSize="14" Foreground="White" BorderBrush="{StaticResource DarkAccent}">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Return"
+                                                    Command="{Binding ShowSalesByProductName}" CommandParameter="{Binding Text, ElementName=SaleSearchText}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
                                 <Button Command="{Binding ShowSalesByProductName}" CommandParameter="{Binding Text, ElementName=SaleSearchText}"
                                         Foreground="White" Style="{StaticResource MaterialDesignFlatButton}" Background="{StaticResource DarkAccent}" Content="검색" Margin="0,0,5,0" Width="65"/>
                             </StackPanel>
@@ -217,7 +227,7 @@
             </Grid>
             <Grid HorizontalAlignment="Stretch" Grid.Column="1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="20*"/>
+                    <RowDefinition Height="30*"/>
                     <RowDefinition Height="30*"/>
                 </Grid.RowDefinitions>
                 <materialDesign:Card Background="White" Grid.Row="0" Margin="10" IsEnabled="{Binding UpdatingACEnabled}">
@@ -247,15 +257,15 @@
                                 <Setter Property="Padding" Value="5"/>
                             </Style>
                         </Grid.Resources>
-                        <TextBlock Text="거래처 정보" Grid.Row="0" Grid.ColumnSpan="2" FontSize="18" FontWeight="Bold" Margin="10" VerticalAlignment="Center" />
+                        <TextBlock Text="거래처 정보" Style="{StaticResource HeaderTextBlock}" FontSize="18" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Center" />
                         <TextBlock Text="거래처" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"/>
-                        
+
                         <TextBox VerticalContentAlignment="Center" TextWrapping="Wrap" Text="{Binding SelectedAC.Name}" Grid.Row="1" Grid.Column="1" BorderBrush="#FF1E2025"/>
-                        
+
                         <TextBlock Text="노트" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"/>
-                        
-                        <TextBox Height="80" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding SelectedAC.Note}" Grid.Row="2" Grid.Column="1" CaretBrush="#FF191919" BorderBrush="Black"/>
-                        
+
+                        <TextBox Height="108" VerticalAlignment="Center" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding SelectedAC.Note}" Grid.Row="2" Grid.Column="1" CaretBrush="#FF191919" BorderBrush="Black" Margin="0,0,10,0" />
+
                         <TextBlock Text="주의" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"/>
                         <ComboBox Style="{StaticResource MaterialDesignComboBox}" Grid.Row="3" Grid.Column="1"
                                   Height="40" ItemsSource="{Binding WarningPointArray}" SelectedValue="{Binding SelectedAC.WarningPoint}"
@@ -300,134 +310,139 @@
 
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="50" />
+                        <RowDefinition Height="70" />
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Grid.Resources>
-                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}">
                             <Setter Property="Width" Value="50"/>
                             <Setter Property="Height" Value="50"/>
                             <Setter Property="FontSize" Value="15"/>
-                            <Setter Property="Foreground" Value="Black"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="Background" Value="{StaticResource DarkAccent}"/>
                             <Setter Property="BorderThickness" Value="1"/>
-                            <Setter Property="BorderBrush" Value="{StaticResource DarkAccent}"/>
-                        </Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                            <Setter Property="Foreground" Value="Black"/>
-                            <Setter Property="Margin" Value="10"/>
-                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource LightDarkAccent}"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource LightDarkAccent}"/>
+                                </Trigger>
+                            </Style.Triggers>
                         </Style>
                     </Grid.Resources>
                     <materialDesign:Card Grid.Row="0" Margin="10,0,10,10" Background="White">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                            <TextBlock Text="새 거래처"  FontSize="18"/>
+                            <TextBlock Text="새 거래처" Style="{StaticResource HeaderTextBlock}" FontSize="18"/>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-                                <Button Content="추가" Foreground="{StaticResource DarkAccent}" Command="{Binding AddAccountingCompany}" Width="84" Height="30"/>
+                                <Button Content="추가" Command="{Binding AddAccountingCompany}" Width="84" Height="30"/>
                             </StackPanel>
                         </StackPanel>
                     </materialDesign:Card>
-                    <materialDesign:Card Grid.Row="1" Margin="10,0,10,10" Background="White">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="50"/><!--Header-->
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="50"/>
-                            </Grid.RowDefinitions>
-                            <Grid Grid.Row="0">
-                                <TextBlock Text="상품 관리" FontSize="18"/>
-                            </Grid>
-                            <Grid Grid.Row="1">
-                                <ListBox Grid.Row="0"
-                                      ItemsSource="{Binding Company.Finance.Book.Products}" 
-                                      SelectedIndex="{Binding SelectedProductIndex}"
-                                      SelectionMode="Single">
-                                    <ListBox.Resources>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                            <Setter Property="TextAlignment" Value="Right"/>
-                                            <Setter Property="Height" Value="35"/>
-                                        </Style>
-                                    </ListBox.Resources>
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <Expander Header="{Binding Name}" Width="Auto" HorizontalAlignment="Center" Padding="10,0,10,10">
-                                                <StackPanel Orientation="Vertical">
-                                                    <TextBlock>
-                                                        <Run Text="제조사 : "/>
-                                                        <Run Text="{Binding Manufacturer.Name, FallbackValue=확인불가}">
-                                                        </Run>
-                                                    </TextBlock>
-                                                    <TextBlock>
-                                                        <Run Text="정가 : "/>
-                                                        <Run Text="{Binding Price, FallbackValue=확인불가}"/>
-                                                    </TextBlock>
-                                                    <Expander Header="원가">
-                                                        <ListView ItemsSource="{Binding Costs}" SelectionMode="Single">
-                                                            <ListView.Resources>
-                                                            </ListView.Resources>
-                                                            <ListView.View>
-                                                                <GridView>
-                                                                    <GridViewColumn Header="제조사" DisplayMemberBinding="{Binding Manufacturer.Name, FallbackValue=확인불가}"/>
-                                                                    <GridViewColumn Header="제품명" DisplayMemberBinding="{Binding Name, FallbackValue=확인불가}"/>
-                                                                    <GridViewColumn Header="매입가" DisplayMemberBinding="{Binding Price, FallbackValue=확인불가}"/>
-                                                                </GridView>
-                                                            </ListView.View>
-                                                        </ListView>
-                                                    </Expander>
-                                                </StackPanel>
-                                            </Expander>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                            </Grid>
-                            <Grid Grid.Row="2">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <StackPanel.Resources>
-                                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}">
-                                            <Setter Property="Width" Value="40"/>
-                                            <Setter Property="Height" Value="40"/>
-                                            <Setter Property="Margin" Value="0,0,10,0"/>
-                                            <Setter Property="BorderThickness" Value="1"/>
-                                            <Setter Property="BorderBrush" Value="{StaticResource DarkAccent}"/>
-                                            <Setter Property="Background" Value="White"/>
-                                            <Style.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="{StaticResource LightDarkAccent}"/>
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody2TextBlock}">
-                                            <Setter Property="Margin" Value="0,0,10,0"/>
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                        </Style>
-                                    </StackPanel.Resources>
-                                    <TextBlock TextWrapping="Wrap">
-                                        <Run Text="{Binding SelectedProduct.Name, FallbackValue=선택없음}"/>
-                                    </TextBlock>
-                                    <Button Command="{Binding AddProduct}" 
-                                            Foreground="Black" Content="상품 추가" Width="100"/>
-                                    <Button Command="{Binding DeleteProductCommand}" 
-                                            Foreground="Red" Padding="0"
-                                            Content="{materialDesign:PackIcon Kind=Trash}"/>
-                                </StackPanel>
-                            </Grid>
-                        </Grid>
-                    </materialDesign:Card>
+
                 </Grid>
             </Grid>
 
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="4*"/>
+                    <RowDefinition Height="4*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="3*"/>
                 </Grid.ColumnDefinitions>
-                
+                <materialDesign:Card Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Margin="0,10,0,10" Background="White">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <!--Header-->
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="50"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <TextBlock Text="상품 관리" Style="{StaticResource HeaderTextBlock}" Foreground="Black" FontSize="18"/>
+                        </Grid>
+                        <Grid Grid.Row="1">
+                            <ListBox Grid.Row="0"
+                                      ItemsSource="{Binding Company.Finance.Book.Products}" 
+                                      SelectedIndex="{Binding SelectedProductIndex}"
+                                      SelectionMode="Single">
+                                <ListBox.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Height" Value="35"/>
+                                    </Style>
+                                </ListBox.Resources>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Expander Header="{Binding Name}" Width="Auto" HorizontalAlignment="Center" Padding="10,0,10,10">
+                                            <StackPanel Orientation="Vertical">
+                                                <TextBlock>
+                                                        <Run Text="제조사 : "/>
+                                                        <Run Text="{Binding Manufacturer.Name, FallbackValue=확인불가}">
+                                                        </Run>
+                                                </TextBlock>
+                                                <TextBlock>
+                                                        <Run Text="정가 : "/>
+                                                        <Run Text="{Binding Price, FallbackValue=확인불가}"/>
+                                                </TextBlock>
+                                                <Expander Header="원가">
+                                                    <ListView ItemsSource="{Binding Costs}" SelectionMode="Single">
+                                                        <ListView.Resources>
+                                                        </ListView.Resources>
+                                                        <ListView.View>
+                                                            <GridView>
+                                                                <GridViewColumn Header="제조사" DisplayMemberBinding="{Binding Manufacturer.Name, FallbackValue=확인불가}"/>
+                                                                <GridViewColumn Header="제품명" DisplayMemberBinding="{Binding Name, FallbackValue=확인불가}"/>
+                                                                <GridViewColumn Header="매입가" DisplayMemberBinding="{Binding Price, FallbackValue=확인불가}"/>
+                                                            </GridView>
+                                                        </ListView.View>
+                                                    </ListView>
+                                                </Expander>
+                                            </StackPanel>
+                                        </Expander>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                        <Grid Grid.Row="2">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <StackPanel.Resources>
+                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}">
+                                        <Setter Property="Width" Value="40"/>
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="Margin" Value="0,0,10,0"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="Background" Value="{StaticResource DarkAccent}"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource LightDarkAccent}"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource LightDarkAccent}"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody2TextBlock}">
+                                        <Setter Property="Margin" Value="0,0,10,0"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </StackPanel.Resources>
+                                <TextBlock TextWrapping="Wrap">
+                                        <Run Text="{Binding SelectedProduct.Name, FallbackValue=선택없음}"/>
+                                </TextBlock>
+                                <Button Command="{Binding UpdateProduct}" 
+                                            Content="수정" Width="60"/>
+                                <Button Command="{Binding AddProduct}" 
+                                           Content="상품 추가" Width="100"/>
+                                <Button Command="{Binding DeleteProductCommand}" 
+                                            Foreground="Red" Background="White" Padding="0"
+                                            Content="{materialDesign:PackIcon Kind=Trash}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </materialDesign:Card>
                 <!--DB 관리-->
                 <Grid Grid.Row="0" Grid.Column="1">
                     <materialDesign:Card Margin="10">
@@ -443,7 +458,7 @@
                             </Grid.RowDefinitions>
                             <!--헤더-->
                             <Grid Grid.Row="0">
-                                <TextBlock FontSize="18" FontWeight="Bold" Margin="10" VerticalAlignment="Center" Foreground="Black" Text="Database 관리"/>
+                                <TextBlock FontSize="18" Style="{StaticResource HeaderTextBlock}" Margin="10" VerticalAlignment="Center" Foreground="Black" Text="Database 관리"/>
                             </Grid>
                             <Grid Grid.Row="1">
                                 <StackPanel VerticalAlignment="Top" Orientation="Vertical" Margin="10">

@@ -18,6 +18,8 @@ namespace BusinessEngine.Sales
             });
             return costs;
         }
-        
+
+        public static IProduct Clone(this IProduct p) => new Product { Costs = p.Costs, Manufacturer = p.Manufacturer, Name = p.Name, Price = p.Price };
+
     }
 }

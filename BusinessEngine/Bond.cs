@@ -6,7 +6,7 @@ namespace BusinessEngine
 {
     public class Bond
     {
-        public AccountCompany Who;
+        public AccountingCompany Who;
         public DateTime When;
         public DateTime Paydate;
         public float Amount;

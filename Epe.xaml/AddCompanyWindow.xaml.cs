@@ -29,7 +29,7 @@ namespace Epe.xaml
 
         DataSystem ds;
 
-        public AccountCompany SelectedCompany;
+        public AccountingCompany SelectedCompany;
 
         public AddCompanyWindow(bool hideSearchBtn=false)
         {
@@ -73,7 +73,7 @@ namespace Epe.xaml
         {
             if(isCreationGrid() && CompanyName.Text != "")
             {
-                SelectedCompany = new AccountCompany(CompanyName.Text);
+                SelectedCompany = new AccountingCompany(CompanyName.Text);
                 SelectedCompany.Note = CompanyNote.Text;
                 SelectedCompany.WarningPoint = Warning.None;
 
@@ -81,7 +81,7 @@ namespace Epe.xaml
             }
             else if(CompanyListView.SelectedItem != null)
             {
-                SelectedCompany = CompanyListView.SelectedItem as AccountCompany;
+                SelectedCompany = CompanyListView.SelectedItem as AccountingCompany;
                 this.Close();
             }
             else

@@ -56,9 +56,9 @@ namespace BusinessEngine
             AccountCManage = new AccountCompanyManage();
         }
 
-        public AccountCompany AsAC()
+        public AccountingCompany AsAC()
         {
-            return new AccountCompany
+            return new AccountingCompany
             {
                 Name = this.Name,
                 Note = "소유한 회사",

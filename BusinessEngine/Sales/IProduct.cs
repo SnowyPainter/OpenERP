@@ -11,7 +11,7 @@ namespace BusinessEngine.Sales
     public abstract class IProduct: INotifyPropertyChanged
     {
         private string name;
-        private AccountCompany mft;
+        private AccountingCompany mft;
         private float price;
 
         public string Name
@@ -20,7 +20,7 @@ namespace BusinessEngine.Sales
             set { name = value; NotifyPropertyChanged("Name"); }
         }
 
-        public AccountCompany Manufacturer
+        public AccountingCompany Manufacturer
         {
             get { return mft; }
             set { mft = value; NotifyPropertyChanged("Manufacturer"); }

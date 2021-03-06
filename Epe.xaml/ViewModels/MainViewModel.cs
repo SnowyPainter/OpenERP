@@ -28,7 +28,7 @@ namespace Epe.xaml.ViewModels
         private ObservableCollection<Sale> salesForDisplay;
         private IProduct selectedProduct;
         #region ACINFO
-        private AccountCompany selectedAC;
+        private AccountingCompany selectedAC;
         #endregion
         #endregion
         #region Properties
@@ -70,7 +70,7 @@ namespace Epe.xaml.ViewModels
         /// <summary>
         /// =로 셋하기 전에 무조건 clone으로 해라
         /// </summary>
-        public AccountCompany SelectedAC
+        public AccountingCompany SelectedAC
         {
             get { return selectedAC; }
             set { selectedAC = value; NotifyPropertyChanged("SelectedAC"); }
@@ -88,6 +88,7 @@ namespace Epe.xaml.ViewModels
         private RelayCommand<object> exportDBCommand;
         private RelayCommand<Window> importDBCommand;
         private RelayCommand<string> showSalesMonthly, showSalesByProductName;
+        private RelayCommand<object> updateProduct;
         #endregion
         #region Command Impls
         #region Accounting Company Command
@@ -156,6 +157,13 @@ namespace Epe.xaml.ViewModels
         }
         #endregion
         #region Products Command
+        public ICommand UpdateProduct
+        {
+            get
+            {
+                return updateProduct ?? (updateProduct = new RelayCommand<object>(o => OpenUpdateWindow()));
+            }
+        }
         public ICommand AddProduct
         {
             get
@@ -190,9 +198,6 @@ namespace Epe.xaml.ViewModels
         #endregion
         public DataSystem DataSys { get; set; }
 
-        private static AccountCompany getCloneAC(AccountCompany ac) => new AccountCompany { Name = ac.Name, Note = ac.Note, WarningPoint = ac.WarningPoint };
-        private static IProduct getCloneProduct(IProduct p) => new Product { Costs = p.Costs, Manufacturer = p.Manufacturer, Name = p.Name, Price = p.Price };
-        
         public MainViewModel(string name)
         {
             PropertyChanged += AccountCompanyManageViewModel_PropertyChanged;
@@ -204,8 +209,7 @@ namespace Epe.xaml.ViewModels
         {
             var vm = new MainViewModel(name);
 
-            var initTask = Task.Run(() => vm.DataSys.Initialize());
-            await initTask;
+            vm.DataSys.Initialize();
             vm.DataSys.SetMyCompany(vm.Company);
             
             var getProductTask = Task.Run(() => vm.DataSys.GetProducts());
@@ -216,7 +220,7 @@ namespace Epe.xaml.ViewModels
             var products = await getProductTask;
             var sales = await getSalesTask;
 
-            vm.Company.AccountCManage.AccountingCompanies = new ObservableCollection<AccountCompany>(acs);
+            vm.Company.AccountCManage.AccountingCompanies = new ObservableCollection<AccountingCompany>(acs);
             vm.Company.Finance.Book.Products = new ObservableCollection<IProduct>(products);
             vm.Company.Finance.Book.Sales = new ObservableCollection<Sale>(sales);
             vm.SalesForDisplay = new ObservableCollection<Sale>(sales); //표시용 판매 기재 목록
@@ -224,13 +228,13 @@ namespace Epe.xaml.ViewModels
             if (products.Count > 0)
             {
                 vm.SelectedProductIndex = 0;
-                vm.SelectedProduct = getCloneProduct(vm.Company.Finance.Book.Products[vm.SelectedProductIndex]);
+                vm.SelectedProduct = vm.Company.Finance.Book.Products[vm.SelectedProductIndex].Clone();
             }
             if (acs.Count > 0)
             {
                 vm.SelectedAccountCompanyIndex = 0;
                 //OnPropertychanged 내부 동작안함
-                vm.SelectedAC = getCloneAC(vm.Company.AccountCManage.AccountingCompanies[vm.SelectedAccountCompanyIndex]);
+                vm.SelectedAC = vm.Company.AccountCManage.AccountingCompanies[vm.SelectedAccountCompanyIndex].Clone();
                 vm.UpdatingACEnabled = true;
             }
             if(sales.Count > 0)
@@ -246,7 +250,7 @@ namespace Epe.xaml.ViewModels
         public void ExportDB()
         {
             SaveFileDialog dialog = new SaveFileDialog();
-            dialog.Filter = "Database (*.db)|*.db|All files (*.*)|*.*";
+            dialog.Filter = "Database (*.db)|*.db";
             if (dialog.ShowDialog() == true)
             {
                 File.Copy(DataSys.GetDBPath(), dialog.FileName);
@@ -255,15 +259,17 @@ namespace Epe.xaml.ViewModels
         public void ImportDB(Window w)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Database (*.db)|*.db|All files (*.*)|*.*";
+            dialog.Filter = "Database (*.db)|*.db";
             if (dialog.ShowDialog() == true)
             {
-                WarningBox box = new WarningBox("데이터베이스를 변경하는 것 입니다. 그대로 진행하시겠습니까?", "불러오기 및 종료");
+                WarningBox box = new WarningBox("데이터베이스를 변경하는 것 입니다. 그대로 진행하시겠습니까?"
+                    +Environment.NewLine+"프로그램의 재시작이 필수적입니다.", "불러오기 및 종료");
                 box.ShowDialog();
 
                 if(box.Ok)
                 {
                     DataSys.SetDBPath(dialog.FileName);
+
                     w.Close();
                 }
             }
@@ -324,7 +330,7 @@ namespace Epe.xaml.ViewModels
             SalesForDisplay = new ObservableCollection<Sale>(Company.Finance.GetSalesMonthly(monthFromNow));
             CurrentSaleDisplayStateString = $"지난 {monthFromNow}개월만 표시";
         }
-        public void ShowSaleListFromAC(AccountCompany ac)
+        public void ShowSaleListFromAC(AccountingCompany ac)
         {
             if (ac == null) return;
 
@@ -398,7 +404,7 @@ namespace Epe.xaml.ViewModels
         {
             if (SelectedAccountCompanyIndex < 0 || SelectedAccountCompanyIndex >= Company.AccountCManage.AccountingCompanies.Count) return;
 
-            AccountCompany old = Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex], newData = SelectedAC;
+            AccountingCompany old = Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex], newData = SelectedAC;
 
             if (old.Name == newData.Name && old.Note == newData.Note && old.WarningPoint == newData.WarningPoint) return;
             
@@ -409,6 +415,18 @@ namespace Epe.xaml.ViewModels
             alert.ShowDialog();
 
             unselectAC();
+        }
+        public void OpenUpdateWindow()
+        {
+            if (SelectedProduct == null) return;
+
+            var window = new AddProductWindow(true, true, true);
+            window.SetDefaultValues(SelectedProduct);
+            window.ShowDialog();
+            var updatedProduct = window.Product;
+
+            DataSys.UpdateProduct(SelectedProduct, updatedProduct);
+            Company.Finance.Book.Products[SelectedProductIndex] = updatedProduct;
         }
         public void AddAC()
         {
@@ -429,13 +447,13 @@ namespace Epe.xaml.ViewModels
         {
             var acinfo = Company.AccountCManage.AccountingCompanies[i];
             //binding 2개 겹치면 a=b, b=a 자동으로됨. 그래서 clone하는것
-            SelectedAC = getCloneAC(acinfo);
+            SelectedAC = acinfo.Clone();
             UpdatingACEnabled = true;
         }
         private void onProductChanged(int i)
         {
             var product = Company.Finance.Book.Products[i];
-            SelectedProduct = getCloneProduct(product);
+            SelectedProduct = product.Clone();
         }
         private void unselectAC()
         {

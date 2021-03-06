@@ -248,7 +248,7 @@ namespace BusinessEngine.Accounting
         /// <param name="buyer">구매자</param>
         /// <param name="discountRate">할인율 1=100%</param>
         /// <param name="qty">판매 갯수</param>
-        public void AddSale(DateTime expectDepDate, DateTime sellDate, IProduct product, AccountCompany buyer, int discountRate, int qty)
+        public void AddSale(DateTime expectDepDate, DateTime sellDate, IProduct product, AccountingCompany buyer, int discountRate, int qty)
         {
             Book.Sold(new Sale(expectDepDate, sellDate, product, buyer, discountRate, qty));
         }
@@ -257,7 +257,7 @@ namespace BusinessEngine.Accounting
         {
             return Book.Sales.Where(s => ((((DateTime.Now.Year - s.Date.Year) * 12) + DateTime.Now.Month - s.Date.Month) <= monthFromNow));
         }
-        public IEnumerable<Sale> GetSalesByBuyer(AccountCompany buyer)
+        public IEnumerable<Sale> GetSalesByBuyer(AccountingCompany buyer)
         {
             if (buyer == null) return null;
 

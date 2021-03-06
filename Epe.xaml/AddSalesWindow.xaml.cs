@@ -65,7 +65,7 @@ namespace Epe.xaml
                 var sell = SellDate.SelectedDate;
                 var deposit = ExpectedDepositDate.SelectedDate;
                 var product = ProductCombobox.SelectedItem as Product;
-                var buyer = ACComboBox.SelectedItem as AccountCompany;
+                var buyer = ACComboBox.SelectedItem as AccountingCompany;
                 var qty = int.Parse(SellQTY.Text);
                 var discountRate = int.Parse(DiscountRate.Text);
 

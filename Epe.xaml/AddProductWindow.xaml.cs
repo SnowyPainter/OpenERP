@@ -32,9 +32,9 @@ namespace Epe.xaml
     public partial class AddProductWindow : Window,INotifyPropertyChanged
     {
         private int selectedItem = -1, selectedCostItem = -1;
-        private AccountCompany selectedAC;
+        private AccountingCompany selectedAC;
         private DataSystem ds;
-        private bool windowForCostProduct = false;
+        private bool windowForCostProduct = false, forUpdating=false;
 
         public IProduct Product;
 
@@ -46,8 +46,8 @@ namespace Epe.xaml
         public ObservableCollection<IProduct> Costs { get; set; } = new ObservableCollection<IProduct>();
         public ObservableCollection<IProduct> ProductList { get; set; } = new ObservableCollection<IProduct>();
 
-        public ObservableCollection<AccountCompany> ACList { get; set; } = new ObservableCollection<AccountCompany>();
-        public AccountCompany SelectedAC
+        public ObservableCollection<AccountingCompany> ACList { get; set; } = new ObservableCollection<AccountingCompany>();
+        public AccountingCompany SelectedAC
         {
             get { return selectedAC; }
             set { selectedAC = value; NotifyPropertyChanged("SelectedAC"); }
@@ -65,7 +65,7 @@ namespace Epe.xaml
             get { return selectedCostItem; }
             set { selectedCostItem = value; NotifyPropertyChanged("SelectedProduct"); }
         }
-        public AddProductWindow(bool notCostItem=true, bool hideSearchBtn=false)
+        public AddProductWindow(bool notCostItem=true, bool hideSearchBtn=false, bool updating = false)
         {
             ds = new DataSystem();
             InitializeComponent();
@@ -73,8 +73,11 @@ namespace Epe.xaml
 
             AddCostButton.IsEnabled = notCostItem;
             windowForCostProduct = !notCostItem;
+            forUpdating = updating;
 
             var title = windowForCostProduct ? "원재료 추가" : "상품 추가";
+            if (updating) title = "상품 정보 수정";        
+            
             TitleBar.DataContext = new TitleBarViewModel(title);
             this.DataContext = this;
 
@@ -90,10 +93,24 @@ namespace Epe.xaml
             else
                 ProductList = new ObservableCollection<IProduct>(ds.GetProducts());
 
-            ACList = new ObservableCollection<AccountCompany>(ds.GetAccountingCompanies());
+            ACList = new ObservableCollection<AccountingCompany>(ds.GetAccountingCompanies());
 
             ACComboBox.IsEnabled = true;
 
+        }
+        public void SetDefaultValues(IProduct product)
+        {
+            ProductName.Text = product.Name;
+
+            if (ds.CheckMyCompany(product.Manufacturer.Note))
+            {
+                OtherCompany.IsChecked = false;
+                SelectedAC = null;
+            }
+            else
+                SelectedAC = product.Manufacturer;
+            Price.Text = product.Price.ToString();
+            Costs = product.Costs;
         }
         private bool isCreationGrid()
         {
@@ -142,12 +159,6 @@ namespace Epe.xaml
                         alert.ShowDialog();
                         return;
                     }
-                    else if(ischecked == true && SelectedAC != null && SelectedAC.Name == ds.GetMyCompanyName())
-                    {
-                        alert = getErrorAlert("회사명과 다른 이름을 가진 회사를 선택하셔야합니다.");
-                        alert.ShowDialog();
-                        return;
-                    }
                     else
                     {
                         Product = new Product
@@ -163,7 +174,7 @@ namespace Epe.xaml
                 }
                 else// if((OtherCompany.IsChecked == true && SelectedAC != null) || OtherCompany.IsChecked == false)
                 {
-                    WarningBox box = new WarningBox($"{(windowForCostProduct ? "원재료 추가" : "상품 추가")} 절차를 중단하시겠습니까?", "창을 닫으시겠습니까?");
+                    WarningBox box = new WarningBox($"{(windowForCostProduct ? "원재료 추가" : (forUpdating ? "상품 정보 갱신" : "상품 추가"))} 절차를 중단하시겠습니까?", "창을 닫으시겠습니까?");
                     box.ShowDialog();
                     if (box.Ok == false)
                         return;

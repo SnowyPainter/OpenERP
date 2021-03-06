@@ -25,16 +25,16 @@ namespace BusinessEngine.Operating
 
     public class AccountCompanyManage
     {
-        public ObservableCollection<AccountCompany> AccountingCompanies {
+        public ObservableCollection<AccountingCompany> AccountingCompanies {
             get; set;
         }
 
         public AccountCompanyManage()
         {
-            AccountingCompanies = new ObservableCollection<AccountCompany>();
+            AccountingCompanies = new ObservableCollection<AccountingCompany>();
         }
 
-        public void AddAccountingCompany(AccountCompany com, Warning warn = Warning.None)
+        public void AddAccountingCompany(AccountingCompany com, Warning warn = Warning.None)
         {
             if(warn != Warning.None)
                 com.SetWarningPoint(warn);
