@@ -52,10 +52,12 @@ namespace Epe.xaml
         }
         private void showErrorOfDataDialog(string dataName, out WarningBox box)
         {
+            //DataErrorInterruptProcedureKey
             (box = new WarningBox($"{dataName} 정보에 오류가 있습니다. 절차를 중단하시겠습니까?", "판매 기재 중단")).ShowDialog();
         }
         private void showErrorMsgDialog(string message, out WarningBox box)
         {
+            //ErrorInterruptProcedureKey
             (box = new WarningBox(message, "판매 기재 중단")).ShowDialog();
         }
         private void CompleteButton_Click(object sender, RoutedEventArgs e)
@@ -82,11 +84,11 @@ namespace Epe.xaml
                     showErrorOfDataDialog("입금 예정일", out box);
                 else if (discountRate < 0)
                     showErrorOfDataDialog("할인률", out box);
-                else if (product != null && product.Manufacturer == null)
+                else if (product != null && product.Manufacturer == null) //RecommendInterruptUnknownMfKey
                     showErrorMsgDialog("선택하신 상품의 제조사가 확인 불명입니다. 절차를 중단하시는 것을 권장드립니다.", out box);
 
 
-                if (box != null && !box.Ok) //어딘가에서 에러가 나왔다.
+                if (box != null && !box.Ok) //어딘가에서 에러가 나왔다. 절대 발생안함.
                     return;
                 else if (box != null && box.Ok)
                 { //절차 중단 

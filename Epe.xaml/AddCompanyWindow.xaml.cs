@@ -24,13 +24,24 @@ namespace Epe.xaml
     /// </summary>
     public partial class AddCompanyWindow : Window
     {
-        readonly string SearchingText = "찾아보기";
-        readonly string CreationText = "생성하기";
+        readonly string defaultSearchText = "찾아보기";
+        readonly string defaultCreateText = "생성하기";
 
         DataSystem ds;
 
         public AccountingCompany SelectedCompany;
-
+        private void lpDefaultOr(int key, ref string text)
+        {
+            if (!MainWindow.LangPack.ContainsKey(key) || MainWindow.LangPack[key].Length == 0)
+                return;
+            text = MainWindow.LangPack[key];
+        }
+        private string getLpDefaultOr(int key, string defaultText)
+        {
+            if (!MainWindow.LangPack.ContainsKey(key) || MainWindow.LangPack[key].Length == 0)
+                return defaultText;
+            return MainWindow.LangPack[key];
+        } 
         public AddCompanyWindow(bool hideSearchBtn=false)
         {
             InitializeComponent();
@@ -39,6 +50,21 @@ namespace Epe.xaml
 
             ds = new DataSystem();
             ds.Initialize();
+
+            if(MainWindow.LangPack != null)
+            {
+                lpDefaultOr(Keys.SearchOtherKey, ref defaultSearchText);
+                lpDefaultOr(Keys.CreateOneKey, ref defaultCreateText);
+
+                SelectCompanyButton.Content = defaultSearchText;
+                OkButton.Content = getLpDefaultOr(Keys.OkKey, OkButton.Content.ToString());
+                TitleText.Text = getLpDefaultOr(Keys.AddCompanyInfoKey, TitleText.Text);
+                CompanyNameHeader.Text = getLpDefaultOr(Keys.CompanyNameKey, CompanyNameHeader.Text);
+                CompanyListNameHeader.Header = getLpDefaultOr(Keys.CompanyNameKey, CompanyListNameHeader.Header.ToString());
+                MaterialDesignThemes.Wpf.HintAssist.SetHint(CompanyName, getLpDefaultOr(Keys.CompanyNameKey, CompanyNameHeader.Text));
+                MaterialDesignThemes.Wpf.HintAssist.SetHint(CompanyNote, getLpDefaultOr(Keys.CompanyNoteKey, CompanyNoteHeader.Text));
+            }
+
             if (hideSearchBtn)
                 SelectCompanyButton.Visibility = Visibility.Hidden;
             else
@@ -49,7 +75,7 @@ namespace Epe.xaml
         }
         private bool isCreationGrid()
         {
-            return SelectCompanyButton.Content.ToString() == SearchingText;
+            return SelectCompanyButton.Content.ToString() == defaultSearchText;
         }
         private void SelecteCompany_Click(object sender, RoutedEventArgs e)
         {
@@ -58,14 +84,13 @@ namespace Epe.xaml
                 // 찾아보기로 전환
                 CompanyListView.Visibility = Visibility.Visible;
                 CreationGrid.Visibility = Visibility.Hidden;
-                SelectCompanyButton.Content = CreationText;
-
+                SelectCompanyButton.Content = defaultCreateText;
             }
             else
             {
                 CompanyListView.Visibility = Visibility.Hidden;
                 CreationGrid.Visibility = Visibility.Visible;
-                SelectCompanyButton.Content = SearchingText;
+                SelectCompanyButton.Content = defaultSearchText;
                 SelectedCompany = null;
             }
         }

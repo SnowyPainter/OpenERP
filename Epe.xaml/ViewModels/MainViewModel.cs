@@ -152,7 +152,7 @@ namespace Epe.xaml.ViewModels
             get
             {
                 return deleteSelectedSale ?? (deleteSelectedSale = new RelayCommand<object>(o
-                    => RemoveSelectedSale(SalesForDisplay[SelectedSaleIndex])));
+                    => RemoveSelectedSale(SelectedSaleIndex)));
             }
         }
         #endregion
@@ -197,7 +197,6 @@ namespace Epe.xaml.ViewModels
         #endregion
         #endregion
         public DataSystem DataSys { get; set; }
-
         public MainViewModel(string name)
         {
             PropertyChanged += AccountCompanyManageViewModel_PropertyChanged;
@@ -303,8 +302,11 @@ namespace Epe.xaml.ViewModels
                 unselectPd();
             }
         }
-        public void RemoveSelectedSale(Sale sale)
+        public void RemoveSelectedSale(int saleIndex)
         {
+            if (saleIndex >= SalesForDisplay.Count || saleIndex < 0)
+                return;
+            var sale = SalesForDisplay[saleIndex];
             var name = $"기재된 판매 {sale.Product.Name} {sale.Qty}개";
             VerityBox box = new VerityBox($"{name} 정말 삭제할까요?", "삭제 경고", name);
             box.ShowDialog();

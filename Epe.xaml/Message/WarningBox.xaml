@@ -38,9 +38,9 @@
                         </Style>
                     </Grid.Resources>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Button Content="확인" Click="Button_Click" CommandParameter="{x:Reference Name=ThisWindow}" 
+                        <Button Content="확인" Click="Button_Click" x:Name="OkButton" CommandParameter="{x:Reference Name=ThisWindow}" 
                                 Margin="0,0,10,0"/>
-                        <Button Content="취소" Command="{Binding CancelCloseCommand}" CommandParameter="{x:Reference Name=ThisWindow}" 
+                        <Button Content="취소"  x:Name="CancelButton" Command="{Binding CancelCloseCommand}" CommandParameter="{x:Reference Name=ThisWindow}" 
                                 Background="{StaticResource LightDarkAccent}"/>
                     </StackPanel>
                 </Grid>

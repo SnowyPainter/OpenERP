@@ -80,14 +80,14 @@
                           SelectionMode="Single" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="이름" Width="180">
+                                <GridViewColumn Header="이름" x:Name="ACListNameHeader" Width="180">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock VerticalAlignment="Center" TextAlignment="Center" Text="{Binding Name}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="노트" Width="280">
+                                <GridViewColumn Header="노트"  x:Name="ACListNoteHeader" Width="280">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Height="55" TextWrapping="Wrap" Text="{Binding Note}"/>
@@ -122,41 +122,41 @@
                                 </Style>
                             </Grid.Resources>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="1개월" Command="{Binding ShowSalesMonthly}" CommandParameter="1"/>
-                                <Button Content="3개월" Command="{Binding ShowSalesMonthly}" CommandParameter="3"/>
-                                <Button Content="6개월" Command="{Binding ShowSalesMonthly}" CommandParameter="6"/>
-                                <Button Content="12개월" Command="{Binding ShowSalesMonthly}" CommandParameter="12"/>
+                                <Button x:Name="ShowSalesMonthly1" Content="1개월" Command="{Binding ShowSalesMonthly}" CommandParameter="1"/>
+                                <Button x:Name="ShowSalesMonthly3" Content="3개월" Command="{Binding ShowSalesMonthly}" CommandParameter="3"/>
+                                <Button x:Name="ShowSalesMonthly6" Content="6개월" Command="{Binding ShowSalesMonthly}" CommandParameter="6"/>
+                                <Button x:Name="ShowSalesMonthly12" Content="12개월" Command="{Binding ShowSalesMonthly}" CommandParameter="12"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <TextBlock Text="판매 상품" VerticalAlignment="Center" Margin="10"/>
+                                <TextBlock  x:Name="SaleProductText" Text="판매 상품" VerticalAlignment="Center" Margin="10"/>
                                 <TextBox x:Name="SaleSearchText" VerticalAlignment="Center" Margin="0,0,10,0" Width="146" Height="35" FontSize="14" Foreground="White" BorderBrush="{StaticResource DarkAccent}">
                                     <TextBox.InputBindings>
                                         <KeyBinding Key="Return"
                                                     Command="{Binding ShowSalesByProductName}" CommandParameter="{Binding Text, ElementName=SaleSearchText}"/>
                                     </TextBox.InputBindings>
                                 </TextBox>
-                                <Button Command="{Binding ShowSalesByProductName}" CommandParameter="{Binding Text, ElementName=SaleSearchText}"
+                                <Button x:Name="SearchText" Command="{Binding ShowSalesByProductName}" CommandParameter="{Binding Text, ElementName=SaleSearchText}"
                                         Foreground="White" Style="{StaticResource MaterialDesignFlatButton}" Background="{StaticResource DarkAccent}" Content="검색" Margin="0,0,5,0" Width="65"/>
                             </StackPanel>
                         </Grid>
                         <ListView Grid.Row="1" ItemsSource="{Binding SalesForDisplay}" SelectedIndex="{Binding SelectedSaleIndex}">
                             <ListView.View>
                                 <GridView>
-                                    <GridViewColumn Header="상품명">
+                                    <GridViewColumn x:Name="ProductListNameHeader" Header="상품명">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding Product.Name}"/>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="바이어">
+                                    <GridViewColumn x:Name="ProductListBuyerHeader" Header="바이어">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding To.Name}"/>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="할인율">
+                                    <GridViewColumn x:Name="ProductListDRHeader" Header="할인율">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock>
@@ -166,7 +166,7 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="갯수">
+                                    <GridViewColumn x:Name="ProductListQTYHeader" Header="갯수">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock>
@@ -176,14 +176,14 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="판매일">
+                                    <GridViewColumn x:Name="ProductListSDHeader" Header="판매일">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding Date}"/>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="입금 예정일">
+                                    <GridViewColumn x:Name="ProductListDpDHeader" Header="입금 예정일">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding ExpectedDepositDate}"/>
@@ -210,15 +210,15 @@
                                     </Style>
                                 </Grid.Resources>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                    <Button Command="{Binding ShowAllSales}" Background="{StaticResource LightDarkAccent}" Content="전체 보기" Margin="10,0,10,0"/>
+                                    <Button x:Name="ShowAllSalesButton" Command="{Binding ShowAllSales}" Background="{StaticResource LightDarkAccent}" Content="전체 보기" Margin="10,0,10,0"/>
                                     <TextBlock VerticalAlignment="Center">
-                                        <Run Text="리스트 상태 : "/>
-                                        <Run Text="{Binding CurrentSaleDisplayStateString}"/>
+                                        <Run x:Name="SalesListStateText" Text="리스트 상태 : "/>
+                                        <Run Text="{Binding CurrentSaleDisplayStateString}"/> 
                                     </TextBlock>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <Button Command="{Binding DeleteSelectedSale}" Content="선택 삭제" Margin="0,0,10,0"/>
-                                    <Button Command="{Binding AddSales}" Content="판매 기재" Margin="0,0,10,0"/>
+                                    <Button x:Name="DeleteSaleButton" Command="{Binding DeleteSelectedSale}" Content="선택 삭제" Margin="0,0,10,0"/>
+                                    <Button x:Name="AddSaleButton"  Command="{Binding AddSales}" Content="판매 기재" Margin="0,0,10,0"/>
                                 </StackPanel>
                             </Grid>
                         </materialDesign:Card>
@@ -257,16 +257,16 @@
                                 <Setter Property="Padding" Value="5"/>
                             </Style>
                         </Grid.Resources>
-                        <TextBlock Text="거래처 정보" Style="{StaticResource HeaderTextBlock}" FontSize="18" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Center" />
-                        <TextBlock Text="거래처" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"/>
+                        <TextBlock x:Name="ACInfoTitle" Text="거래처 정보" Style="{StaticResource HeaderTextBlock}" FontSize="18" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Center" />
+                        <TextBlock x:Name="ACInfoName" Text="거래처" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"/>
 
                         <TextBox VerticalContentAlignment="Center" TextWrapping="Wrap" Text="{Binding SelectedAC.Name}" Grid.Row="1" Grid.Column="1" BorderBrush="#FF1E2025"/>
 
-                        <TextBlock Text="노트" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"/>
+                        <TextBlock x:Name="ACInfoNote" Text="노트" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"/>
 
                         <TextBox Height="108" VerticalAlignment="Center" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding SelectedAC.Note}" Grid.Row="2" Grid.Column="1" CaretBrush="#FF191919" BorderBrush="Black" Margin="0,0,10,0" />
 
-                        <TextBlock Text="주의" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"/>
+                        <TextBlock x:Name="ACInfoWarning" Text="주의" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"/>
                         <ComboBox Style="{StaticResource MaterialDesignComboBox}" Grid.Row="3" Grid.Column="1"
                                   Height="40" ItemsSource="{Binding WarningPointArray}" SelectedValue="{Binding SelectedAC.WarningPoint}"
                                   BorderBrush="Black" Background="White" Margin="0,0,10,0">
@@ -301,9 +301,9 @@
                                     </Style.Triggers>
                                 </Style>
                             </StackPanel.Resources>
-                            <Button Style="{StaticResource MK}" Content="판매내역 보기" Width="126" Command="{Binding ShowSalesOfSelectedAC}"/>
-                            <Button Style="{StaticResource MK}" Content="수정" Command="{Binding SaveAccountCompanyInfo}" Width="59"/>
-                            <Button Style="{StaticResource MKHoverRed}" Content="삭제" Width="59" Height="40" Command="{Binding DeleteAccountCompany}"/>
+                            <Button x:Name="ShowSaleListByACButton" Style="{StaticResource MK}" Content="판매내역 보기" Width="126" Command="{Binding ShowSalesOfSelectedAC}"/>
+                            <Button x:Name="EditACButton" Style="{StaticResource MK}" Content="수정" Command="{Binding SaveAccountCompanyInfo}" Width="59"/>
+                            <Button x:Name="DeleteACButton" Style="{StaticResource MKHoverRed}" Content="삭제" Width="59" Height="40" Command="{Binding DeleteAccountCompany}"/>
                         </StackPanel>
                     </Grid>
                 </materialDesign:Card>
@@ -331,9 +331,9 @@
                     </Grid.Resources>
                     <materialDesign:Card Grid.Row="0" Margin="10,0,10,10" Background="White">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                            <TextBlock Text="새 거래처" Style="{StaticResource HeaderTextBlock}" FontSize="18"/>
+                            <TextBlock x:Name="AddNewACTitle" Text="새 거래처" Style="{StaticResource HeaderTextBlock}" FontSize="18"/>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-                                <Button Content="추가" Command="{Binding AddAccountingCompany}" Width="84" Height="30"/>
+                                <Button x:Name="AddNewACText" Content="추가" Command="{Binding AddAccountingCompany}" Width="84" Height="30"/>
                             </StackPanel>
                         </StackPanel>
                     </materialDesign:Card>
@@ -360,7 +360,7 @@
                             <RowDefinition Height="50"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
-                            <TextBlock Text="상품 관리" Style="{StaticResource HeaderTextBlock}" Foreground="Black" FontSize="18"/>
+                            <TextBlock x:Name="ManageProductTitle" Text="상품 관리" Style="{StaticResource HeaderTextBlock}" Foreground="Black" FontSize="18"/>
                         </Grid>
                         <Grid Grid.Row="1">
                             <ListBox Grid.Row="0"
@@ -430,13 +430,13 @@
                                     </Style>
                                 </StackPanel.Resources>
                                 <TextBlock TextWrapping="Wrap">
-                                        <Run Text="{Binding SelectedProduct.Name, FallbackValue=선택없음}"/>
+                                        <Run Text="{Binding SelectedProduct.Name}"/>
                                 </TextBlock>
-                                <Button Command="{Binding UpdateProduct}" 
+                                <Button x:Name="EditProductButton" Command="{Binding UpdateProduct}" 
                                             Content="수정" Width="60"/>
-                                <Button Command="{Binding AddProduct}" 
+                                <Button x:Name="AddProductButton" Command="{Binding AddProduct}" 
                                            Content="상품 추가" Width="100"/>
-                                <Button Command="{Binding DeleteProductCommand}" 
+                                <Button x:Name="DeleteProductButton" Command="{Binding DeleteProductCommand}" 
                                             Foreground="Red" Background="White" Padding="0"
                                             Content="{materialDesign:PackIcon Kind=Trash}"/>
                             </StackPanel>
@@ -458,7 +458,7 @@
                             </Grid.RowDefinitions>
                             <!--헤더-->
                             <Grid Grid.Row="0">
-                                <TextBlock FontSize="18" Style="{StaticResource HeaderTextBlock}" Margin="10" VerticalAlignment="Center" Foreground="Black" Text="Database 관리"/>
+                                <TextBlock x:Name="DbManageTitle" FontSize="18" Style="{StaticResource HeaderTextBlock}" Margin="10" VerticalAlignment="Center" Foreground="Black" Text="Database 관리"/>
                             </Grid>
                             <Grid Grid.Row="1">
                                 <StackPanel VerticalAlignment="Top" Orientation="Vertical" Margin="10">
@@ -477,13 +477,13 @@
                                             <Setter Property="Margin" Value="0,0,0,5"/>
                                         </Style>
                                     </StackPanel.Resources>
-                                    <Button Content="내보내기" Command="{Binding ExportDBCommand}"/>
-                                    <TextBlock Text="현재 정보들을 모두 복제하여 다른 이름으로 저장합니다." TextWrapping="Wrap"/>
-                                    <Button Content="불러오기" Command="{Binding ImportDBCommand}" CommandParameter="{x:Reference Name=ThisWindow}"/>
-                                    <TextBlock Text="다른 데이터베이스를 가져와 사용합니다." TextWrapping="Wrap"/>
+                                    <Button x:Name="DbExportButton" Content="내보내기" Command="{Binding ExportDBCommand}"/>
+                                    <TextBlock x:Name="DbExportWarningText" Text="현재 정보들을 모두 복제하여 다른 이름으로 저장합니다." TextWrapping="Wrap"/>
+                                    <Button  x:Name="DbImpotButton" Content="불러오기" Command="{Binding ImportDBCommand}" CommandParameter="{x:Reference Name=ThisWindow}"/>
+                                    <TextBlock x:Name="DbImportWarningText" Text="다른 데이터베이스를 가져와 사용합니다." TextWrapping="Wrap"/>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Bottom" Orientation="Vertical" Margin="10">
-                                    <TextBlock Text="데이터가 노출, 훼손되지 않도록 주의를 기울여야합니다." TextWrapping="Wrap" FontSize="10"/>
+                                    <TextBlock x:Name="DbSecurityWarningText"  Text="데이터가 노출, 훼손되지 않도록 주의를 기울여야합니다." TextWrapping="Wrap" FontSize="10"/>
                                 </StackPanel>
                             </Grid>
                         </Grid>

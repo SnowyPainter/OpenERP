@@ -18,11 +18,23 @@ namespace Epe.xaml.Message
     /// </summary>
     public partial class WarningBox : Window
     {
+        private string getLpDefaultOr(int key, string defaultText)
+        {
+            if (!MainWindow.LangPack.ContainsKey(key) || MainWindow.LangPack[key].Length == 0)
+                return defaultText;
+            return MainWindow.LangPack[key];
+        }
         public bool Ok = false;
         public WarningBox(string body, string caption)
         {
             InitializeComponent();
             this.DataContext = new TextBoxViewModel(caption, body);
+
+            if(MainWindow.LangPack != null)
+            {
+                OkButton.Content = getLpDefaultOr(Keys.OkKey, OkButton.Content.ToString());
+                CancelButton.Content = getLpDefaultOr(Keys.CancelKey, CancelButton.Content.ToString());
+            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

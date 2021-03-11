@@ -19,11 +19,23 @@ namespace Epe.xaml.Message
     public partial class VerityBox : Window
     {
         public bool Ok = false;
-
+        private string getLpDefaultOr(int key, string defaultText)
+        {
+            if (!MainWindow.LangPack.ContainsKey(key) || MainWindow.LangPack[key].Length == 0)
+                return defaultText;
+            return MainWindow.LangPack[key];
+        }
         public VerityBox(string body, string caption, string verity)
         {
             InitializeComponent();
             this.DataContext = new VerityBoxViewModel(caption, verity, body);
+
+            if (MainWindow.LangPack != null)
+            {
+                OkButton.Content = getLpDefaultOr(Keys.OkKey, OkButton.Content.ToString());
+                CancelButton.Content = getLpDefaultOr(Keys.CancelKey, CancelButton.Content.ToString());
+                AnnouncingMsg.Text = getLpDefaultOr(Keys.WriteDownUnderTextKey, AnnouncingMsg.Text);
+            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

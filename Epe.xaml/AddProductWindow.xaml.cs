@@ -4,6 +4,7 @@ using BusinessEngine.Operating;
 using BusinessEngine.Sales;
 using Epe.xaml.Message;
 using Epe.xaml.ViewModels;
+using LPS;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -38,8 +39,8 @@ namespace Epe.xaml
 
         public IProduct Product;
 
-        readonly string SearchingText = "찾아보기";
-        readonly string CreationText = "생성하기";
+        readonly string SearchingText;
+        readonly string CreationText;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -65,6 +66,23 @@ namespace Epe.xaml
             get { return selectedCostItem; }
             set { selectedCostItem = value; NotifyPropertyChanged("SelectedProduct"); }
         }
+
+        readonly string defaultSearchText = "찾아보기";
+        readonly string defaultCreateText = "생성하기";
+        readonly string defaultAddCost = "원재료 추가", defaultAddProduct = "상품 추가";
+        readonly string defaultUpdatingTitle = "상품 정보 수정";
+        readonly string defaultAddError = "추가 오류";
+        readonly string defaultAddCostError = "원재료를 추가해주세요.";
+        readonly string defaultErrorCheck = "체크 확인 부탁드립니다.";
+        readonly string defaultErrorMf = "제조사 확인 부탁드립니다.";
+        readonly string defaultCloseText = "창을 닫으시겠습니까?";
+        readonly string defaultInterruptText = "{0} 절차를 중단하시겠습니까?";
+        private void lpDefaultOr(int key, ref string text)
+        {
+            if (!MainWindow.LangPack.ContainsKey(key) || MainWindow.LangPack[key].Length == 0)
+                return;
+            text = MainWindow.LangPack[key];
+        }
         public AddProductWindow(bool notCostItem=true, bool hideSearchBtn=false, bool updating = false)
         {
             ds = new DataSystem();
@@ -75,8 +93,26 @@ namespace Epe.xaml
             windowForCostProduct = !notCostItem;
             forUpdating = updating;
 
-            var title = windowForCostProduct ? "원재료 추가" : "상품 추가";
-            if (updating) title = "상품 정보 수정";        
+            if(MainWindow.LangPack != null)
+            {
+                lpDefaultOr(Keys.SearchOtherKey, ref defaultSearchText);
+                lpDefaultOr(Keys.CreateOneKey, ref defaultCreateText);
+                lpDefaultOr(Keys.AddCostKey, ref defaultAddCost);
+                lpDefaultOr(Keys.AddProductKey, ref defaultAddProduct);
+                lpDefaultOr(Keys.UpdateProductInfoKey, ref defaultUpdatingTitle);
+                lpDefaultOr(Keys.FailedToAddKey, ref defaultAddError);
+                lpDefaultOr(Keys.PleaseCheckCheckKey, ref defaultErrorCheck);
+                lpDefaultOr(Keys.PleaseAddCostKey, ref defaultAddError);
+                lpDefaultOr(Keys.PleaseCheckMFKey, ref defaultErrorMf);
+                lpDefaultOr(Keys.CloseWindowKey, ref defaultCloseText);
+                lpDefaultOr(Keys.InterruptProcedureKey, ref defaultInterruptText);
+            }
+
+            SearchingText = defaultSearchText;
+            CreationText = defaultCreateText;
+
+            var title = windowForCostProduct ? defaultAddCost : defaultAddProduct;
+            if (updating) title = defaultUpdatingTitle;        
             
             TitleBar.DataContext = new TitleBarViewModel(title);
             this.DataContext = this;
@@ -135,7 +171,7 @@ namespace Epe.xaml
         }
         private AlertBox getErrorAlert(string text)
         {
-            return new AlertBox(text, "추가 오류");
+            return new AlertBox(text, defaultAddError);
         }
         private void AddProductDB_Click(object sender, RoutedEventArgs e)
         {
@@ -149,13 +185,13 @@ namespace Epe.xaml
                     var ischecked = OtherCompany.IsChecked;
                     if(ischecked == null)
                     {
-                        alert = getErrorAlert("체크 확인 부탁드립니다.");
+                        alert = getErrorAlert(defaultErrorCheck);
                         alert.ShowDialog();
                         return;
                     }
                     else if(ischecked == true && SelectedAC == null)
                     {
-                        alert = getErrorAlert("제조사 확인 부탁드립니다.");
+                        alert = getErrorAlert(defaultErrorMf);
                         alert.ShowDialog();
                         return;
                     }
@@ -174,7 +210,8 @@ namespace Epe.xaml
                 }
                 else// if((OtherCompany.IsChecked == true && SelectedAC != null) || OtherCompany.IsChecked == false)
                 {
-                    WarningBox box = new WarningBox($"{(windowForCostProduct ? "원재료 추가" : (forUpdating ? "상품 정보 갱신" : "상품 추가"))} 절차를 중단하시겠습니까?", "창을 닫으시겠습니까?");
+                    WarningBox box = new WarningBox(
+                        defaultInterruptText.Fill((windowForCostProduct ? defaultAddCost : (forUpdating ? defaultUpdatingTitle : defaultAddProduct))), defaultCloseText);
                     box.ShowDialog();
                     if (box.Ok == false)
                         return;
@@ -211,7 +248,7 @@ namespace Epe.xaml
                 Costs.Add(a.Product);
             }
             else if (a.windowForCostProduct)
-                getErrorAlert("원재료를 추가해주세요.").ShowDialog();
+                getErrorAlert(defaultAddCostError).ShowDialog();
         }
         private void addCostToDB(IProduct product)
         {

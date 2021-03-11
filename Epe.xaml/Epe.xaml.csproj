@@ -21,6 +21,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="LPS">
+      <HintPath>C:\Users\유민우\Downloads\LPS.dll\.net 3\LPS.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Images\icon.png" />
   </ItemGroup>
 
