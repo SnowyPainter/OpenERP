@@ -20,16 +20,16 @@ namespace Epe.xaml.Message
     {
         private string getLpDefaultOr(int key, string defaultText)
         {
-            if (!MainWindow.LangPack.ContainsKey(key) || MainWindow.LangPack[key].Length == 0)
+            if (!MainViewModel.LangPack.ContainsKey(key) || MainViewModel.LangPack[key].Length == 0)
                 return defaultText;
-            return MainWindow.LangPack[key];
+            return MainViewModel.LangPack[key];
         }
         public AlertBox(string body, string caption)
         {
             InitializeComponent();
 
             this.DataContext = new TextBoxViewModel(caption, body);
-            if (MainWindow.LangPack != null)
+            if (MainViewModel.LangPack != null)
             {
                 OkButton.Content = getLpDefaultOr(Keys.OkKey, OkButton.Content.ToString());
             }

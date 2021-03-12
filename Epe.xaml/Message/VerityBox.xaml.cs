@@ -21,16 +21,16 @@ namespace Epe.xaml.Message
         public bool Ok = false;
         private string getLpDefaultOr(int key, string defaultText)
         {
-            if (!MainWindow.LangPack.ContainsKey(key) || MainWindow.LangPack[key].Length == 0)
+            if (!MainViewModel.LangPack.ContainsKey(key) || MainViewModel.LangPack[key].Length == 0)
                 return defaultText;
-            return MainWindow.LangPack[key];
+            return MainViewModel.LangPack[key];
         }
         public VerityBox(string body, string caption, string verity)
         {
             InitializeComponent();
             this.DataContext = new VerityBoxViewModel(caption, verity, body);
 
-            if (MainWindow.LangPack != null)
+            if (MainViewModel.LangPack != null)
             {
                 OkButton.Content = getLpDefaultOr(Keys.OkKey, OkButton.Content.ToString());
                 CancelButton.Content = getLpDefaultOr(Keys.CancelKey, CancelButton.Content.ToString());

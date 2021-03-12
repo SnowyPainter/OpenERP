@@ -156,7 +156,7 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn x:Name="ProductListDRHeader" Header="할인율">
+                                    <GridViewColumn x:Name="ProductListDRHeader" Header="할인률">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock>

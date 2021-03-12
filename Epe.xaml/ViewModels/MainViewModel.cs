@@ -3,6 +3,7 @@ using BusinessEngine.IO;
 using BusinessEngine.Operating;
 using BusinessEngine.Sales;
 using Epe.xaml.Message;
+using LPS;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,11 @@ namespace Epe.xaml.ViewModels
 {
     public class MainViewModel : ViewBase, INotifyPropertyChanged
     {
+        /// <summary>
+        /// Null인지 체크 확실히 하고, 런타임에는 수정할때 가급적 조심할것(파일 변경 후 수정, 낭비 없게)
+        /// </summary>
+        public static Dictionary<int, string> LangPack;
+
         #region private Properties
         private int selectedACIndex, selectedProductIndex, selectedSaleIndex;
         private bool updatingACEnabled;
@@ -196,6 +202,32 @@ namespace Epe.xaml.ViewModels
         }
         #endregion
         #endregion
+
+        #region default - langs
+        // programatically - s
+
+        readonly string defaultShowAllSalesButton = "전체 보기";    
+        readonly string defaultDeleteWarningMsg = "{0}을 정말 삭제하시겠습니까?";
+        readonly string defaultWrittenSalesMsg = "기재된 {0} 판매 {1}개";
+        readonly string defaultWarningDeleteText = "삭제 경고";
+        readonly string defaultDisplayLeastMonthlyText = "지난 {0}개월만 표시";
+        readonly string defaultFailedToAddSale = "판매 기재에 실패했습니다.";
+        readonly string defaultErrorToAddSale = "판매 기재 오류";
+        readonly string defaultPassToAddProduct = "상품이 정상적으로 추가되었습니다.";
+        readonly string defaultAddProductInfoText = "상품 추가 {0}({1})";
+        readonly string defaultDisplayListOnlyProduct = "상품명 {0}만 표시";
+        readonly string defaultDisplayListOnlyBuyer = "구매자 {0}만 표시";
+        readonly string defaultAlertDataUpdated = "정보가 변경되었습니다.";
+        readonly string defaultAlertDataUpdatedTitle = "정보 변경";
+        readonly string defaultAlertWarningExportText = "데이터베이스를 변경하는 것 입니다. 그대로 진행하시겠습니까?";
+        readonly string defaultImportAndShutdownText = "불러오기 및 종료";
+        private void lpDefaultOr(int key, ref string text)
+        {
+            if (!MainViewModel.LangPack.ContainsKey(key) || MainViewModel.LangPack[key].Length == 0)
+                return;
+            text = MainViewModel.LangPack[key];
+        }
+        #endregion 
         public DataSystem DataSys { get; set; }
         public MainViewModel(string name)
         {
@@ -203,6 +235,26 @@ namespace Epe.xaml.ViewModels
             DataSys = new DataSystem();
             Company = new Company(name);
             UpdatingACEnabled = false;
+
+            if(LangPack != null) //LangPack - not null 보장됨
+            {
+                lpDefaultOr(Keys.ImportAndShutdownTextKey, ref defaultImportAndShutdownText);
+                lpDefaultOr(Keys.AlertWarningExportTextKey, ref defaultAlertWarningExportText);
+                lpDefaultOr(Keys.AlertDataUpdatedTitleKey, ref defaultAlertDataUpdatedTitle);
+                lpDefaultOr(Keys.AlertDataUpdatedKey, ref defaultAlertDataUpdated);
+                lpDefaultOr(Keys.DisplayListOnlyProductKey, ref defaultDisplayListOnlyProduct);
+                lpDefaultOr(Keys.DisplayListOnlyBuyerKey, ref defaultDisplayListOnlyBuyer);
+                lpDefaultOr(Keys.AddProductInfoTextKey, ref defaultAddProductInfoText);
+                lpDefaultOr(Keys.ErrorToAddSaleKey, ref defaultErrorToAddSale);
+                lpDefaultOr(Keys.PassToAddProductKey, ref defaultPassToAddProduct);
+                lpDefaultOr(Keys.FailedToAddSaleKey, ref defaultFailedToAddSale);
+                lpDefaultOr(Keys.DisplayLeastMonthlyTextKey, ref defaultDisplayLeastMonthlyText);
+                lpDefaultOr(Keys.WarningDelete, ref defaultWarningDeleteText);
+                lpDefaultOr(Keys.WrittenSalesMsgKey, ref defaultWrittenSalesMsg);
+                lpDefaultOr(Keys.WarningDeleteSomethingKey, ref defaultDeleteWarningMsg);
+                lpDefaultOr(Keys.ShowAllSalesButtonKey, ref defaultShowAllSalesButton);
+            }
+
         }
         public static async Task<MainViewModel> Build(string name)
         {
@@ -210,7 +262,7 @@ namespace Epe.xaml.ViewModels
 
             vm.DataSys.Initialize();
             vm.DataSys.SetMyCompany(vm.Company);
-            
+
             var getProductTask = Task.Run(() => vm.DataSys.GetProducts());
             var getACTask = Task.Run(() => vm.DataSys.GetAccountingCompanies());
             var getSalesTask = Task.Run(() => vm.DataSys.GetSales());
@@ -223,7 +275,6 @@ namespace Epe.xaml.ViewModels
             vm.Company.Finance.Book.Products = new ObservableCollection<IProduct>(products);
             vm.Company.Finance.Book.Sales = new ObservableCollection<Sale>(sales);
             vm.SalesForDisplay = new ObservableCollection<Sale>(sales); //표시용 판매 기재 목록
-            vm.CurrentSaleDisplayStateString = "전체 보기";
             if (products.Count > 0)
             {
                 vm.SelectedProductIndex = 0;
@@ -261,8 +312,7 @@ namespace Epe.xaml.ViewModels
             dialog.Filter = "Database (*.db)|*.db";
             if (dialog.ShowDialog() == true)
             {
-                WarningBox box = new WarningBox("데이터베이스를 변경하는 것 입니다. 그대로 진행하시겠습니까?"
-                    +Environment.NewLine+"프로그램의 재시작이 필수적입니다.", "불러오기 및 종료");
+                WarningBox box = new WarningBox(defaultAlertWarningExportText, defaultImportAndShutdownText);
                 box.ShowDialog();
 
                 if(box.Ok)
@@ -279,7 +329,7 @@ namespace Epe.xaml.ViewModels
             if (i < 0 || i >= Company.AccountCManage.AccountingCompanies.Count) return;
 
             var name = Company.AccountCManage.AccountingCompanies[i].Name;
-            VerityBox box = new VerityBox($"{name}을 정말 삭제할까요?", "삭제 경고", name);
+            VerityBox box = new VerityBox(defaultDeleteWarningMsg.Fill(name), defaultWarningDeleteText, name);
             box.ShowDialog();
             if (box.Ok)
             {
@@ -293,7 +343,7 @@ namespace Epe.xaml.ViewModels
             if (i < 0 || i >= Company.Finance.Book.Products.Count) return;
 
             var name = Company.Finance.Book.Products[i].Name;
-            VerityBox box = new VerityBox($"{name}을 정말 삭제할까요?", "삭제 경고", name);
+            VerityBox box = new VerityBox(defaultDeleteWarningMsg.Fill(name), defaultWarningDeleteText, name);
             box.ShowDialog();
             if (box.Ok)
             {
@@ -307,8 +357,8 @@ namespace Epe.xaml.ViewModels
             if (saleIndex >= SalesForDisplay.Count || saleIndex < 0)
                 return;
             var sale = SalesForDisplay[saleIndex];
-            var name = $"기재된 판매 {sale.Product.Name} {sale.Qty}개";
-            VerityBox box = new VerityBox($"{name} 정말 삭제할까요?", "삭제 경고", name);
+            var name = defaultWrittenSalesMsg.Fill(sale.Product.Name, sale.Qty);
+            VerityBox box = new VerityBox(defaultDeleteWarningMsg.Fill(name), defaultWarningDeleteText, name);
             box.ShowDialog();
             if (box.Ok)
             {
@@ -323,26 +373,26 @@ namespace Epe.xaml.ViewModels
             if (productName == "") return;
 
             SalesForDisplay = new ObservableCollection<Sale>(Company.Finance.GetSaleByProductName(productName));
-            CurrentSaleDisplayStateString = $"상품명 {productName} 표시";
+            CurrentSaleDisplayStateString = defaultDisplayListOnlyProduct.Fill(productName);
         }
         public void ShowSaleListMonthly(int monthFromNow)
         {
             if (monthFromNow <= 0) return;
 
             SalesForDisplay = new ObservableCollection<Sale>(Company.Finance.GetSalesMonthly(monthFromNow));
-            CurrentSaleDisplayStateString = $"지난 {monthFromNow}개월만 표시";
+            CurrentSaleDisplayStateString = defaultDisplayLeastMonthlyText.Fill(monthFromNow);
         }
         public void ShowSaleListFromAC(AccountingCompany ac)
         {
             if (ac == null) return;
 
             SalesForDisplay = new ObservableCollection<Sale>(Company.Finance.GetSalesByBuyer(ac));
-            CurrentSaleDisplayStateString = $"구매자 {ac.Name}만 표시";
+            CurrentSaleDisplayStateString = defaultDisplayListOnlyBuyer.Fill(ac.Name);
         }
         public void ShowSaleListAll()
         {
             SalesForDisplay = Company.Finance.Book.Sales;
-            CurrentSaleDisplayStateString = "전체 표시";
+            CurrentSaleDisplayStateString = defaultShowAllSalesButton;
         }
         
         public void AddSalesAndOpenSalesWindow()
@@ -351,7 +401,7 @@ namespace Epe.xaml.ViewModels
             salesProfileWindow.ShowDialog();
             if(salesProfileWindow.SaleData == null)
             {
-                AlertBox box = new AlertBox("판매 사실 기재에 실패했습니다.", "판매 기재 오류");
+                AlertBox box = new AlertBox(defaultFailedToAddSale, defaultErrorToAddSale);
                 box.ShowDialog();
             }
             else
@@ -399,7 +449,7 @@ namespace Epe.xaml.ViewModels
                 SelectedProductIndex = -1;
                 SelectedProductIndex = 1;
             }
-            var alert = new AlertBox("상품이 정상적으로 추가되었습니다.", $"상품 추가 {product.Name}({product.Price})");
+            var alert = new AlertBox(defaultPassToAddProduct, defaultAddProductInfoText.Fill(product.Name, product.Price));
             alert.ShowDialog();
         }
         public void UpdateAccountCompany()
@@ -413,7 +463,7 @@ namespace Epe.xaml.ViewModels
             DataSys.UpdateAccountingCompany(old, newData);
             Company.AccountCManage.AccountingCompanies[SelectedAccountCompanyIndex] = newData;
 
-            var alert = new AlertBox("정보가 변경되었습니다.", "정보 변경");
+            var alert = new AlertBox(defaultAlertDataUpdated, defaultAlertDataUpdatedTitle);
             alert.ShowDialog();
 
             unselectAC();

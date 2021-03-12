@@ -32,15 +32,15 @@ namespace Epe.xaml
         public AccountingCompany SelectedCompany;
         private void lpDefaultOr(int key, ref string text)
         {
-            if (!MainWindow.LangPack.ContainsKey(key) || MainWindow.LangPack[key].Length == 0)
+            if (!MainViewModel.LangPack.ContainsKey(key) || MainViewModel.LangPack[key].Length == 0)
                 return;
-            text = MainWindow.LangPack[key];
+            text = MainViewModel.LangPack[key];
         }
         private string getLpDefaultOr(int key, string defaultText)
         {
-            if (!MainWindow.LangPack.ContainsKey(key) || MainWindow.LangPack[key].Length == 0)
+            if (!MainViewModel.LangPack.ContainsKey(key) || MainViewModel.LangPack[key].Length == 0)
                 return defaultText;
-            return MainWindow.LangPack[key];
+            return MainViewModel.LangPack[key];
         } 
         public AddCompanyWindow(bool hideSearchBtn=false)
         {
@@ -51,7 +51,7 @@ namespace Epe.xaml
             ds = new DataSystem();
             ds.Initialize();
 
-            if(MainWindow.LangPack != null)
+            if(MainViewModel.LangPack != null)
             {
                 lpDefaultOr(Keys.SearchOtherKey, ref defaultSearchText);
                 lpDefaultOr(Keys.CreateOneKey, ref defaultCreateText);

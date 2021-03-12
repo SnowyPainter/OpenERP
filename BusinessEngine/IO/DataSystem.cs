@@ -92,7 +92,7 @@ namespace BusinessEngine.IO
         /// <summary>
         /// program.ini의 저장위치입니다.
         /// </summary>
-        public readonly string INISaveFile = "./settings.ini";
+        public static readonly string INISaveFile = "./settings.ini";
         public readonly string DefaultDBSave = "./database.db";
         public readonly string TimeFormat = "yyyy-MM-dd HH:mm:ss";
         public readonly CultureInfo KoreaCultureInfo = new CultureInfo("ko-KR");
@@ -117,6 +117,8 @@ namespace BusinessEngine.IO
         #region keys
         public static readonly string SAVEPATH_KEY = "SavePath";
         public static readonly string COMPANY_NAME_KEY = "Name";
+        public static readonly string LP = "Lp";
+        public static readonly string LpSplit = "LpSplitCode";
         #endregion
         #endregion
         string sqlPath;

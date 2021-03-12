@@ -26,54 +26,57 @@ namespace Epe.xaml
         public static readonly int CreateOneKey = 6;
         public static readonly int InterruptProcedureKey = 7;
         public static readonly int CloseWindowKey = 8;
+        public static readonly int WarningDelete = 9;
         #endregion
         #region ACList Header Key 10~19
-        private const int AcListNameHeaderKey = 10; //ACListNameHeader
-        private const int AcListNoteHeaderKey = 11; //ACListNoteHeader
+        public static readonly int AcListNameHeaderKey = 10; //ACListNameHeader
+        public static readonly int AcListNoteHeaderKey = 11; //ACListNoteHeader
         #endregion
         #region Sales Info Key 20~30
-        private const int showSalesMonthly1Key = 20; //ShowSalesMonthly1
-        private const int showSalesMonthly3Key = 21; //ShowSalesMonthly3
-        private const int showSalesMonthly6Key = 22; //ShowSalesMonthly6
-        private const int showSalesMonthly12Key = 23; //ShowSalesMonthly12
-        private const int saleProductTextKey = 24; //ShowProductText
-        private const int searchTextKey = 25; //SearchText
-        private const int productListNameHeaderKey = 26; //ProductListNameHeader;
-        private const int productListBuyerHeaderKey = 27; //ProductListBuyerHeader
-        private const int productListDRHeaderKey = 28; //ProductListDRHeader
-        private const int productListQTYHeaderKey = 29; //ProductListQTYHeader
-        private const int productListSDHeaderKey = 30; //ProductListSDHeader
-        private const int productListDpDHeaderKey = 31; //ProductListDpDHeader
-        private const int showAllSalesButtonKey = 32; //ShowAllSalesButton
-        private const int salesListStateTextKey = 33; //SalesListStateText
-        private const int deleteSaleButtonKey = 34; //DeleteSaleButton
-        private const int addSaleButtonKey = 35; //AddSaleButton
+        public static readonly int ShowSalesMonthly1Key = 20; //ShowSalesMonthly1
+        public static readonly int ShowSalesMonthly3Key = 21; //ShowSalesMonthly3
+        public static readonly int ShowSalesMonthly6Key = 22; //ShowSalesMonthly6
+        public static readonly int ShowSalesMonthly12Key = 23; //ShowSalesMonthly12
+        public static readonly int SaleProductTextKey = 24; //SaleProductText
+        public static readonly int SearchTextKey = 25; //SearchText
+        public static readonly int ProductListNameHeaderKey = 26; //ProductListNameHeader;
+        public static readonly int ProductListBuyerHeaderKey = 27; //ProductListBuyerHeader
+        public static readonly int ProductListDRHeaderKey = 28; //ProductListDRHeader
+        public static readonly int ProductListQTYHeaderKey = 29; //ProductListQTYHeader
+        public static readonly int ProductListSDHeaderKey = 30; //ProductListSDHeader
+        public static readonly int ProductListDpDHeaderKey = 31; //ProductListDpDHeader
+        public static readonly int ShowAllSalesButtonKey = 32; //ShowAllSalesButton
+        public static readonly int SalesListStateTextKey = 33; //SalesListStateText
+        public static readonly int DeleteSaleButtonKey = 34; //DeleteSaleButton
+        public static readonly int AddSaleButtonKey = 35; //AddSaleButton
         #endregion
         #region AC Info Key 40~50
-        private const int acInfoTitleKey = 40; //ACInfoTitle
-        private const int acInfoNameKey = 41; //ACInfoName
-        private const int acInfoNoteKey = 42; //ACInfoNote
-        private const int acInfoWarningKey = 43; //ACInfoWarning
-        private const int showSaleListByACKey = 44; //ShowSaleListByACButton
-        private const int editACKey = 45; //EditACButton
-        private const int deleteACKey = 46; //DeleteACButton
-        private const int addNewACTitleKey = 47; //AddNewACTitle
-        private const int addNewACButtonKey = 48; //AddNewACText
+        public static readonly int AcInfoTitleKey = 40; //ACInfoTitle
+        public static readonly int AcInfoNameKey = 41; //ACInfoName
+        public static readonly int AcInfoNoteKey = 42; //ACInfoNote
+        public static readonly int AcInfoWarningKey = 43; //ACInfoWarning
+        public static readonly int ShowSaleListByACKey = 44; //ShowSaleListByACButton
+        public static readonly int EditACKey = 45; //EditACButton
+        public static readonly int DeleteACKey = 46; //DeleteACButton
+        public static readonly int AddNewACTitleKey = 47; //AddNewACTitle
+        public static readonly int AddNewACButtonKey = 48; //AddNewACText
         #endregion
         #region Product Manage Key 60~70
-        private const int manageProductTitleKey = 60; //ManageProductTitle
-        private const int editProductKey = 61; //EditProductButton
-        private const int addProductKey = 62; //AddProductButton
-        private const int deleteProductKey = 63; //DeleteProductButton
+        public static readonly int ManageProductTitleKey = 60; //ManageProductTitle
+        public static readonly int EditProductKey = 61; //EditProductButton
+        //public static readonly int AddProductKey = 62; //AddProductButton
+        //material icon - not language
+        //public static readonly int DeleteProductKey = 63; //DeleteProductButton
         #endregion
         #region DB Manage Key 80~89
-        private const int dbManageTitleKey = 80; //DbManageTitle
-        private const int dbExportKey = 81; //DbExportButton
-        private const int dbImportKey = 82; //DbImpotButton
-        private const int dbExportWarningKey = 83; //DbExportWarningText
-        private const int dbImportWarningKey = 84; //DbImportWarningText
-        private const int dbSecurityWarningKey = 85; //DbSecurityWarningText
+        public static readonly int DbManageTitleKey = 80; //DbManageTitle
+        public static readonly int DbExportKey = 81; //DbExportButton
+        public static readonly int DbImportKey = 82; //DbImpotButton
+        public static readonly int DbExportWarningKey = 83; //DbExportWarningText
+        public static readonly int DbImportWarningKey = 84; //DbImportWarningText
+        public static readonly int DbSecurityWarningKey = 85; //DbSecurityWarningText
         #endregion
+
         #region AddProductWindow 90
         public static readonly int AddCostKey = 81;
         public static readonly int AddProductKey = 82;
@@ -87,20 +90,54 @@ namespace Epe.xaml
         #region AddSalesWindow 100~110
         public static readonly int DataErrorInterruptProcedureKey = 100;
         public static readonly int ErrorInterruptProcedureKey = 101;
-        public static readonly int ProductKey = 102;
-        public static readonly int BuyerKey = 103;
-        public static readonly int QtyKey = 104;
-        public static readonly int SellDateKey = 105;
-        public static readonly int DepositDateKey = 106;
-        public static readonly int DiscountRateKey = 107;
+        public static readonly int ProductKey = 102; //ProductNameText
+        public static readonly int BuyerKey = 103; //ProductBuyerText
+        public static readonly int QtyKey = 104; //ProductQTYText
+        public static readonly int SellDateKey = 105; //ProductSDText
+        public static readonly int DepositDateKey = 106; //ProductDDText
+        public static readonly int DiscountRateKey = 107; //ProductDRText
         public static readonly int RecommendInterruptUnknownMfKey = 108;
         public static readonly int InterruptByUknownError = 109;
+        public static readonly int AddSaleKey = 110; //TitleText
+        public static readonly int SetToNowKey = 111; //SetNowButton1 SetNowButton2
         #endregion
         #region AddCompanyWindow 120
         public static readonly int AddCompanyInfoKey = 120; //'회사정보추가'
         public static readonly int CompanyNameKey = 121; //'회사명'
         public static readonly int CompanyNoteKey = 122; //'노트'
         #endregion
+
+        #region MainWindow - ViewModel 130~ 다 런타임 ViewModel.cs
+
+        //{0}을 정말 삭제하시겠습니까?
+        public static readonly int WarningDeleteSomethingKey = 130;
+        //기재된 {0} 판매 {1} 개
+        public static readonly int WrittenSalesMsgKey = 131;
+        //상품명 {0}만 표시
+        public static readonly int DisplayListOnlyProductKey = 132;
+        //구매자 {0}만 표시
+        public static readonly int DisplayListOnlyBuyerKey = 133;
+        //지난 {0}개월만 표시
+        public static readonly int DisplayLeastMonthlyTextKey = 134;
+        //판매 기재에 실패했습니다.
+        public static readonly int FailedToAddSaleKey = 135;
+        //판매 기재 오류
+        public static readonly int ErrorToAddSaleKey = 136;
+        //상품이 정상적으로 추가되었습니다.
+        public static readonly int PassToAddProductKey = 137;
+        //상품 추가 {0}({1})
+        public static readonly int AddProductInfoTextKey = 138;
+        //정보가 변경되었습니다.
+        public static readonly int AlertDataUpdatedKey = 139;
+        //정보 변경
+        public static readonly int AlertDataUpdatedTitleKey = 140;
+        //데이터베이스를 변경하는 것 입니다. 그대로 진행하시겠습니까?
+        public static readonly int AlertWarningExportTextKey = 141;
+        //불러오기 및 종료
+        public static readonly int ImportAndShutdownTextKey = 142;
+
+        #endregion
+
         #endregion
     }
 }

@@ -79,9 +79,9 @@ namespace Epe.xaml
         readonly string defaultInterruptText = "{0} 절차를 중단하시겠습니까?";
         private void lpDefaultOr(int key, ref string text)
         {
-            if (!MainWindow.LangPack.ContainsKey(key) || MainWindow.LangPack[key].Length == 0)
+            if (!MainViewModel.LangPack.ContainsKey(key) || MainViewModel.LangPack[key].Length == 0)
                 return;
-            text = MainWindow.LangPack[key];
+            text = MainViewModel.LangPack[key];
         }
         public AddProductWindow(bool notCostItem=true, bool hideSearchBtn=false, bool updating = false)
         {
@@ -93,7 +93,7 @@ namespace Epe.xaml
             windowForCostProduct = !notCostItem;
             forUpdating = updating;
 
-            if(MainWindow.LangPack != null)
+            if(MainViewModel.LangPack != null)
             {
                 lpDefaultOr(Keys.SearchOtherKey, ref defaultSearchText);
                 lpDefaultOr(Keys.CreateOneKey, ref defaultCreateText);

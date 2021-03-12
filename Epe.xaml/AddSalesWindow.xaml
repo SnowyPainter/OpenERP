@@ -30,7 +30,7 @@
                     </Style>
                 </StackPanel.Resources>
                 <Image Source="/Images/icon.ico" Width="35"/>
-                <TextBlock Text="판매 추가"/>
+                <TextBlock x:Name="TitleText" Text="상품 판매 기재"/>
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1" Background="{StaticResource LightBackground}">
@@ -92,12 +92,12 @@
                         <Setter Property="Grid.Column" Value="1"/>
                     </Style>
                 </Grid.Resources>
-                <TextBlock Style="{StaticResource PropertyName}" Text="상품" Grid.Row="0"/>
-                <TextBlock Style="{StaticResource PropertyName}" Text="구매자" Grid.Row="1"/>
-                <TextBlock Style="{StaticResource PropertyName}" Text="갯수" Grid.Row="2"/>
-                <TextBlock Style="{StaticResource PropertyName}" Text="판매일" Grid.Row="3"/>
-                <TextBlock Style="{StaticResource PropertyName}" Text="입금일" Grid.Row="4"/>
-                <TextBlock Style="{StaticResource PropertyName}" Text="할인률(%)" Grid.Row="5"/>
+                <TextBlock Style="{StaticResource PropertyName}" x:Name="ProductNameText" Text="상품" Grid.Row="0"/>
+                <TextBlock Style="{StaticResource PropertyName}" x:Name="ProductBuyerText" Text="구매자" Grid.Row="1"/>
+                <TextBlock Style="{StaticResource PropertyName}" x:Name="ProductQTYText" Text="갯수" Grid.Row="2"/>
+                <TextBlock Style="{StaticResource PropertyName}" x:Name="ProductSDText" Text="판매일" Grid.Row="3"/>
+                <TextBlock Style="{StaticResource PropertyName}" x:Name="ProductDDText" Text="입금일" Grid.Row="4"/>
+                <TextBlock Style="{StaticResource PropertyName}" x:Name="ProductDRText" Text="할인률(%)" Grid.Row="5"/>
 
                 <ComboBox Padding="3" Style="{StaticResource ListProperty}" Foreground="Black" Background="White" x:Name="ProductCombobox" Grid.Row="0">
                     <ComboBox.ItemTemplate>
@@ -128,7 +128,7 @@
             </Grid>
             <Grid Grid.Row="1" Background="{StaticResource LightDarkAccent}">
                 <Grid HorizontalAlignment="Center">
-                    <Button Click="CompleteButton_Click" Content="완료"
+                    <Button Click="CompleteButton_Click" Content="완료" x:Name="OkButton"
                             Background="{StaticResource LightDarkAccent}" BorderBrush="{StaticResource DarkAccent}" Width="80" Height="45"/>
                 </Grid>
             </Grid>

@@ -20,9 +20,9 @@ namespace Epe.xaml.Message
     {
         private string getLpDefaultOr(int key, string defaultText)
         {
-            if (!MainWindow.LangPack.ContainsKey(key) || MainWindow.LangPack[key].Length == 0)
+            if (!MainViewModel.LangPack.ContainsKey(key) || MainViewModel.LangPack[key].Length == 0)
                 return defaultText;
-            return MainWindow.LangPack[key];
+            return MainViewModel.LangPack[key];
         }
         public bool Ok = false;
         public WarningBox(string body, string caption)
@@ -30,7 +30,7 @@ namespace Epe.xaml.Message
             InitializeComponent();
             this.DataContext = new TextBoxViewModel(caption, body);
 
-            if(MainWindow.LangPack != null)
+            if(MainViewModel.LangPack != null)
             {
                 OkButton.Content = getLpDefaultOr(Keys.OkKey, OkButton.Content.ToString());
                 CancelButton.Content = getLpDefaultOr(Keys.CancelKey, CancelButton.Content.ToString());
