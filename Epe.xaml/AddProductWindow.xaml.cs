@@ -1,29 +1,14 @@
-﻿using BusinessEngine;
-using BusinessEngine.IO;
+﻿using BusinessEngine.IO;
 using BusinessEngine.Operating;
 using BusinessEngine.Sales;
 using Epe.xaml.Message;
 using Epe.xaml.ViewModels;
 using LPS;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Xml;
-using System.Xml.Serialization;
 
 namespace Epe.xaml
 {
@@ -70,6 +55,7 @@ namespace Epe.xaml
         readonly string defaultSearchText = "찾아보기";
         readonly string defaultCreateText = "생성하기";
         readonly string defaultAddCost = "원재료 추가", defaultAddProduct = "상품 추가";
+        readonly string defaultOkText = "완료";
         readonly string defaultUpdatingTitle = "상품 정보 수정";
         readonly string defaultAddError = "추가 오류";
         readonly string defaultAddCostError = "원재료를 추가해주세요.";
@@ -77,6 +63,12 @@ namespace Epe.xaml
         readonly string defaultErrorMf = "제조사 확인 부탁드립니다.";
         readonly string defaultCloseText = "창을 닫으시겠습니까?";
         readonly string defaultInterruptText = "{0} 절차를 중단하시겠습니까?";
+        readonly string defaultProductNameText = "제품명";
+        readonly string defaultCostText = "원가";
+        readonly string defaultPriceText = "정가";
+        readonly string defaultMFText = "제조사";
+        readonly string defaultAddText = "추가";
+        readonly string defaultOtherCompany = "다른 회사";
         private void lpDefaultOr(int key, ref string text)
         {
             if (!MainViewModel.LangPack.ContainsKey(key) || MainViewModel.LangPack[key].Length == 0)
@@ -95,21 +87,41 @@ namespace Epe.xaml
 
             if(MainViewModel.LangPack != null)
             {
+                lpDefaultOr(Keys.ProductNameKey, ref defaultProductNameText);
+                lpDefaultOr(Keys.CostNameKey, ref defaultCostText);
+                lpDefaultOr(Keys.PriceNameKey, ref defaultPriceText);
+                lpDefaultOr(Keys.MFNameKey, ref defaultMFText);
+                lpDefaultOr(Keys.AddKey, ref defaultAddText);
+                lpDefaultOr(Keys.OtherCompany, ref defaultOtherCompany);
+
+                lpDefaultOr(Keys.CloseWindowKey, ref defaultCloseText);
                 lpDefaultOr(Keys.SearchOtherKey, ref defaultSearchText);
                 lpDefaultOr(Keys.CreateOneKey, ref defaultCreateText);
+                lpDefaultOr(Keys.OkKey, ref defaultOkText);
                 lpDefaultOr(Keys.AddCostKey, ref defaultAddCost);
                 lpDefaultOr(Keys.AddProductKey, ref defaultAddProduct);
-                lpDefaultOr(Keys.UpdateProductInfoKey, ref defaultUpdatingTitle);
+                lpDefaultOr(Keys.EditProductInfoKey, ref defaultUpdatingTitle);
                 lpDefaultOr(Keys.FailedToAddKey, ref defaultAddError);
                 lpDefaultOr(Keys.PleaseCheckCheckKey, ref defaultErrorCheck);
-                lpDefaultOr(Keys.PleaseAddCostKey, ref defaultAddError);
+                lpDefaultOr(Keys.PleaseAddCostKey, ref defaultAddCostError);
                 lpDefaultOr(Keys.PleaseCheckMFKey, ref defaultErrorMf);
-                lpDefaultOr(Keys.CloseWindowKey, ref defaultCloseText);
                 lpDefaultOr(Keys.InterruptProcedureKey, ref defaultInterruptText);
             }
 
             SearchingText = defaultSearchText;
             CreationText = defaultCreateText;
+
+            OkButton.Content = defaultOkText;
+            SelectProductButton.Content = SearchingText;
+            AddCostButton.Content = defaultAddText;
+            ProductNameText.Text = defaultProductNameText;
+            CostText.Text = defaultCostText;
+            PriceText.Text = defaultPriceText;
+            MFText.Text = defaultMFText;
+            OtherCompany.Content = defaultOtherCompany;
+
+            ProductListViewProductNameHeader.Header = defaultProductNameText;
+            ProductListViewProductPriceHeader.Header = defaultPriceText;
 
             var title = windowForCostProduct ? defaultAddCost : defaultAddProduct;
             if (updating) title = defaultUpdatingTitle;        
@@ -117,7 +129,6 @@ namespace Epe.xaml
             TitleBar.DataContext = new TitleBarViewModel(title);
             this.DataContext = this;
 
-            
             ProductListView.Visibility = Visibility.Hidden;
 
             if (hideSearchBtn)

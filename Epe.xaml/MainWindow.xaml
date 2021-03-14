@@ -136,7 +136,7 @@
                                     </TextBox.InputBindings>
                                 </TextBox>
                                 <Button x:Name="SearchText" Command="{Binding ShowSalesByProductName}" CommandParameter="{Binding Text, ElementName=SaleSearchText}"
-                                        Foreground="White" Style="{StaticResource MaterialDesignFlatButton}" Background="{StaticResource DarkAccent}" Content="검색" Margin="0,0,5,0" Width="65"/>
+                                        Foreground="White" Style="{StaticResource MaterialDesignFlatButton}" Background="{StaticResource DarkAccent}" Content="검색" Margin="0,0,5,0" Width="100"/>
                             </StackPanel>
                         </Grid>
                         <ListView Grid.Row="1" ItemsSource="{Binding SalesForDisplay}" SelectedIndex="{Binding SelectedSaleIndex}">
@@ -213,7 +213,7 @@
                                     <Button x:Name="ShowAllSalesButton" Command="{Binding ShowAllSales}" Background="{StaticResource LightDarkAccent}" Content="전체 보기" Margin="10,0,10,0"/>
                                     <TextBlock VerticalAlignment="Center">
                                         <Run x:Name="SalesListStateText" Text="리스트 상태 : "/>
-                                        <Run Text="{Binding CurrentSaleDisplayStateString}"/> 
+                                        <Run Text="{Binding CurrentSaleDisplayStateString}"/>
                                     </TextBlock>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -364,6 +364,7 @@
                         </Grid>
                         <Grid Grid.Row="1">
                             <ListBox Grid.Row="0"
+                                     x:Name="ProductListbox"
                                       ItemsSource="{Binding Company.Finance.Book.Products}" 
                                       SelectedIndex="{Binding SelectedProductIndex}"
                                       SelectionMode="Single">
@@ -379,23 +380,24 @@
                                         <Expander Header="{Binding Name}" Width="Auto" HorizontalAlignment="Center" Padding="10,0,10,10">
                                             <StackPanel Orientation="Vertical">
                                                 <TextBlock>
-                                                        <Run Text="제조사 : "/>
-                                                        <Run Text="{Binding Manufacturer.Name, FallbackValue=확인불가}">
-                                                        </Run>
+                                                        <Run Text="{Binding ProductListManufacturerText, Source={x:Reference ThisWindow}}"/>
+                                                        <Run Text=" : "/>
+                                                        <Run Text="{Binding Manufacturer.Name, FallbackValue=X}"/>
                                                 </TextBlock>
                                                 <TextBlock>
-                                                        <Run Text="정가 : "/>
-                                                        <Run Text="{Binding Price, FallbackValue=확인불가}"/>
+                                                    <Run Text="{Binding ProductListPriceText, Source={x:Reference ThisWindow}}"/>
+                                                    <Run Text=" :"/>
+                                                    <Run Text="{Binding Price, FallbackValue=X}"/>
                                                 </TextBlock>
-                                                <Expander Header="원가">
+                                                <Expander Header="{Binding ProductListCostHeader, Source={x:Reference ThisWindow}}">
                                                     <ListView ItemsSource="{Binding Costs}" SelectionMode="Single">
                                                         <ListView.Resources>
                                                         </ListView.Resources>
                                                         <ListView.View>
                                                             <GridView>
-                                                                <GridViewColumn Header="제조사" DisplayMemberBinding="{Binding Manufacturer.Name, FallbackValue=확인불가}"/>
-                                                                <GridViewColumn Header="제품명" DisplayMemberBinding="{Binding Name, FallbackValue=확인불가}"/>
-                                                                <GridViewColumn Header="매입가" DisplayMemberBinding="{Binding Price, FallbackValue=확인불가}"/>
+                                                                <GridViewColumn Header="{Binding ProductListManufacturerHeader, Source={x:Reference ThisWindow}}" DisplayMemberBinding="{Binding Manufacturer.Name, FallbackValue=X}"/>
+                                                                <GridViewColumn Header="{Binding ProductListCostNameHeader, Source={x:Reference ThisWindow}}" DisplayMemberBinding="{Binding Name, FallbackValue=X}"/>
+                                                                <GridViewColumn Header="{Binding ProductListPriceHeader, Source={x:Reference ThisWindow}}" DisplayMemberBinding="{Binding Price, FallbackValue=X}"/>
                                                             </GridView>
                                                         </ListView.View>
                                                     </ListView>

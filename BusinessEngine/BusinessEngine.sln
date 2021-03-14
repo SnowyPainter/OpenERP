@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessEngine", "BusinessEngine.csproj", "{777FDF98-7F62-45C5-A698-C8BC59962C45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Epe.xaml", "..\Epe.xaml\Epe.xaml.csproj", "{CBEE9A97-64C7-4E96-A3DC-3CCDED7D3575}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Epe.xaml", "..\Epe.xaml\Epe.xaml.csproj", "{CBEE9A97-64C7-4E96-A3DC-3CCDED7D3575}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LPS", "..\..\..\C++\LangPackSystem\LPS\LPS.csproj", "{AD6FFB06-0663-40A1-AF4B-E6E510876E7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{CBEE9A97-64C7-4E96-A3DC-3CCDED7D3575}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBEE9A97-64C7-4E96-A3DC-3CCDED7D3575}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBEE9A97-64C7-4E96-A3DC-3CCDED7D3575}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD6FFB06-0663-40A1-AF4B-E6E510876E7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD6FFB06-0663-40A1-AF4B-E6E510876E7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD6FFB06-0663-40A1-AF4B-E6E510876E7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD6FFB06-0663-40A1-AF4B-E6E510876E7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

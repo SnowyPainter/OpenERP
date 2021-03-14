@@ -17,13 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\C++\LangPackSystem\LPS\LPS.csproj" />
     <ProjectReference Include="..\BusinessEngine\BusinessEngine.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="LPS">
-      <HintPath>C:\Users\유민우\Downloads\LPS.dll\.net 3\LPS.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

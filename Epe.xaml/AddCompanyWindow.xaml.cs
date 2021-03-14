@@ -60,6 +60,8 @@ namespace Epe.xaml
                 OkButton.Content = getLpDefaultOr(Keys.OkKey, OkButton.Content.ToString());
                 TitleText.Text = getLpDefaultOr(Keys.AddCompanyInfoKey, TitleText.Text);
                 CompanyNameHeader.Text = getLpDefaultOr(Keys.CompanyNameKey, CompanyNameHeader.Text);
+                CompanyNoteHeader.Text = getLpDefaultOr(Keys.CompanyNoteKey, CompanyNoteHeader.Text);
+
                 CompanyListNameHeader.Header = getLpDefaultOr(Keys.CompanyNameKey, CompanyListNameHeader.Header.ToString());
                 MaterialDesignThemes.Wpf.HintAssist.SetHint(CompanyName, getLpDefaultOr(Keys.CompanyNameKey, CompanyNameHeader.Text));
                 MaterialDesignThemes.Wpf.HintAssist.SetHint(CompanyNote, getLpDefaultOr(Keys.CompanyNoteKey, CompanyNoteHeader.Text));

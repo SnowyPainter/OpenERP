@@ -55,22 +55,26 @@ namespace Epe.xaml
             ds = new DataSystem();
             ds.Initialize();
 
-            lpDefaultOr(Keys.DataErrorInterruptProcedureKey, ref defaultDataErrorIntterruptProcedure);
-            lpDefaultOr(Keys.ErrorInterruptProcedureKey, ref defaultErrorInterruptProcedure);
-            lpDefaultOr(Keys.RecommendInterruptUnknownMfKey, ref defaultRecommendInterruptUnknownMf);
-            lpDefaultOr(Keys.InterruptByUknownError, ref defaultInterruptByUknownError);
+            if(MainViewModel.LangPack != null)
+            {
+                lpDefaultOr(Keys.DataErrorInterruptProcedureKey, ref defaultDataErrorIntterruptProcedure);
+                lpDefaultOr(Keys.ErrorInterruptProcedureKey, ref defaultErrorInterruptProcedure);
+                lpDefaultOr(Keys.RecommendInterruptUnknownMfKey, ref defaultRecommendInterruptUnknownMf);
+                lpDefaultOr(Keys.InterruptByUknownError, ref defaultInterruptByUknownError);
+                lpDefaultOr(Keys.WarningMessage, ref defaultWarningMsg);
 
-            lpDefaultOr(Keys.ProductKey, ref defaultProduct);
-            lpDefaultOr(Keys.BuyerKey, ref defaultBuyer);
-            lpDefaultOr(Keys.QtyKey, ref defaultQty);
-            lpDefaultOr(Keys.SellDateKey, ref defaultSellDate);
-            lpDefaultOr(Keys.DepositDateKey, ref defaultDepositDate);
-            lpDefaultOr(Keys.DiscountRateKey, ref defaultDr);
+                lpDefaultOr(Keys.ProductKey, ref defaultProduct);
+                lpDefaultOr(Keys.BuyerKey, ref defaultBuyer);
+                lpDefaultOr(Keys.QtyKey, ref defaultQty);
+                lpDefaultOr(Keys.SellDateKey, ref defaultSellDate);
+                lpDefaultOr(Keys.DepositDateKey, ref defaultDepositDate);
+                lpDefaultOr(Keys.DiscountRateKey, ref defaultDr);
 
-            TitleText.Text = getLpDefaultOr(Keys.AddSaleKey, TitleText.Text);
-            SetNowButton1.Content = getLpDefaultOr(Keys.SetToNowKey, SetNowButton1.Content.ToString());
-            SetNowButton2.Content = getLpDefaultOr(Keys.SetToNowKey, SetNowButton2.Content.ToString());
-            OkButton.Content = getLpDefaultOr(Keys.OkKey, OkButton.Content.ToString());
+                TitleText.Text = getLpDefaultOr(Keys.AddSaleKey, TitleText.Text);
+                SetNowButton1.Content = getLpDefaultOr(Keys.SetToNowKey, SetNowButton1.Content.ToString());
+                SetNowButton2.Content = getLpDefaultOr(Keys.SetToNowKey, SetNowButton2.Content.ToString());
+                OkButton.Content = getLpDefaultOr(Keys.OkKey, OkButton.Content.ToString());
+            }
 
             ProductNameText.Text = defaultProduct;
             ProductBuyerText.Text = defaultBuyer;

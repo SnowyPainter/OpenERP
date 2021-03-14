@@ -205,7 +205,6 @@ namespace Epe.xaml.ViewModels
 
         #region default - langs
         // programatically - s
-
         readonly string defaultShowAllSalesButton = "전체 보기";    
         readonly string defaultDeleteWarningMsg = "{0}을 정말 삭제하시겠습니까?";
         readonly string defaultWrittenSalesMsg = "기재된 {0} 판매 {1}개";

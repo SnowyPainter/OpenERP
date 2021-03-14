@@ -17,7 +17,7 @@ namespace Epe.xaml
         //AddSalesWindow = 100~110번대
         //AddCompanyWindow = 120번대
 
-        #region  Interact Text Key 0~9
+        #region  Interact Text Key 0~19
         public static readonly int OkKey = 0;
         public static readonly int CancelKey = 1;
         public static readonly int WarningMessage = 3; //'경고 메세지' 그대로
@@ -27,12 +27,16 @@ namespace Epe.xaml
         public static readonly int InterruptProcedureKey = 7;
         public static readonly int CloseWindowKey = 8;
         public static readonly int WarningDelete = 9;
+        public static readonly int ProductNameKey = 10;
+        public static readonly int CostNameKey = 11;
+        public static readonly int PriceNameKey = 12;
+        public static readonly int MFNameKey = 13;
+        public static readonly int AddKey = 14;
+        public static readonly int OtherCompany = 15;
         #endregion
-        #region ACList Header Key 10~19
-        public static readonly int AcListNameHeaderKey = 10; //ACListNameHeader
-        public static readonly int AcListNoteHeaderKey = 11; //ACListNoteHeader
-        #endregion
+
         #region Sales Info Key 20~30
+
         public static readonly int ShowSalesMonthly1Key = 20; //ShowSalesMonthly1
         public static readonly int ShowSalesMonthly3Key = 21; //ShowSalesMonthly3
         public static readonly int ShowSalesMonthly6Key = 22; //ShowSalesMonthly6
@@ -49,7 +53,17 @@ namespace Epe.xaml
         public static readonly int SalesListStateTextKey = 33; //SalesListStateText
         public static readonly int DeleteSaleButtonKey = 34; //DeleteSaleButton
         public static readonly int AddSaleButtonKey = 35; //AddSaleButton
+        
         #endregion
+
+        #region ACList Header Key 36~40
+        
+        public static readonly int AcListNameHeaderKey = 36; //ACListNameHeader
+        public static readonly int AcListNoteHeaderKey = 37; //ACListNoteHeader
+        
+        #endregion
+
+        
         #region AC Info Key 40~50
         public static readonly int AcInfoTitleKey = 40; //ACInfoTitle
         public static readonly int AcInfoNameKey = 41; //ACInfoName
@@ -78,14 +92,13 @@ namespace Epe.xaml
         #endregion
 
         #region AddProductWindow 90
-        public static readonly int AddCostKey = 81;
-        public static readonly int AddProductKey = 82;
-        public static readonly int EditProductInfoKey = 83;
-        public static readonly int FailedToAddKey = 84;
-        public static readonly int PleaseCheckCheckKey = 85;
-        public static readonly int PleaseCheckMFKey = 86;
-        public static readonly int PleaseAddCostKey = 87;
-        public static readonly int UpdateProductInfoKey = 88;
+        public static readonly int AddCostKey = 91;
+        public static readonly int AddProductKey = 92;
+        public static readonly int EditProductInfoKey = 93;
+        public static readonly int FailedToAddKey = 94;
+        public static readonly int PleaseCheckCheckKey = 95;
+        public static readonly int PleaseCheckMFKey = 96;
+        public static readonly int PleaseAddCostKey = 97;
         #endregion
         #region AddSalesWindow 100~110
         public static readonly int DataErrorInterruptProcedureKey = 100;
