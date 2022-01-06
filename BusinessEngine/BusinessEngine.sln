@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30011.22
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessEngine", "BusinessEngine.csproj", "{777FDF98-7F62-45C5-A698-C8BC59962C45}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Epe.xaml", "..\Epe.xaml\Epe.xaml.csproj", "{CBEE9A97-64C7-4E96-A3DC-3CCDED7D3575}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LPS", "..\..\..\C++\LangPackSystem\LPS\LPS.csproj", "{AD6FFB06-0663-40A1-AF4B-E6E510876E7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LPS", "..\LPS\LPS.csproj", "{EFBF2AB6-2B52-4423-989B-793189D47422}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{CBEE9A97-64C7-4E96-A3DC-3CCDED7D3575}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBEE9A97-64C7-4E96-A3DC-3CCDED7D3575}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBEE9A97-64C7-4E96-A3DC-3CCDED7D3575}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AD6FFB06-0663-40A1-AF4B-E6E510876E7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AD6FFB06-0663-40A1-AF4B-E6E510876E7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AD6FFB06-0663-40A1-AF4B-E6E510876E7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AD6FFB06-0663-40A1-AF4B-E6E510876E7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFBF2AB6-2B52-4423-989B-793189D47422}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFBF2AB6-2B52-4423-989B-793189D47422}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFBF2AB6-2B52-4423-989B-793189D47422}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFBF2AB6-2B52-4423-989B-793189D47422}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

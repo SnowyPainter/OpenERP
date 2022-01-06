@@ -17,8 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\C++\LangPackSystem\LPS\LPS.csproj" />
     <ProjectReference Include="..\BusinessEngine\BusinessEngine.csproj" />
+    <ProjectReference Include="..\LangPackSystem\LPS\LPS.csproj" />
+    <ProjectReference Include="..\LPS\LPS.csproj" />
   </ItemGroup>
 
   <ItemGroup>

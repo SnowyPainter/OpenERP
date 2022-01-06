@@ -8,7 +8,7 @@
         xmlns:local="clr-namespace:Epe.xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        x:Name="ThisWindow" Loaded="ThisWindow_Loaded" WindowState="Maximized" WindowStyle="None" MinHeight="900" MinWidth="1500" Height="900" Width="1500" Icon="/Images/icon.ico" WindowStartupLocation="CenterScreen">
+        x:Name="ThisWindow" Loaded="ThisWindow_Loaded" WindowState="Maximized" WindowStyle="None" Icon="/Images/icon.ico" WindowStartupLocation="CenterScreen">
     <Grid Background="{StaticResource LightBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
