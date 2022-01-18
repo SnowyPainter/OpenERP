@@ -8,7 +8,7 @@
         xmlns:local="clr-namespace:Epe.xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        x:Name="ThisWindow" Loaded="ThisWindow_Loaded" WindowState="Maximized" WindowStyle="None" Icon="/Images/icon.ico" WindowStartupLocation="CenterScreen">
+        x:Name="ThisWindow" Loaded="ThisWindow_Loaded" WindowStyle="None" WindowState="Maximized" Icon="/Images/icon.ico" WindowStartupLocation="CenterScreen">
     <Grid Background="{StaticResource LightBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
@@ -49,8 +49,8 @@
         <Grid x:Name="AccountCompanyManageGrid" Margin="0" Background="{StaticResource LightBackground}" Grid.Row="1" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="300"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
             <Grid.Resources>
                 <Style TargetType="StackPanel">
@@ -59,7 +59,7 @@
                 </Style>
                 <Style TargetType="TextBlock">
                     <Setter Property="Foreground" Value="White"/>
-                    <Setter Property="FontSize" Value="14"/>
+                    <Setter Property="FontSize" Value="12"/>
                 </Style>
                 <Style TargetType="TextBlock" x:Key="HeaderTextBlock">
                     <Setter Property="VerticalAlignment" Value="Center"/>
@@ -200,6 +200,7 @@
                                         <Setter Property="Foreground" Value="White"/>
                                         <Setter Property="Background" Value="{StaticResource DarkAccent}"/>
                                         <Setter Property="BorderBrush" Value="{StaticResource DarkAccent}"/>
+                                        <Setter Property="FontSize" Value="12"/>
                                         <Setter Property="Width" Value="100"/>
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
@@ -233,15 +234,14 @@
                 <materialDesign:Card Background="White" Grid.Row="0" Margin="10" IsEnabled="{Binding UpdatingACEnabled}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="4*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*"/>
-                            <RowDefinition Height="3*"/>
-                            <RowDefinition Height="4*"/>
                             <RowDefinition Height="2*"/>
-                            <!-- 세팅 -->
+                            <RowDefinition Height="5*"/>
+                            <RowDefinition Height="2*"/>
                             <RowDefinition Height="2*"/>
                         </Grid.RowDefinitions>
                         <Grid.Resources>
@@ -250,6 +250,7 @@
                             </Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody1TextBlock}">
                                 <Setter Property="Foreground" Value="Black"/>
+                                <Setter Property="FontSize" Value="12"/>
                             </Style>
                             <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
                                 <Setter Property="Height" Value="50"/>
@@ -257,14 +258,14 @@
                                 <Setter Property="Padding" Value="5"/>
                             </Style>
                         </Grid.Resources>
-                        <TextBlock x:Name="ACInfoTitle" Text="거래처 정보" Style="{StaticResource HeaderTextBlock}" FontSize="18" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Center" />
+                        <TextBlock x:Name="ACInfoTitle" Text="거래처 정보" Style="{StaticResource HeaderTextBlock}" FontSize="14" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Center" />
                         <TextBlock x:Name="ACInfoName" Text="거래처" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"/>
 
                         <TextBox VerticalContentAlignment="Center" TextWrapping="Wrap" Text="{Binding SelectedAC.Name}" Grid.Row="1" Grid.Column="1" BorderBrush="#FF1E2025"/>
 
                         <TextBlock x:Name="ACInfoNote" Text="노트" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"/>
 
-                        <TextBox Height="108" VerticalAlignment="Center" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding SelectedAC.Note}" Grid.Row="2" Grid.Column="1" CaretBrush="#FF191919" BorderBrush="Black" Margin="0,0,10,0" />
+                        <TextBox Height="108" VerticalAlignment="Center" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding SelectedAC.Note}" Grid.Row="2" Grid.Column="1" CaretBrush="#FF191919" BorderBrush="Black" Margin="0,5,10,5" />
 
                         <TextBlock x:Name="ACInfoWarning" Text="주의" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"/>
                         <ComboBox Style="{StaticResource MaterialDesignComboBox}" Grid.Row="3" Grid.Column="1"
@@ -281,7 +282,7 @@
                                 <Style x:Key="MK" TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatLightBgButton}">
                                     <Setter Property="Width" Value="55"/>
                                     <Setter Property="Height" Value="40"/>
-                                    <Setter Property="FontSize" Value="13"/>
+                                    <Setter Property="FontSize" Value="12"/>
                                     <Setter Property="Foreground" Value="White"/>
                                     <Setter Property="Background" Value="{StaticResource DarkAccent}"/>
                                     <Setter Property="Margin" Value="5,0,5,0"/>
@@ -315,9 +316,9 @@
                     </Grid.RowDefinitions>
                     <Grid.Resources>
                         <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}">
-                            <Setter Property="Width" Value="50"/>
-                            <Setter Property="Height" Value="50"/>
-                            <Setter Property="FontSize" Value="15"/>
+                            <Setter Property="Width" Value="40"/>
+                            <Setter Property="Height" Value="40"/>
+                            <Setter Property="FontSize" Value="12"/>
                             <Setter Property="Foreground" Value="White"/>
                             <Setter Property="Background" Value="{StaticResource DarkAccent}"/>
                             <Setter Property="BorderThickness" Value="1"/>
@@ -331,9 +332,9 @@
                     </Grid.Resources>
                     <materialDesign:Card Grid.Row="0" Margin="10,0,10,10" Background="White">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                            <TextBlock x:Name="AddNewACTitle" Text="새 거래처" Style="{StaticResource HeaderTextBlock}" FontSize="18"/>
+                            <TextBlock x:Name="AddNewACTitle" Text="새 거래처" Style="{StaticResource HeaderTextBlock}" FontSize="14"/>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-                                <Button x:Name="AddNewACText" Content="추가" Command="{Binding AddAccountingCompany}" Width="84" Height="30"/>
+                                <Button x:Name="AddNewACText" Content="추가" Command="{Binding AddAccountingCompany}" Width="80"/>
                             </StackPanel>
                         </StackPanel>
                     </materialDesign:Card>
@@ -348,10 +349,9 @@
                     <RowDefinition Height="4*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="4*"/>
-                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <materialDesign:Card Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Margin="0,10,0,10" Background="White">
+                <materialDesign:Card Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Margin="0,10,10,10" Background="White">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="50"/>
@@ -360,7 +360,7 @@
                             <RowDefinition Height="50"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
-                            <TextBlock x:Name="ManageProductTitle" Text="상품 관리" Style="{StaticResource HeaderTextBlock}" Foreground="Black" FontSize="18"/>
+                            <TextBlock x:Name="ManageProductTitle" Text="상품 관리" Style="{StaticResource HeaderTextBlock}" Foreground="Black" FontSize="14"/>
                         </Grid>
                         <Grid Grid.Row="1">
                             <ListBox Grid.Row="0"
@@ -446,8 +446,8 @@
                     </Grid>
                 </materialDesign:Card>
                 <!--DB 관리-->
-                <Grid Grid.Row="0" Grid.Column="1">
-                    <materialDesign:Card Margin="10">
+                <Grid Grid.Row="2" Grid.Column="0">
+                    <materialDesign:Card Margin="0,0,10,10">
                         <Grid>
                             <Grid.Resources>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody2TextBlock}">
@@ -460,7 +460,7 @@
                             </Grid.RowDefinitions>
                             <!--헤더-->
                             <Grid Grid.Row="0">
-                                <TextBlock x:Name="DbManageTitle" FontSize="18" Style="{StaticResource HeaderTextBlock}" Margin="10" VerticalAlignment="Center" Foreground="Black" Text="Database 관리"/>
+                                <TextBlock x:Name="DbManageTitle" FontSize="14" Style="{StaticResource HeaderTextBlock}" Margin="10" VerticalAlignment="Center" Foreground="Black" Text="Database 관리"/>
                             </Grid>
                             <Grid Grid.Row="1">
                                 <StackPanel VerticalAlignment="Top" Orientation="Vertical" Margin="10">
